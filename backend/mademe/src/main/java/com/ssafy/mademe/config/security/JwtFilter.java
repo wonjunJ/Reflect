@@ -1,5 +1,6 @@
 package com.ssafy.mademe.config.security;
 
+import com.ssafy.mademe.service.UserService;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -27,6 +28,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private final JWTUtil jwtUtil;
     private final RedisTemplate<Object, Object> redisTemplate;
+    private final UserService userService;
 
     //먼저 여기로 요청이 들어온 후에 SecurityConfig에 있는 권한 정보를 확인하러 간다.
     @Override
@@ -55,18 +57,19 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (!isTokenOnRedisBlackList(token)){ //로그아웃이 되지 않았다.
-//            UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token));
-//
-//            UsernamePasswordAuthenticationToken authenticationToken =
-//                    new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
-//
-//            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
-//            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token));
+
+            UsernamePasswordAuthenticationToken authenticationToken =
+                    new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
+
+            authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+            SecurityContextHolder.getContext().setAuthentication(authenticationToken);
         }
         filterChain.doFilter(request, response);
     }
 
     private boolean isTokenOnRedisBlackList(String token){
+        //토큰을 키값으로 redis에 등록이 되어있는지 체크, 토큰을 키값으로 하는 값이 없다면 로그인 되어있는 상태
         String value = (String) redisTemplate.opsForValue().get(token);
         return value != null && value.equals("logout");
     }

@@ -14,7 +14,7 @@ public class FileManager {
     private Long id;
 
     //단방향으로만
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_info_id")
     private FileInfo fileInfo;
 

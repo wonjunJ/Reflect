@@ -1,10 +1,7 @@
 package com.ssafy.mademe.entity.embedded;
 
 import com.ssafy.mademe.entity.User;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,12 +14,12 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class EmdFollowing implements Serializable {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User userId;
 
     //일단은 단방향으로만
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_id")
     private User followId;
 

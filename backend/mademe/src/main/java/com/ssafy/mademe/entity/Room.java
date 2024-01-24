@@ -28,7 +28,7 @@ public class Room {
     private RoomType type;
 
     //User테이블 쪽으로 단방향 관계만
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User ownerId;
 
@@ -39,13 +39,23 @@ public class Room {
     @Lob
     private String thumbnail;
 
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private QuestionCode question;
 
-    @OneToMany(mappedBy = "id.room")
+    //0이면 오픈방, 1이면 없어진 방
+    @Column(columnDefinition = "TINYINT(1) default 0")
+    private boolean status;
+
+    //-------------------------------------------------------------
+    @OneToMany(mappedBy = "id.room", cascade = CascadeType.ALL)
     private List<MyRoom> participants = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.room")
+    @OneToMany(mappedBy = "id.room", cascade = CascadeType.ALL)
     private List<HashTag> hashTags = new ArrayList<>();
+
+    @PrePersist
+    protected void onCreate() {
+        createDate = LocalDateTime.now();
+    }
 }

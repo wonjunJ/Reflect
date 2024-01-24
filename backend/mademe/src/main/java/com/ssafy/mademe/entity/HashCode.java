@@ -19,6 +19,6 @@ public class HashCode {
     @Column(unique = true)
     private String hashName;
 
-    @OneToMany(mappedBy = "id.hashCode")
+    @OneToMany(mappedBy = "id.hashCode", cascade = CascadeType.ALL)
     private List<HashTag> hashTagRooms = new ArrayList<>();
 }

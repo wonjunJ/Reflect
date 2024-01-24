@@ -13,14 +13,14 @@ public class Alram {
     @Column(name = "alram_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
     private String content;
 
     //단방향 관계만
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "from_id")
     private User from;
 
@@ -32,7 +32,7 @@ public class Alram {
 
     //단방향 관계만
     //방번호
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room invitedRoom;
 }

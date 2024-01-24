@@ -17,7 +17,7 @@ public class Diary {
     @Column(name = "diary_id")
     private Long id;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
@@ -35,13 +35,13 @@ public class Diary {
 
     private int diaryScore;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "emotion_code_id")
     private EmotionCode totalEmotion;
 
     private String keyword;
 
-    @OneToMany(mappedBy = "diary")
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
     private List<EmotionLog> emotionLogs = new ArrayList<>();
 
     //새로운 엔티티가 저장(추가)되기 직전에

@@ -18,9 +18,9 @@ public class EmotionCode {
 
     private String emotionName;
 
-    @OneToMany(mappedBy = "emotionCode")
+    @OneToMany(mappedBy = "emotionCode", cascade = CascadeType.ALL)
     private List<EmotionLog> emotionLogs = new ArrayList<>();
 
-    @OneToMany(mappedBy = "totalEmotion")
+    @OneToMany(mappedBy = "totalEmotion", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
 }

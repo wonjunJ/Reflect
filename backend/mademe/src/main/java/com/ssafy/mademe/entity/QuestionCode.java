@@ -16,6 +16,6 @@ public class QuestionCode {
 
     private String questionName;
 
-    @OneToOne(mappedBy = "question")
+    @OneToOne(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Room room;
 }

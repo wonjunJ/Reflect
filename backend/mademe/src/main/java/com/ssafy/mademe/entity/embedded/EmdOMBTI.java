@@ -15,7 +15,7 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class EmdOMBTI implements Serializable {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 

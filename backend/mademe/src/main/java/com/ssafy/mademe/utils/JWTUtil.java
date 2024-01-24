@@ -23,6 +23,7 @@ public class JWTUtil {
     private String key;
 
     private static final Long expireTimeMs = 1000 * 60 * 60L; //1시간 설정
+    private static final Long expireTimeMsRefresh = (long) 1000 * 60 * 60 * 24; //1일 설정
 
     public String getUserId(String token){ //static 삭제
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
@@ -44,30 +45,46 @@ public class JWTUtil {
                 .getBody().getExpiration();
     }
 
-    public String createAndGetToken(String userId){
+    public String[] createAndGetTokens(String userId){
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
         //System.out.println(key);
 
-        String token = Jwts.builder()
+        // Access Token 생성
+        String accessToken = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + expireTimeMs))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact(); //직렬화 처리
 
+        // Refresh Token 생성
+        String refreshToken = Jwts.builder()
+                .setExpiration(new Date(System.currentTimeMillis() + expireTimeMsRefresh))
+                .signWith(SignatureAlgorithm.HS256, key)
+                .compact();
+
+        //access 토큰 redis에 등록
         Instant start = new Date().toInstant(); //Date객체를 Duration객체로 만들기 위해 선언
-        Instant end = getExpiration(token).toInstant(); //Date객체를 Duration객체로 만들기 위해 선언
-        redisTemplate.opsForValue().set("RT:" + userId, token, Duration.between(start, end));
-        return token;
+        Instant end = getExpiration(accessToken).toInstant(); //Date객체를 Duration객체로 만들기 위해 선언
+        redisTemplate.opsForValue().set("AT:" + userId, accessToken, Duration.between(start, end));
+
+        //refresh 토큰 redis에 등록
+        start = new Date().toInstant(); //Date객체를 Duration객체로 만들기 위해 선언
+        end = getExpiration(refreshToken).toInstant(); //Date객체를 Duration객체로 만들기 위해 선언
+        redisTemplate.opsForValue().set("RT:" + userId, refreshToken, Duration.between(start, end));
+
+        String[] tokens = {accessToken, refreshToken};
+        return tokens;
     }
 
     public void doLogout(String userId){
-        if(redisTemplate.opsForValue().get("RT:"+userId) != null){
-            String token = (String) redisTemplate.opsForValue().get("RT:"+userId);
+        if(redisTemplate.opsForValue().get("AT:"+userId) != null){ //이 유저 아이디로 등록된 access token이 있다.(로그인 상태)
+            String token = (String) redisTemplate.opsForValue().get("AT:"+userId);
             Instant start = new Date().toInstant();
             Instant end = getExpiration(token).toInstant();
-            redisTemplate.delete("RT:"+userId);
+            redisTemplate.delete("AT:"+userId);
+            //해당 access token을 블랙리스트로 등록
             redisTemplate.opsForValue().set(token, "logout", Duration.between(start, end));
         }else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그아웃된 이용자입니다.");

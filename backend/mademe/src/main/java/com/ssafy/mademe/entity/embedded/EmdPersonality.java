@@ -4,6 +4,7 @@ import com.ssafy.mademe.entity.PetCode;
 import com.ssafy.mademe.entity.PetPersonality;
 import com.ssafy.mademe.entity.User;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -18,11 +19,11 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class EmdPersonality implements Serializable {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "per_id")
     private PetPersonality petPersonality;
 

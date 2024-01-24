@@ -1,18 +1,20 @@
 package com.ssafy.mademe.entity;
 
+import com.ssafy.mademe.utils.UserRole;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.ColumnDefault;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.*;
 
 @Entity
 @Getter
 @Setter
-public class User {
+public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id")
@@ -59,41 +61,44 @@ public class User {
 
     // ------------------------------------------------------
 
-    @OneToMany(mappedBy = "id.userId")
+    @OneToMany(mappedBy = "id.userId", cascade = CascadeType.ALL)
     private List<Following> followings = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
 
-    @OneToMany(mappedBy = "compositeKey.user")
+    @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
     private List<QuestionRecord> qRecords = new ArrayList<>();
 
     //한 사용자의 알람 목록
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Alram> alrams = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.user")
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<UserTitle> userTitles = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.user")
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<MyPet> myPets = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.user")
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<MyPetPersonality> personalities = new ArrayList<>();
 
     //일기에서 분석된 mbti코드별
-    @OneToMany(mappedBy = "compositeKey.user")
+    @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
     private List<MBTICnt> mbtiCodes = new ArrayList<>();
 
     //상대가 평가한 나의 mbti
-    @OneToMany(mappedBy = "compositeKey.user")
+    @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
     private List<OMBTICnt> mbtiEval = new ArrayList<>();
 
-    @OneToMany(mappedBy = "id.user")
+    @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<MyRoom> roomList = new ArrayList<>();
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Interest> interests = new ArrayList<>();
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<MBTILog> mbtiLogs = new ArrayList<>();
 
     //새로운 엔티티가 저장(추가)되기 직전에
     @PrePersist
@@ -101,4 +106,46 @@ public class User {
         joinDate = LocalDateTime.now();
     }
 
+    //------------------------------------------------------------------
+    @Transient
+    private Set<UserRole> roles = new HashSet<>(Arrays.asList(UserRole.USER)); //user권한으로 초기값 지정
+
+    @Transient
+    private String saveId;
+
+    //UserDetails 관련 오버라이딩
+    @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return this.roles;
+    }
+
+    @Override
+    public String getPassword() {
+        return this.pw;
+    }
+
+    @Override
+    public String getUsername() {
+        return this.name;
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true;
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true;
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true;
+    }
 }

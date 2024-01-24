@@ -16,7 +16,7 @@ import java.util.Objects;
 @Getter
 public class EmdInterest implements Serializable {
     //단방향 관계만
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hobby_code_id")
     private InterestCode interestCode;
 

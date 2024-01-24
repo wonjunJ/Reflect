@@ -3,6 +3,7 @@ package com.ssafy.mademe.entity.embedded;
 import com.ssafy.mademe.entity.QuestionCode;
 import com.ssafy.mademe.entity.User;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -17,11 +18,11 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class EmdQuestion implements Serializable {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User user;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private QuestionCode qCode;
 

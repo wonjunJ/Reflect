@@ -3,6 +3,7 @@ package com.ssafy.mademe.entity.embedded;
 import com.ssafy.mademe.entity.HashCode;
 import com.ssafy.mademe.entity.Room;
 import jakarta.persistence.Embeddable;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
@@ -17,11 +18,11 @@ import java.util.Objects;
 @AllArgsConstructor
 @Getter
 public class EmdHash implements Serializable {
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "room_id")
     private Room room;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "hash_id")
     private HashCode hashCode;
 
