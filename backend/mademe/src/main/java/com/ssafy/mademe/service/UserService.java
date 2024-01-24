@@ -15,6 +15,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
@@ -35,7 +36,7 @@ public class UserService implements UserDetailsService {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 올바르지 않습니다.");
             //throw new InvalidPasswordException("비밀번호가 올바르지 않습니다.");
         }
-        String[] tokens = jwtUtil.createAndGetTokens(user.getSiteId());
+        String[] tokens = jwtUtil.createAndGetTokens(user.getId());
         Map<String, String> tokenMap = new HashMap<>();
         tokenMap.put("AccessToken", tokens[0]);
         tokenMap.put("RefreshToken", tokens[1]);
@@ -66,10 +67,10 @@ public class UserService implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-        User foundUser = userRepository.findBySiteId(userId);
+        Optional<User> foundUser = userRepository.findById(Long.valueOf(userId));
 
-        if(foundUser != null){
-            return foundUser;
+        if(foundUser.isPresent()){
+            return foundUser.get();
         }
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호를 찾을 수 없습니다.");
     }

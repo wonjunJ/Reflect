@@ -40,8 +40,6 @@ public class QUser extends EntityPathBase<User> {
 
     public final DateTimePath<java.time.LocalDateTime> joinDate = createDateTime("joinDate", java.time.LocalDateTime.class);
 
-    public final ListPath<MBTICnt, QMBTICnt> mbtiCodes = this.<MBTICnt, QMBTICnt>createList("mbtiCodes", MBTICnt.class, QMBTICnt.class, PathInits.DIRECT2);
-
     public final ListPath<OMBTICnt, QOMBTICnt> mbtiEval = this.<OMBTICnt, QOMBTICnt>createList("mbtiEval", OMBTICnt.class, QOMBTICnt.class, PathInits.DIRECT2);
 
     public final ListPath<MBTILog, QMBTILog> mbtiLogs = this.<MBTILog, QMBTILog>createList("mbtiLogs", MBTILog.class, QMBTILog.class, PathInits.DIRECT2);

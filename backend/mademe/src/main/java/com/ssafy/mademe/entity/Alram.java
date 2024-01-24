@@ -10,7 +10,7 @@ import lombok.Setter;
 public class Alram {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "alram_id")
+    @Column(name = "alram_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

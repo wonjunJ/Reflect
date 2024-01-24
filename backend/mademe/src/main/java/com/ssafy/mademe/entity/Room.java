@@ -14,7 +14,7 @@ import java.util.List;
 public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "room_id")
+    @Column(name = "room_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -57,5 +57,15 @@ public class Room {
     @PrePersist
     protected void onCreate() {
         createDate = LocalDateTime.now();
+    }
+
+    public void addParticipant(MyRoom myRoom){
+        participants.add(myRoom);
+        myRoom.getId().setRoom(this);
+    }
+
+    public void addHashTag(HashTag hashTag){
+        hashTags.add(hashTag);
+        hashTag.getId().setRoom(this);
     }
 }

@@ -1,10 +1,12 @@
 package com.ssafy.mademe.utils;
 
 import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ResponseStatusException;
@@ -25,9 +27,9 @@ public class JWTUtil {
     private static final Long expireTimeMs = 1000 * 60 * 60L; //1시간 설정
     private static final Long expireTimeMsRefresh = (long) 1000 * 60 * 60 * 24; //1일 설정
 
-    public String getUserId(String token){ //static 삭제
+    public Long getUserId(String token){ //static 삭제
         return Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token)
-                .getBody().get("userId", String.class);
+                .getBody().get("userId", Long.class);
     }
 
     public boolean isExpired(String token){ //static 삭제
@@ -45,7 +47,7 @@ public class JWTUtil {
                 .getBody().getExpiration();
     }
 
-    public String[] createAndGetTokens(String userId){
+    public String[] createAndGetTokens(Long userId){
         Claims claims = Jwts.claims();
         claims.put("userId", userId);
         //System.out.println(key);
@@ -89,5 +91,28 @@ public class JWTUtil {
         }else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그아웃된 이용자입니다.");
         }
+    }
+
+    public String resolveToken(HttpServletRequest request){
+        return request.getHeader(HttpHeaders.AUTHORIZATION);
+    }
+
+    public JwtCode validateToken(String jwtToken){
+
+        if(jwtToken == null || !jwtToken.startsWith("Bearer ")){
+            return JwtCode.ACCESS;
+        }
+        String token = jwtToken.split(" ")[1];
+
+        try{
+            Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
+            return JwtCode.ACCESS;
+        }catch(ExpiredJwtException e){
+            return JwtCode.EXPIRED;
+        }catch(JwtException | IllegalArgumentException e){
+            log.info("잘못된 jwt 서명입니다.");
+        }
+
+        return JwtCode.DENIED;
     }
 }

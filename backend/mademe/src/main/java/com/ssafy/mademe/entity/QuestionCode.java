@@ -11,7 +11,7 @@ import lombok.Setter;
 public class QuestionCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "question_id")
+    @Column(name = "question_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String questionName;

@@ -10,7 +10,7 @@ import lombok.Setter;
 public class EmotionLog {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "emotion_log_id")
+    @Column(name = "emotion_log_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

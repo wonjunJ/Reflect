@@ -10,7 +10,7 @@ import lombok.Setter;
 public class InterestCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "hobby_code_id")
+    @Column(name = "hobby_code_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String hobbyName;

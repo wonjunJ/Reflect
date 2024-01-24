@@ -11,7 +11,7 @@ import lombok.Setter;
 public class TitleCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "title_code_id")
+    @Column(name = "title_code_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String titleName;

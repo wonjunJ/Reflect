@@ -13,7 +13,7 @@ import java.util.List;
 public class HashCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "hash_id")
+    @Column(name = "hash_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @Column(unique = true)
@@ -21,4 +21,9 @@ public class HashCode {
 
     @OneToMany(mappedBy = "id.hashCode", cascade = CascadeType.ALL)
     private List<HashTag> hashTagRooms = new ArrayList<>();
+
+    public void addHashTag(HashTag hashTag){
+        this.getHashTagRooms().add(hashTag);
+        hashTag.getId().setHashCode(this);
+    }
 }

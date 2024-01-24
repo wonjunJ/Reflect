@@ -13,7 +13,7 @@ import java.util.List;
 public class EmotionCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "emotion_code_id")
+    @Column(name = "emotion_code_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String emotionName;

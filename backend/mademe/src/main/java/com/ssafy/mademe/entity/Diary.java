@@ -14,7 +14,7 @@ import java.util.List;
 public class Diary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "diary_id")
+    @Column(name = "diary_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -55,5 +55,10 @@ public class Diary {
     @PreUpdate
     protected void onUpdate() {
         updateDate = LocalDateTime.now();
+    }
+
+    public void addEmotionLog(EmotionLog emotionLog){
+        this.getEmotionLogs().add(emotionLog);
+        emotionLog.setDiary(this);
     }
 }

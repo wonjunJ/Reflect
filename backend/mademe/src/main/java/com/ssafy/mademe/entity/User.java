@@ -17,7 +17,7 @@ import java.util.*;
 public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "user_id")
+    @Column(name = "user_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @Column(nullable = false, unique = true)
@@ -63,19 +63,38 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "id.userId", cascade = CascadeType.ALL)
     private List<Following> followings = new ArrayList<>();
+    public void addFollowing(Following following){
+        followings.add(following);
+    }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Diary> diaries = new ArrayList<>();
+    public void addDiary(Diary diary){
+        diaries.add(diary);
+        diary.setUser(this);
+    }
 
     @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
     private List<QuestionRecord> qRecords = new ArrayList<>();
+    public void addQrecord(QuestionRecord qrecord){
+        qRecords.add(qrecord);
+        qrecord.getCompositeKey().setUser(this);
+    }
 
     //한 사용자의 알람 목록
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<Alram> alrams = new ArrayList<>();
+    public void addAlram(Alram alram){
+        alrams.add(alram);
+        alram.setUser(this);
+    }
 
     @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<UserTitle> userTitles = new ArrayList<>();
+    public void addUserTitle(UserTitle userTitle){
+        userTitles.add(userTitle);
+        userTitle.getId().setUser(this);
+    }
 
     @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<MyPet> myPets = new ArrayList<>();
@@ -83,9 +102,9 @@ public class User implements UserDetails {
     @OneToMany(mappedBy = "id.user", cascade = CascadeType.ALL)
     private List<MyPetPersonality> personalities = new ArrayList<>();
 
-    //일기에서 분석된 mbti코드별
-    @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
-    private List<MBTICnt> mbtiCodes = new ArrayList<>();
+//    //일기에서 분석된 mbti코드별
+//    @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)
+//    private List<MBTICnt> mbtiCodes = new ArrayList<>();
 
     //상대가 평가한 나의 mbti
     @OneToMany(mappedBy = "compositeKey.user", cascade = CascadeType.ALL)

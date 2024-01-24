@@ -57,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (!isTokenOnRedisBlackList(token)){ //로그아웃이 되지 않았다.
-            UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token));
+            UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token).toString());
 
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
