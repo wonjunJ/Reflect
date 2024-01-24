@@ -8,6 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.session.JdbcSessionDataSourceScriptDatabaseInitializer;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -58,7 +59,6 @@ public class JwtFilter extends OncePerRequestFilter {
 
         if (!isTokenOnRedisBlackList(token)){ //로그아웃이 되지 않았다.
             UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token).toString());
-
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 
