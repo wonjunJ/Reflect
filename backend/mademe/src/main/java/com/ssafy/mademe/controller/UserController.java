@@ -5,6 +5,7 @@ import com.ssafy.mademe.service.MailService;
 import com.ssafy.mademe.service.UserService;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -60,14 +61,14 @@ public class UserController {
 
     @PostMapping("/logout")
     public void logout(@AuthenticationPrincipal User user) {
-        String userId = user.getSiteId();
+        Long userId = user.getId();
         jwtUtil.doLogout(userId);
     }
 
-//    @PostMapping("/reissue")
-//    public Map<String, String> reissuedToken(){
-//        Map<String, String> tokens =
-//    }
+    @PostMapping("/reissue")
+    public Map<String, String> reissuedToken(HttpServletRequest request){
+        return userService.reissuedToken(request);
+    }
 
 
     private void setCookie(User loginRequest, HttpServletResponse response){

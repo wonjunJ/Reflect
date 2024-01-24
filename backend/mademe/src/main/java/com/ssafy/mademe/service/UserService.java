@@ -3,8 +3,10 @@ package com.ssafy.mademe.service;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.repository.UserRepository;
 import com.ssafy.mademe.utils.JWTUtil;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -13,6 +15,9 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
+import java.time.Duration;
+import java.time.Instant;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -61,13 +66,25 @@ public class UserService implements UserDetailsService {
         return userRepository.existsByNickName(nickName);
     }
 
-//    public Map<String, String> reissuedToken(){
-//
-//    }
+    public Map<String, String> reissuedToken(HttpServletRequest request){
+        String token = request.getHeader(HttpHeaders.AUTHORIZATION).split(" ")[1];
+        Long userid = jwtUtil.getUserId(token);
+        //정상적인 refresh 토큰이다
+        if(token.equals(redisTemplate.opsForValue().get("RT:" + userid))){
+            String[] tokens = jwtUtil.createAndGetTokens(userid);
+            Map<String, String> tokenMap = new HashMap<>();
+            tokenMap.put("AccessToken", tokens[0]);
+            tokenMap.put("RefreshToken", tokens[1]);
+            return tokenMap;
+        }
+        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 refresh token이 아닙니다.");
+    }
 
     @Override
     public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
+        System.out.println(userId);
         Optional<User> foundUser = userRepository.findById(Long.valueOf(userId));
+        System.out.println(foundUser.get().getName());
 
         if(foundUser.isPresent()){
             return foundUser.get();

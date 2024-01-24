@@ -58,7 +58,15 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         if (!isTokenOnRedisBlackList(token)){ //로그아웃이 되지 않았다.
-            UserDetails userDetails = userService.loadUserByUsername(jwtUtil.getUserId(token).toString());
+            Long userid = jwtUtil.getUserId(token);
+            //여기까지 왔다는 건 토큰이 만료된 것도 아니고 로그아웃 처리가 된것도 아니므로 정상적인 access token이라면 조건문을 넘어간다.
+            String value = (String) redisTemplate.opsForValue().get("AT:" + userid);
+            if(!token.equals(value)){ //정상적인 access token이 아니거나 refresh token이다.
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            UserDetails userDetails = userService.loadUserByUsername(userid.toString());
             UsernamePasswordAuthenticationToken authenticationToken =
                     new UsernamePasswordAuthenticationToken(userDetails, "", userDetails.getAuthorities());
 

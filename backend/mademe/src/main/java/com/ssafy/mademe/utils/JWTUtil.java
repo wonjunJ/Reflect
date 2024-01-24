@@ -62,6 +62,7 @@ public class JWTUtil {
 
         // Refresh Token 생성
         String refreshToken = Jwts.builder()
+                .setClaims(claims)
                 .setExpiration(new Date(System.currentTimeMillis() + expireTimeMsRefresh))
                 .signWith(SignatureAlgorithm.HS256, key)
                 .compact();
@@ -80,13 +81,20 @@ public class JWTUtil {
         return tokens;
     }
 
-    public void doLogout(String userId){
+    public void doLogout(Long userId){
         if(redisTemplate.opsForValue().get("AT:"+userId) != null){ //이 유저 아이디로 등록된 access token이 있다.(로그인 상태)
             String token = (String) redisTemplate.opsForValue().get("AT:"+userId);
             Instant start = new Date().toInstant();
             Instant end = getExpiration(token).toInstant();
             redisTemplate.delete("AT:"+userId);
             //해당 access token을 블랙리스트로 등록
+            redisTemplate.opsForValue().set(token, "logout", Duration.between(start, end));
+
+            token = (String) redisTemplate.opsForValue().get("RT:"+userId);
+            start = new Date().toInstant();
+            end = getExpiration(token).toInstant();
+            redisTemplate.delete("RT:"+userId);
+            //해당 refresh token을 블랙리스트로 등록
             redisTemplate.opsForValue().set(token, "logout", Duration.between(start, end));
         }else {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그아웃된 이용자입니다.");
