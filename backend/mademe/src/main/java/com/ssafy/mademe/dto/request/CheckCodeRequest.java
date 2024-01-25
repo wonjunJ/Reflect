@@ -8,6 +8,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class CheckCodeRequest {
+    private String user_id;
     private String email;
     private String code;
     private String pw;

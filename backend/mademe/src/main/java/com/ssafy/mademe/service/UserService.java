@@ -2,6 +2,7 @@ package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
+import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.*;
 import com.ssafy.mademe.repository.UserRepository;
@@ -37,7 +38,7 @@ public class UserService implements UserDetailsService {
 
     public Map<String, String> doLogin(String userId, String userPw){
         User user = userRepository.findBySiteId(userId);
-        if(user == null){
+        if(user == null || user.isWithdrawal()){
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
             throw new UserNotFoundException("아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
         }
@@ -63,8 +64,23 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public User modifyUserInfo(UserInfoResponse modified, User origin){
+        if(modified.getEmail() != null && userRepository.existsByEmail(modified.getEmail())){
+            throw new DuplicateUserIdException("중복된 이메일입니다.");
+        }
+        origin.setName(modified.getName());
+        origin.setNickName(modified.getNickName());
+        origin.setEmail(modified.getEmail());
+        origin.setProfileImg(modified.getProfileImg());
+        origin.setPhoneNumber(modified.getPhoneNumber());
+        origin.setGender(modified.getGender());
+        origin.setBirthday(modified.getBirthday());
+        origin.setMyIntro(modified.getMyIntro());
+        return userRepository.save(origin);
+    }
+
     public void checkUser(User user) {
-        if(user.getId() != null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
+        if(user.getSiteId() != null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
             throw new DuplicateUserIdException("이미 가입된 이메일입니다.");
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 일치하지 않습니다.");
         }
@@ -88,10 +104,17 @@ public class UserService implements UserDetailsService {
         return json;
     }
 
-    public void changePw(String pw){
+    public void changePw(Object obj, String pw){
         try {
-            User user = new User();
+            User user;
+            if (obj instanceof User){ //비밀번호 변경 메소드 넘어왔다.
+                user = (User)obj;
+                System.out.println(user.getId());
+            }else { //비밀번호 찾기 메소드에서 넘어왔다.
+                user = userRepository.findByEmail((String) obj);
+            }
             user.setPw(encoder.encode(pw));
+            //user객체에 Id값이 들어가 있기 때문에 update쿼리
             userRepository.save(user);
         }catch (Exception e){
             throw new FailedJoinException("비밀번호 변경에 실패했습니다.");
@@ -101,7 +124,8 @@ public class UserService implements UserDetailsService {
     public boolean checkCurPw(Long userId, String pw){
         Optional<User> user = userRepository.findById(userId);
         if(user.isPresent()){
-            return user.get().getPw().equals(pw);
+            return encoder.matches(pw, user.get().getPassword());
+            //return user.get().getPw().equals(pw);
         }else{
             throw new UserNotFoundException("일치하는 회원정보가 없습니다.");
         }
@@ -131,6 +155,12 @@ public class UserService implements UserDetailsService {
             throw new TimeOutCodeException("요청된 인증번호가 없습니다.");
             //throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "요청된 인증번호가 없습니다.");
         }
+    }
+
+    public void doWithdrawal(User user){
+        user.setWithdrawal(true);
+        //user객체에 Id값이 들어가 있기 때문에 update쿼리
+        userRepository.save(user);
     }
 
     public Map<String, String> reissuedToken(HttpServletRequest request){

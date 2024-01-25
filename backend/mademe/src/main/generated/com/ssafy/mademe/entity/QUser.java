@@ -30,7 +30,7 @@ public class QUser extends EntityPathBase<User> {
 
     public final ListPath<Following, QFollowing> followings = this.<Following, QFollowing>createList("followings", Following.class, QFollowing.class, PathInits.DIRECT2);
 
-    public final NumberPath<Integer> gender = createNumber("gender", Integer.class);
+    public final EnumPath<Gender> gender = createEnum("gender", Gender.class);
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 

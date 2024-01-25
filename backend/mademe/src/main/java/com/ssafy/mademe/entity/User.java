@@ -34,7 +34,8 @@ public class User implements UserDetails {
     @Column(nullable = false)
     private String email;
 
-    private int gender;
+    @Enumerated(EnumType.STRING)
+    private Gender gender;
 
     @Lob
     private String profileImg;

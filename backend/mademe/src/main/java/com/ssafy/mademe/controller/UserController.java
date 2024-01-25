@@ -3,8 +3,10 @@ package com.ssafy.mademe.controller;
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
+import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
+import com.ssafy.mademe.exception.user.InvalidPasswordException;
 import com.ssafy.mademe.service.MailService;
 import com.ssafy.mademe.service.UserService;
 import com.ssafy.mademe.utils.JWTUtil;
@@ -43,6 +45,16 @@ public class UserController {
         return "success";
     }
 
+    @GetMapping("/")
+    public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){
+        return mapToUserInfo(user);
+    }
+
+    @PutMapping("/")
+    public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){
+        return mapToUserInfo(userService.modifyUserInfo(user, token));
+    }
+
     @PostMapping("/send")
     public String sendMail(@RequestBody User user) throws Exception {
         userService.checkUser(user);
@@ -73,8 +85,8 @@ public class UserController {
     }
 
     @GetMapping("/findid")
-    public Map<String, String> findId(@RequestBody User user){
-        return userService.findId(user.getEmail());
+    public Map<String, String> findId(@RequestParam("email") String email){
+        return userService.findId(email);
     }
 
     @PostMapping("/code")
@@ -84,8 +96,8 @@ public class UserController {
 
     @PostMapping("/findpw")
     public String findPw(@RequestBody CheckCodeRequest checkCodeRequest){
-        userService.checkCode(checkCodeRequest);
-        userService.changePw(checkCodeRequest.getPw());
+        CheckCodeResponse rs = userService.checkCode(checkCodeRequest);
+        userService.changePw(rs.getEmail(), checkCodeRequest.getPw());
         return "비밀번호 변경 완료";
     }
 
@@ -93,9 +105,10 @@ public class UserController {
     public String changePw(@RequestBody ChangePwRequest pwInfo, @AuthenticationPrincipal User user){
         boolean rst = userService.checkCurPw(user.getId(), pwInfo.getCurrent_pw());
         if(rst){
-            return "완료";
+            userService.changePw(user, pwInfo.getNew_pw());
+            return "비밀번호 변경 완료";
         }
-        return "실패";
+        throw new InvalidPasswordException("현재 비밀번호가 올바르지 않습니다.");
     }
 
     @PostMapping("/logout")
@@ -103,6 +116,12 @@ public class UserController {
         Long userId = user.getId();
         log.info(userId.toString());
         jwtUtil.doLogout(userId);
+    }
+
+    @DeleteMapping("/")
+    public String doWithdrawal(@AuthenticationPrincipal User user){
+        userService.doWithdrawal(user);
+        return "회원탈퇴 완료";
     }
 
     @PostMapping("/refresh")
@@ -122,5 +141,18 @@ public class UserController {
         }
 
         response.addCookie(cookie);
+    }
+
+    private UserInfoResponse mapToUserInfo(User user){
+        return UserInfoResponse.builder()
+                .name(user.getName())
+                .nickName(user.getNickName())
+                .email(user.getEmail())
+                .profileImg(user.getProfileImg())
+                .gender(user.getGender())
+                .phoneNumber(user.getPhoneNumber())
+                .birthday(user.getBirthday())
+                .myIntro(user.getMyIntro())
+                .build();
     }
 }
