@@ -61,6 +61,7 @@ public class JwtFilter extends OncePerRequestFilter {
             Long userid = jwtUtil.getUserId(token);
             //여기까지 왔다는 건 토큰이 만료된 것도 아니고 로그아웃 처리가 된것도 아니므로 정상적인 access token이라면 조건문을 넘어간다.
             String value = (String) redisTemplate.opsForValue().get("AT:" + userid);
+            log.info(value);
             if(!token.equals(value)){ //정상적인 access token이 아니거나 refresh token이다.
                 filterChain.doFilter(request, response);
                 return;
@@ -78,6 +79,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
     private boolean isTokenOnRedisBlackList(String token){
         //토큰을 키값으로 redis에 등록이 되어있는지 체크, 토큰을 키값으로 하는 값이 없다면 로그인 되어있는 상태
+        log.info("로그아웃????");
         String value = (String) redisTemplate.opsForValue().get(token);
         return value != null && value.equals("logout");
     }

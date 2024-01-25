@@ -32,7 +32,9 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())
                 //.cors(Customizer.withDefaults())
                 .authorizeHttpRequests((authorize) -> authorize
-                        .requestMatchers("/user/join", "/user/login", "/user/reissue").permitAll()
+                        .requestMatchers("/user/join", "/user/login", "/user/refresh",
+                                "user/id/*", "user/nick/*", "user/send", "user/findid",
+                                "user/code", "user/findpw").permitAll()
                         .requestMatchers("/user/*").hasRole("USER")
                         .anyRequest().authenticated())
                 .sessionManagement((sessionManagement) ->

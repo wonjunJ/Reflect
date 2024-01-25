@@ -1,10 +1,14 @@
 package com.ssafy.mademe.service;
 
+import com.ssafy.mademe.dto.request.CheckCodeRequest;
+import com.ssafy.mademe.dto.response.CheckCodeResponse;
 import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.exception.user.*;
 import com.ssafy.mademe.repository.UserRepository;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -13,11 +17,10 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
-import java.time.Instant;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -30,16 +33,17 @@ public class UserService implements UserDetailsService {
     private final BCryptPasswordEncoder encoder;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final JWTUtil jwtUtil;
+    private final MailService mailService;
 
     public Map<String, String> doLogin(String userId, String userPw){
         User user = userRepository.findBySiteId(userId);
         if(user == null){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
-            //throw new UserNotFoundException("아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
+            //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
+            throw new UserNotFoundException("아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
         }
         if(!encoder.matches(userPw, user.getPw())){
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 올바르지 않습니다.");
-            //throw new InvalidPasswordException("비밀번호가 올바르지 않습니다.");
+            //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 올바르지 않습니다.");
+            throw new InvalidPasswordException("비밀번호가 올바르지 않습니다.");
         }
         String[] tokens = jwtUtil.createAndGetTokens(user.getId());
         Map<String, String> tokenMap = new HashMap<>();
@@ -54,7 +58,15 @@ public class UserService implements UserDetailsService {
             user.setPw(encoder.encode(password));
             userRepository.save(user);
         }catch (Exception e){
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입에 실패하였습니다.");
+            throw new FailedJoinException("회원가입에 실패하였습니다.");
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입에 실패하였습니다.");
+        }
+    }
+
+    public void checkUser(User user) {
+        if(user.getId() != null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
+            throw new DuplicateUserIdException("이미 가입된 이메일입니다.");
+            //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 일치하지 않습니다.");
         }
     }
 
@@ -64,6 +76,61 @@ public class UserService implements UserDetailsService {
 
     public boolean nickCheck(String nickName) {
         return userRepository.existsByNickName(nickName);
+    }
+
+    public Map<String, String> findId(String email){
+        Map<String, String> json = new HashMap<>();
+        User user = userRepository.findByEmail(email);
+        if(user == null){
+            throw new UserNotFoundException("아이디를 찾을 수 없습니다.");
+        }
+        json.put("user_id", user.getSiteId());
+        return json;
+    }
+
+    public void changePw(String pw){
+        try {
+            User user = new User();
+            user.setPw(encoder.encode(pw));
+            userRepository.save(user);
+        }catch (Exception e){
+            throw new FailedJoinException("비밀번호 변경에 실패했습니다.");
+        }
+    }
+
+    public boolean checkCurPw(Long userId, String pw){
+        Optional<User> user = userRepository.findById(userId);
+        if(user.isPresent()){
+            return user.get().getPw().equals(pw);
+        }else{
+            throw new UserNotFoundException("일치하는 회원정보가 없습니다.");
+        }
+    }
+
+    public CheckCodeResponse checkCode(@RequestBody CheckCodeRequest request){
+        String email = request.getEmail();
+        String code = (String) redisTemplate.opsForValue().get("ecode:" + email);
+        if(code != null){
+            if(code.equals(request.getCode())){ //보낸 인증번호와 유저가 입력한 인증번호가 일치
+                System.out.println("인증번호 일치");
+                //redisTemplate.delete("ecode:" + email);
+                String tcode = mailService.createRandNum();
+                redisTemplate.opsForValue().set("ecode:" + email, tcode, Duration.ofMinutes(3));
+                return CheckCodeResponse.builder()
+                        .email(email)
+                        .code(tcode)
+                        .msg("인증번호 확인 완료")
+                        .build();
+            }else{
+                //417 상태코드
+                throw new InvalidCodeException("인증번호가 일치하지 않습니다");
+                //throw new ResponseStatusException(HttpStatus.EXPECTATION_FAILED, "인증번호가 일치하지 않습니다");
+            }
+        }else{
+            //406 상태코드
+            throw new TimeOutCodeException("요청된 인증번호가 없습니다.");
+            //throw new ResponseStatusException(HttpStatus.NOT_ACCEPTABLE, "요청된 인증번호가 없습니다.");
+        }
     }
 
     public Map<String, String> reissuedToken(HttpServletRequest request){
@@ -77,7 +144,8 @@ public class UserService implements UserDetailsService {
             tokenMap.put("RefreshToken", tokens[1]);
             return tokenMap;
         }
-        throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 refresh token이 아닙니다.");
+        throw new InvalidTokenException("올바른 refresh token이 아닙니다.");
+        //throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 refresh token이 아닙니다.");
     }
 
     @Override
@@ -89,6 +157,7 @@ public class UserService implements UserDetailsService {
         if(foundUser.isPresent()){
             return foundUser.get();
         }
-        throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호를 찾을 수 없습니다.");
+        throw new UserNotFoundException("아이디 또는 비밀번호를 찾을 수 없습니다.");
+        //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "아이디 또는 비밀번호를 찾을 수 없습니다.");
     }
 }

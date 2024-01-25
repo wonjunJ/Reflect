@@ -1,5 +1,6 @@
 package com.ssafy.mademe.utils;
 
+import com.ssafy.mademe.exception.user.AlreadyLogoutException;
 import io.jsonwebtoken.*;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -97,7 +98,9 @@ public class JWTUtil {
             //해당 refresh token을 블랙리스트로 등록
             redisTemplate.opsForValue().set(token, "logout", Duration.between(start, end));
         }else {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그아웃된 이용자입니다.");
+            log.info("여기왔나??");
+            throw new AlreadyLogoutException("이미 로그아웃된 이용자입니다.");
+            //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "이미 로그아웃된 이용자입니다.");
         }
     }
 
