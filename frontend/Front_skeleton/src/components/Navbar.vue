@@ -12,6 +12,11 @@
             <RouterLink :to="{name: 'Diary' }">Diary</RouterLink> &nbsp;
           </li>
         </div>
+        <div class="d-flex flex-row" v-if="userStore.isLogin">
+          <li class="nav-item">
+            <RouterLink :to="{name: 'roomlist' }">Community</RouterLink> &nbsp;
+          </li>
+        </div>
         <li v-if="!userStore.isLogin" class="nav-item">
             <RouterLink :to="{name: 'signup'}">signup</RouterLink>
         </li>

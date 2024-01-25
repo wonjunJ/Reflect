@@ -1,6 +1,10 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
+
+// tailwindcss
+import './assets/base.css';
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'
