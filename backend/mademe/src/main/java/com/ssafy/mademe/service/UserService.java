@@ -110,7 +110,7 @@ public class UserService implements UserDetailsService {
             if (obj instanceof User){ //비밀번호 변경 메소드 넘어왔다.
                 user = (User)obj;
                 System.out.println(user.getId());
-            }else { //비밀번호 찾기 메소드에서 넘어왔다.
+            }else { //비밀번호 찾기 메소드에서 넘어왔다. 이메일로 유저정보를 뽑아낸다.
                 user = userRepository.findByEmail((String) obj);
             }
             user.setPw(encoder.encode(pw));
