@@ -8,7 +8,7 @@
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
         <div class="d-flex flex-row" v-if="userStore.isLogin">
-          <li class="nav-item">
+          <li v-if="userStore.isLogin" class="nav-item">
             <RouterLink :to="{name: 'Diary' }">Diary</RouterLink> &nbsp;
           </li>
         </div>
