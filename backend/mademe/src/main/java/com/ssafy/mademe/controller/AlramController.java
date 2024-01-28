@@ -16,6 +16,7 @@ public class AlramController {
     private final SimpMessageSendingOperations messageTemplate;
     private final AlramService alramService;
 
+    //웹소켓 메핑
     @MessageMapping("/")
     public void getMessage(Message message){
         alramService.manageMsg(message);
