@@ -43,9 +43,15 @@ public class SecurityConfig {
                 .anonymous(Customizer.withDefaults())
                 .exceptionHandling((handling) ->
                         handling.accessDeniedHandler(jwtAccessDeniedHandler)
+                                .authenticationEntryPoint(authenticationEntryPoint())
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(){
+        return new CustomAuthenticationEntryPoint();
     }
 
     @Bean

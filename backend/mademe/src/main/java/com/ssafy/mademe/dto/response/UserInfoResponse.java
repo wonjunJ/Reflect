@@ -3,6 +3,8 @@ package com.ssafy.mademe.dto.response;
 import com.ssafy.mademe.entity.Gender;
 import lombok.*;
 
+import java.util.List;
+
 @Builder
 @Getter
 @Setter
@@ -16,5 +18,6 @@ public class UserInfoResponse {
     private String phoneNumber;
     private Gender gender;
     private String birthday;
+    private List<String> mbti;
     private String myIntro;
 }

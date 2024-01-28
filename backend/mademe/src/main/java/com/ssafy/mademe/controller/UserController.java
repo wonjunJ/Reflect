@@ -18,6 +18,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -47,12 +49,13 @@ public class UserController {
 
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){
-        return mapToUserInfo(user);
+        List<String> ls = userService.getUserInfo(user);
+        return mapToUserInfo(user, ls);
     }
 
     @PutMapping("/")
     public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){
-        return mapToUserInfo(userService.modifyUserInfo(user, token));
+        return mapToUserInfo(userService.modifyUserInfo(user, token), new ArrayList<>());
     }
 
     @PostMapping("/send")
@@ -143,7 +146,7 @@ public class UserController {
         response.addCookie(cookie);
     }
 
-    private UserInfoResponse mapToUserInfo(User user){
+    private UserInfoResponse mapToUserInfo(User user, List<String> ls){
         return UserInfoResponse.builder()
                 .name(user.getName())
                 .nickName(user.getNickName())
@@ -152,6 +155,7 @@ public class UserController {
                 .gender(user.getGender())
                 .phoneNumber(user.getPhoneNumber())
                 .birthday(user.getBirthday())
+                .mbti(ls)
                 .myIntro(user.getMyIntro())
                 .build();
     }

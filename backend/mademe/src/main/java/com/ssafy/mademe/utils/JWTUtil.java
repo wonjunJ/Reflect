@@ -109,6 +109,7 @@ public class JWTUtil {
     }
 
     public JwtCode validateToken(String jwtToken){
+        log.info("여기로 왔나??");
 
         if(jwtToken == null || !jwtToken.startsWith("Bearer ")){
             return JwtCode.ACCESS;
@@ -119,6 +120,7 @@ public class JWTUtil {
             Jwts.parserBuilder().setSigningKey(key).build().parseClaimsJws(token).getBody();
             return JwtCode.ACCESS;
         }catch(ExpiredJwtException e){
+            log.info("만료됐다 토큰...");
             return JwtCode.EXPIRED;
         }catch(JwtException | IllegalArgumentException e){
             log.info("잘못된 jwt 서명입니다.");
