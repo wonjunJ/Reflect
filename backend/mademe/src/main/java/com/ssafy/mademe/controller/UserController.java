@@ -148,6 +148,7 @@ public class UserController {
 
     private UserInfoResponse mapToUserInfo(User user, List<String> ls){
         return UserInfoResponse.builder()
+                .id(user.getId())
                 .name(user.getName())
                 .nickName(user.getNickName())
                 .email(user.getEmail())

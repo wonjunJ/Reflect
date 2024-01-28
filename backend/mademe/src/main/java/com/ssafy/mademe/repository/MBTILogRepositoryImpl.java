@@ -29,24 +29,7 @@ public class MBTILogRepositoryImpl implements MBTILogRepositoryCustom {
                 .where(mBTILog.user.eq(user))
                 .groupBy(mBTILog.mbtiCode)
                 .orderBy(
-                        // E, I
-                        mBTILog.mbtiCode.eq(MBTICode.E).count().desc(),
-                        //q.count(q.mbtiCode.eq(MBTICode.E)).desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.I).count().desc(),
-                        //q.count(q.mbtiLog.mbtiCode.eq(MBTICode.I)).desc(),
-                        // S, N
-                        //q.count(q.mbtiLog.mbtiCode.eq(MBTICode.S)).desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.S).count().desc(),
-                        //q.count(q.mbtiLog.mbtiCode.eq(MBTICode.N)).desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.N).count().desc(),
-                        // T, F
-                        //q.count(q.mbtiLog.mbtiCode.eq(MBTICode.T)).desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.T).count().desc(),
-                        //q.count(q.mbtiLog.mbtiCode.eq(MBTICode.F)).desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.F).count().desc(),
-                        // J, P
-                        mBTILog.mbtiCode.eq(MBTICode.J).count().desc(),
-                        mBTILog.mbtiCode.eq(MBTICode.P).count().desc()
+                        mBTILog.sentence.count().desc()
                 )
                 .fetch();
 
