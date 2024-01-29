@@ -99,41 +99,13 @@
               <button type="button" class="btn btn-danger">Quick Join</button>
               
               <!-- 방 만들기 버튼 -->
-              <!-- <RouterLink :to="{name: 'createroom'}" @click="openCreateRoomModal" class="btn">+ Create</RouterLink> -->
-              <!-- <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#RoomCreateModal">+ Create</button> -->
               <button type="button" class="btn btn-primary" @click="openCreateRoomModal">+ Create</button>
 
-              <!-- <div class="modal" v-if="isModalOpen">
-                <div class="modal-content">
-                  <h3>방 만들기</h3> -->
-                  <!-- <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                      <div class="modal-content"> -->
-
-
-                        <!-- 모달 내용 -->
-                        <div>
-                          <RoomCreate :isOpen="isModalOpen" @closeModal="closeModal" />
-                          <!-- <div v-if="isModalOpen">
-                              <button
-                                type="button"
-                                @click="closeModal"
-                                class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center"
-                              > 취소 </button>
-                              <button type="button" class="btn btn-primary" @click="createRoom">방 만들기</button>
-                            </div> -->
-                          </div>
-
-
-                        <!-- 모달 버튼 -->
-                        <!-- <button @click="closeModal" class="btn btn-secondary">닫기</button> -->
-                        <!-- <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                        <button type="button" class="btn btn-primary">방 만들기</button>
-                      </div>
-                    </div>
-                  </div> -->
-
-          
+                <!-- 모달 내용 -->
+                <div>
+                  <RoomCreate :isModalOpen="isModalOpen" @closeModal="closeModal" />
+                </div>
+        
           </div>
       </div>
 
@@ -196,21 +168,7 @@ import RoomCreate from '@/components/PopUp/RoomCreate.vue'
 import { useRoomStore} from '@/stores/room'
 // import Slider from '@vueform/slider'
 
-// const isModalOpen = ref(false)
-// const roomCreateModal = document.getElementById('roomCreateModal')
-// const myInput = document.getElementById('myInput')
 
-
-// onMounted(() => {
-//   const roomCreateModal = document.getElementById('roomCreateModal');
-//   const myInput = document.getElementById('myInput');
-
-//   if (roomCreateModal) {
-//     roomCreateModal.addEventListener('shown.bs.modal', () => {
-//       myInput.focus();
-//     });
-//   }
-// });
 
 
 
@@ -256,25 +214,6 @@ const closeModal = () => {
   isModalOpen.value = false
 }
 
-const createRoom = () => {
-  // 방 만들기 로직 추가
-  // ...
-  // 모달 닫기
-  closeModal();
-}
-
-
-// const openRoomCreateModal = () => {
-//   isModalOpen.value = true
-// }
-
-// const closeModal = () => {
-//   isModalOpen.value = false
-// }
-
-// roomCreateModal.addEventListener('shown.bs.modal', () => {
-//   myInput.focus()
-// })
 
 
 
