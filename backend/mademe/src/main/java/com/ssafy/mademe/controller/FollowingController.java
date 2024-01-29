@@ -5,6 +5,8 @@ import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.FollowingService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,9 +20,9 @@ public class FollowingController {
 
     private final FollowingService followingService;
 
-    @GetMapping("/{pgNum}")
-    public List<FollowingResponse> getFollowingList(@PathVariable("pgNum") int pgNum, @AuthenticationPrincipal User user){
-        return followingService.getFollowingList(user, pgNum);
+    @GetMapping("/")
+    public List<FollowingResponse> getFollowingList(@PageableDefault(size = 3) Pageable pageable, @AuthenticationPrincipal User user){
+        return followingService.getFollowingList(user, pageable);
     }
 
     @PostMapping("/")

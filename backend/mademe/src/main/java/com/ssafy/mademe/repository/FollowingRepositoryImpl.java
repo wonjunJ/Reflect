@@ -7,6 +7,7 @@ import com.ssafy.mademe.entity.QFollowing;
 import com.ssafy.mademe.entity.QUser;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -16,7 +17,7 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<FollowingResponse> findFollowingListByUser(User user, int pgNum) {
+    public List<FollowingResponse> findFollowingListByUser(User user, Pageable pageable) {
         List<Tuple> results = jpaQueryFactory
                 .select(
                         QUser.user.id,
@@ -28,8 +29,8 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
                 .where(
                         QFollowing.following.id.userId.eq(user)
                 )
-                .offset(pgNum)
-                .limit(3)
+                .offset(pageable.getOffset())
+                .limit(pageable.getPageSize())
                 .fetch();
 
         List<FollowingResponse> flist = new ArrayList<>();

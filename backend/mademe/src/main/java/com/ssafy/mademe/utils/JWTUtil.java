@@ -112,7 +112,7 @@ public class JWTUtil {
         log.info("여기로 왔나??");
 
         if(jwtToken == null || !jwtToken.startsWith("Bearer ")){
-            return JwtCode.ACCESS;
+            return JwtCode.DENIED;
         }
         String token = jwtToken.split(" ")[1];
 

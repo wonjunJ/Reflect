@@ -8,6 +8,7 @@ import com.ssafy.mademe.exception.user.FailedJoinException;
 import com.ssafy.mademe.repository.FollowingRepository;
 import com.ssafy.mademe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
@@ -21,8 +22,8 @@ public class FollowingService {
     private final UserRepository userRepository;
     private final RedisTemplate<Object, Object> redisTemplate;
 
-    public List<FollowingResponse> getFollowingList(User user, int pgNum){
-        List<FollowingResponse> ls = followingRepository.findFollowingListByUser(user, pgNum);
+    public List<FollowingResponse> getFollowingList(User user, Pageable pageable){
+        List<FollowingResponse> ls = followingRepository.findFollowingListByUser(user, pageable);
         for(FollowingResponse res : ls){
             //null이 아니라면 상대가 로그인 상태
             res.set_online(redisTemplate.opsForValue().get("AT:" + res.getUserId()) != null);
@@ -44,8 +45,8 @@ public class FollowingService {
     }
 
     public void delFollowing(User user, User follow){
-        User friend = userRepository.findBySiteId(follow.getSiteId());
-        EmdFollowing emd = new EmdFollowing(user, friend);
+        //User friend = userRepository.findBySiteId(follow.getSiteId());
+        EmdFollowing emd = new EmdFollowing(user, follow); ////follow객체에 user의 long타입 id값을 가지고 있다면
         followingRepository.deleteById(emd);
     }
 }
