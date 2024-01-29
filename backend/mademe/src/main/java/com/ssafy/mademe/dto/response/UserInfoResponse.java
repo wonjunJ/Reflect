@@ -19,6 +19,9 @@ public class UserInfoResponse {
     private String phoneNumber;
     private Gender gender;
     private String birthday;
-    private List<String> mbti;
+    private String mbti;
+    private List<String> titles;
+    private String charName; //원래 캐릭터의 이름
+    private String myCharName; //내가 설정한 캐릭터의 이름
     private String myIntro;
 }

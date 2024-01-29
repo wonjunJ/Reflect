@@ -5,25 +5,25 @@ import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.MBTICode;
-import com.ssafy.mademe.entity.MBTILog;
+import com.ssafy.mademe.entity.MyPet;
 import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.entity.UserTitle;
 import com.ssafy.mademe.exception.user.*;
 import com.ssafy.mademe.repository.MBTILogRepository;
+import com.ssafy.mademe.repository.MyPetRepository;
 import com.ssafy.mademe.repository.UserRepository;
+import com.ssafy.mademe.repository.UserTitleRepository;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
 import java.util.*;
@@ -34,6 +34,8 @@ public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
     private final MBTILogRepository mbtiLogRepository;
+    private final UserTitleRepository userTitleRepository;
+    private final MyPetRepository myPetRepository;
     private final BCryptPasswordEncoder encoder;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final JWTUtil jwtUtil;
@@ -68,14 +70,27 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public List<String> getUserInfo(User user){
+    public String getUserMbtiInfo(User user){
         //유저의 mbti정보만 얻는다.
         Map<MBTICode, Long> map = mbtiLogRepository.findMbtiByUser(user);
-        List<String> mbtiLs = userMBTIMethod.getMBTIs(map);
-        for(String ls : mbtiLs){
-            System.out.println(ls);
+        return userMBTIMethod.getMBTIs(map);
+    }
+
+    public List<String> getTitles(User user){
+        List<UserTitle> titleList = userTitleRepository.findById_User(user);
+        List<String> ls = new ArrayList<>();
+        for(UserTitle ut : titleList){
+            ls.add(ut.getId().getTCode().getTitleName());
         }
-        return mbtiLs;
+        return ls;
+    }
+
+    public List<String> getUserPetInfo(User user){
+        MyPet petInfo = myPetRepository.findFirstById_UserAndSelectedTrue(user);
+        List<String> infoLs = new ArrayList<>();
+        infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
+        infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
+        return infoLs;
     }
 
     public User modifyUserInfo(UserInfoResponse modified, User origin){ //값이 변경되지 않았을 경우에도 원래의 값을 받아야 한다.

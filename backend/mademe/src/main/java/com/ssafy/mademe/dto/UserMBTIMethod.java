@@ -6,7 +6,7 @@ import org.springframework.context.annotation.Bean;
 import java.util.*;
 
 public class UserMBTIMethod {
-    public List<String> getMBTIs(Map<MBTICode, Long> map){
+    public String getMBTIs(Map<MBTICode, Long> map){
         StringBuilder sb = new StringBuilder(); //가능한 MBTI코드들이 다 들어가있다.
         //I, E
         if(map.get(MBTICode.I) != null && map.get(MBTICode.E) != null){
@@ -15,7 +15,7 @@ public class UserMBTIMethod {
             } else if (map.get(MBTICode.I) > map.get(MBTICode.E)) {
                 sb.append("I");
             } else {
-                sb.append("IE");
+                sb.append("I/E");
                 //sb.append("E");
             }
         } else if (map.get(MBTICode.I) == null) {
@@ -30,7 +30,7 @@ public class UserMBTIMethod {
             } else if (map.get(MBTICode.N) > map.get(MBTICode.S)) {
                 sb.append("N");
             } else {
-                sb.append("NS");
+                sb.append("N/S");
                 //sb.append("S");
             }
         } else if (map.get(MBTICode.N) == null) {
@@ -45,7 +45,7 @@ public class UserMBTIMethod {
             } else if (map.get(MBTICode.F) > map.get(MBTICode.T)) {
                 sb.append("F");
             } else {
-                sb.append("FT");
+                sb.append("F/T");
                 //sb.append("T");
             }
         } else if (map.get(MBTICode.F) == null) {
@@ -60,7 +60,7 @@ public class UserMBTIMethod {
             } else if (map.get(MBTICode.J) > map.get(MBTICode.P)) {
                 sb.append("J");
             } else {
-                sb.append("JP");
+                sb.append("J/P");
                 //sb.append("P");
             }
         } else if (map.get(MBTICode.J) == null) {
@@ -68,78 +68,79 @@ public class UserMBTIMethod {
         } else {
             sb.append("J");
         }
+        return sb.toString();
 
-        Set<String> mbtiList = new HashSet<>();
-        for(int a=0; a<2; a++){
-            StringBuilder tmp = new StringBuilder();
-            String ie = "IE";
-            if(sb.toString().contains("IE")){
-                tmp.append(ie.charAt(a));
-            }else{
-                tmp.append(sb.charAt(0));
-            }
-            for (int b=0; b<2; b++){
-                String ns = "NS";
-                if(sb.toString().contains("NS")){
-                    if(tmp.length() == 1){
-                        tmp.append(ns.charAt(b));
-                    }else{
-                        tmp.replace(1, 2, String.valueOf(ns.charAt(b)));
-                    }
-                }else {
-                    if(sb.toString().contains("N")){
-                        if(tmp.length() == 1){
-                            tmp.append("N");
-                        }
-                    }else{
-                        if(tmp.length() == 1){
-                            tmp.append("S");
-                        }
-                    }
-                }
-                for(int c=0; c<2; c++){
-                    String ft = "FT";
-                    if(sb.toString().contains("FT")){
-                        if(tmp.length() == 2){
-                            tmp.append(ft.charAt(c));
-                        }else{
-                            tmp.replace(2, 3, String.valueOf(ft.charAt(c)));
-                        }
-                    }else {
-                        if(sb.toString().contains("F")){
-                            if(tmp.length() == 2){
-                                tmp.append("F");
-                            }
-                        }else{
-                            if(tmp.length() == 2){
-                                tmp.append("T");
-                            }
-                        }
-                    }
-                    for(int d=0; d<2; d++){
-                        String jp = "JP";
-                        if(sb.toString().contains("JP")){
-                            if(tmp.length() == 3){
-                                tmp.append(jp.charAt(d));
-                            }else{
-                                tmp.replace(3, 4, String.valueOf(jp.charAt(d)));
-                            }
-                        }else {
-                            if(sb.toString().contains("J")){
-                                if(tmp.length() == 3){
-                                    tmp.append("J");
-                                }
-                            }else{
-                                if(tmp.length() == 3){
-                                    tmp.append("P");
-                                }
-                            }
-                        }
-                        mbtiList.add(tmp.toString());
-                    }
-                }
-            }
-        }
-        return new ArrayList<>(mbtiList);
+//        Set<String> mbtiList = new HashSet<>();
+//        for(int a=0; a<2; a++){
+//            StringBuilder tmp = new StringBuilder();
+//            String ie = "IE";
+//            if(sb.toString().contains("IE")){
+//                tmp.append(ie.charAt(a));
+//            }else{
+//                tmp.append(sb.charAt(0));
+//            }
+//            for (int b=0; b<2; b++){
+//                String ns = "NS";
+//                if(sb.toString().contains("NS")){
+//                    if(tmp.length() == 1){
+//                        tmp.append(ns.charAt(b));
+//                    }else{
+//                        tmp.replace(1, 2, String.valueOf(ns.charAt(b)));
+//                    }
+//                }else {
+//                    if(sb.toString().contains("N")){
+//                        if(tmp.length() == 1){
+//                            tmp.append("N");
+//                        }
+//                    }else{
+//                        if(tmp.length() == 1){
+//                            tmp.append("S");
+//                        }
+//                    }
+//                }
+//                for(int c=0; c<2; c++){
+//                    String ft = "FT";
+//                    if(sb.toString().contains("FT")){
+//                        if(tmp.length() == 2){
+//                            tmp.append(ft.charAt(c));
+//                        }else{
+//                            tmp.replace(2, 3, String.valueOf(ft.charAt(c)));
+//                        }
+//                    }else {
+//                        if(sb.toString().contains("F")){
+//                            if(tmp.length() == 2){
+//                                tmp.append("F");
+//                            }
+//                        }else{
+//                            if(tmp.length() == 2){
+//                                tmp.append("T");
+//                            }
+//                        }
+//                    }
+//                    for(int d=0; d<2; d++){
+//                        String jp = "JP";
+//                        if(sb.toString().contains("JP")){
+//                            if(tmp.length() == 3){
+//                                tmp.append(jp.charAt(d));
+//                            }else{
+//                                tmp.replace(3, 4, String.valueOf(jp.charAt(d)));
+//                            }
+//                        }else {
+//                            if(sb.toString().contains("J")){
+//                                if(tmp.length() == 3){
+//                                    tmp.append("J");
+//                                }
+//                            }else{
+//                                if(tmp.length() == 3){
+//                                    tmp.append("P");
+//                                }
+//                            }
+//                        }
+//                        mbtiList.add(tmp.toString());
+//                    }
+//                }
+//            }
+//        }
+        //return new ArrayList<>(mbtiList);
     }
 }

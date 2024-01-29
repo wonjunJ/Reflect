@@ -48,14 +48,19 @@ public class UserController {
     }
 
     @GetMapping("/")
-    public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){
-        List<String> ls = userService.getUserInfo(user);
-        return mapToUserInfo(user, ls);
+    public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
+        String mbtiStr = userService.getUserMbtiInfo(user);
+        List<String> titleList = userService.getTitles(user);
+        List<String> petInfo = userService.getUserPetInfo(user);
+        UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
+        uires.setCharName(petInfo.get(0));
+        uires.setMyCharName(petInfo.get(1));
+        return uires;
     }
 
     @PutMapping("/")
     public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){
-        return mapToUserInfo(userService.modifyUserInfo(user, token), new ArrayList<>());
+        return mapToUserInfo(userService.modifyUserInfo(user, token), "", new ArrayList<>());
     }
 
     @PostMapping("/send")
@@ -146,7 +151,7 @@ public class UserController {
         response.addCookie(cookie);
     }
 
-    private UserInfoResponse mapToUserInfo(User user, List<String> ls){
+    private UserInfoResponse mapToUserInfo(User user, String ls, List<String> titles){
         return UserInfoResponse.builder()
                 .id(user.getId())
                 .name(user.getName())
@@ -157,6 +162,7 @@ public class UserController {
                 .phoneNumber(user.getPhoneNumber())
                 .birthday(user.getBirthday())
                 .mbti(ls)
+                .titles(titles)
                 .myIntro(user.getMyIntro())
                 .build();
     }
