@@ -1,10 +1,14 @@
 package com.ssafy.mademe.service;
 
+import com.ssafy.mademe.dto.UserMBTIMethod;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
+import com.ssafy.mademe.entity.MBTICode;
+import com.ssafy.mademe.entity.MBTILog;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.*;
+import com.ssafy.mademe.repository.MBTILogRepository;
 import com.ssafy.mademe.repository.UserRepository;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,19 +26,19 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.time.Duration;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
 public class UserService implements UserDetailsService {
 
     private final UserRepository userRepository;
+    private final MBTILogRepository mbtiLogRepository;
     private final BCryptPasswordEncoder encoder;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final JWTUtil jwtUtil;
     private final MailService mailService;
+    private final UserMBTIMethod userMBTIMethod = new UserMBTIMethod();
 
     public Map<String, String> doLogin(String userId, String userPw){
         User user = userRepository.findBySiteId(userId);
@@ -64,7 +68,17 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public User modifyUserInfo(UserInfoResponse modified, User origin){
+    public List<String> getUserInfo(User user){
+        //유저의 mbti정보만 얻는다.
+        Map<MBTICode, Long> map = mbtiLogRepository.findMbtiByUser(user);
+        List<String> mbtiLs = userMBTIMethod.getMBTIs(map);
+        for(String ls : mbtiLs){
+            System.out.println(ls);
+        }
+        return mbtiLs;
+    }
+
+    public User modifyUserInfo(UserInfoResponse modified, User origin){ //값이 변경되지 않았을 경우에도 원래의 값을 받아야 한다.
         if(modified.getEmail() != null && userRepository.existsByEmail(modified.getEmail())){
             throw new DuplicateUserIdException("중복된 이메일입니다.");
         }

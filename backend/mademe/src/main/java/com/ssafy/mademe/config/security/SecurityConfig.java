@@ -34,8 +34,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
                                 "user/id/*", "user/nick/*", "user/send", "user/findid",
-                                "user/code", "user/findpw").permitAll()
-                        .requestMatchers("/user/*").hasRole("USER")
+                                "user/code", "user/findpw", "/reflect-socket/**").permitAll()
+                        .requestMatchers("/user/*", "/follow/*", "/app/*").hasRole("USER")
                         .anyRequest().authenticated())
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
@@ -43,9 +43,15 @@ public class SecurityConfig {
                 .anonymous(Customizer.withDefaults())
                 .exceptionHandling((handling) ->
                         handling.accessDeniedHandler(jwtAccessDeniedHandler)
+                                .authenticationEntryPoint(authenticationEntryPoint())
                 )
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)
                 .build();
+    }
+
+    @Bean
+    public AuthenticationEntryPoint authenticationEntryPoint(){
+        return new CustomAuthenticationEntryPoint();
     }
 
     @Bean

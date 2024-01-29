@@ -1,0 +1,43 @@
+package com.ssafy.mademe.repository;
+
+import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.mademe.dto.response.FollowingResponse;
+import com.ssafy.mademe.entity.QFollowing;
+import com.ssafy.mademe.entity.QUser;
+import com.ssafy.mademe.entity.User;
+import lombok.RequiredArgsConstructor;
+
+import java.util.ArrayList;
+import java.util.List;
+
+@RequiredArgsConstructor
+public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
+    private final JPAQueryFactory jpaQueryFactory;
+
+    @Override
+    public List<FollowingResponse> findFollowingListByUser(User user, int pgNum) {
+        List<Tuple> results = jpaQueryFactory
+                .select(
+                        QUser.user.id,
+                        QUser.user.profileImg,
+                        QUser.user.nickName
+                )
+                .from(QFollowing.following)
+                .join(QFollowing.following.id.followId, QUser.user)
+                .where(
+                        QFollowing.following.id.userId.eq(user)
+                )
+                .offset(pgNum)
+                .limit(3)
+                .fetch();
+
+        List<FollowingResponse> flist = new ArrayList<>();
+        for(Tuple tuple : results){
+            flist.add(new FollowingResponse(tuple.get(0, Long.class),
+                    tuple.get(1, String.class),
+                    tuple.get(2, String.class)));
+        }
+        return flist;
+    }
+}

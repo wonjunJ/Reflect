@@ -66,6 +66,7 @@ public class User implements UserDetails {
     private List<Following> followings = new ArrayList<>();
     public void addFollowing(Following following){
         followings.add(following);
+        following.getId().setUserId(this);
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
