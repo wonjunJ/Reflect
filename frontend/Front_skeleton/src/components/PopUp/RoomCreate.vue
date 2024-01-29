@@ -70,19 +70,19 @@
             <div>
                 <!-- 비밀의 방 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="secretRoomOnOff" checked>
+                    <input class="form-check-input" type="checkbox" role="switch" id="secretRoomOnOff">
                     <label class="form-check-label" for="secretRoomOnOff">비밀의 방으로</label>
                 </div>
 
                 <!-- 가면모드 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="maskOnOff" checked>
+                    <input class="form-check-input" type="checkbox" role="switch" id="maskOnOff">
                     <label class="form-check-label" for="maskOnOff">가면모드</label>
                 </div>
 
                 <!-- 익명모드 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="anonymousOnOff" checked>
+                    <input class="form-check-input" type="checkbox" role="switch" id="anonymousOnOff">
                     <label class="form-check-label" for="anonymousOnOff">비밀의 방으로</label>
                 </div>
 

@@ -6,6 +6,7 @@ import Signup from '@/views/User/SignupView.vue'
 import Login from '@/views/User/LoginView.vue'
 import Diary from '@/views/Diary/DiaryMain.vue'
 import RoomListView from '@/views/Room/RoomListView.vue'
+import RoomDetailView from '@/views/Room/RoomDetailView.vue'
 
 
 
@@ -47,6 +48,12 @@ const router = createRouter({
       path: '/rooms',
       name: 'roomlist',
       component: RoomListView,
+      // meta: { requresAuth: true},
+    },
+    {
+      path: '/room',
+      name: 'roomdetail',
+      component: RoomDetailView,
       // meta: { requresAuth: true},
     }
   ]

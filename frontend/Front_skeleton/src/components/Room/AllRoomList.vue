@@ -28,15 +28,31 @@
                 </div>
 
                 <div class="card-footer text-center">
-                    <a href="#" class="btn btn-primary">Join</a>
+                    <a href="#" class="btn btn-primary" @click="openEnterModalOpen">Join</a>
                 </div>
-                </div>
+                
             </div>
+        </div>
+        <RoomEnter :openEnterModalOpen="openEnterModalOpen" @closeModal="closeModal"/>
         </div>
     </div>
 </template>
 
 <script setup>
+import {ref} from vue;
+import RoomEnter from '../PopUp/RoomEnter.vue';
+
+const isEnterRoom = ref(false)
+
+const openEnterModalOpen = () => {
+    isEnterRoom.value =  true
+}
+
+const closeModal = () => {
+    isEnterRoom.value = false
+}
+
+
 
 </script>
 

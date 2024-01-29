@@ -90,9 +90,15 @@
                       Recommend
                   </button>
                   <ul class="dropdown-menu">
-                      <li><a class="dropdown-item" href="#">100문 100답</a></li>
-                      <li><a class="dropdown-item" href="#">자유주제</a></li>
+                      <li><a class="dropdown-item" @click="openHundredModal">100문 100답</a></li>
+                      <li><a class="dropdown-item" @click="openFreeModal">자유주제</a></li>
+                     
                   </ul>
+              </div>
+
+              <!-- 모달 내용 -->
+              <div>
+                <RoomRecommend :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" />
               </div>
 
               <!-- 빠른참여 버튼 -->
@@ -165,6 +171,7 @@ import { ref } from 'vue';
 import AllRoomList from '@/components/Room/AllRoomList.vue'
 import FilteredRoomList from '@/components/Room/FilteredRoomList.vue'
 import RoomCreate from '@/components/PopUp/RoomCreate.vue'
+import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import { useRoomStore} from '@/stores/room'
 // import Slider from '@vueform/slider'
 
@@ -178,6 +185,8 @@ const isAll = ref(true)
 const isWaiting = ref(false)
 const isFiltered = ref(false)
 const isModalOpen = ref(false)
+const isHundredModalOpen = ref(false)
+const isFreeModalOpen = ref(false)
 
 // const value = ref([2,8])
 
@@ -212,6 +221,16 @@ const openCreateRoomModal = () => {
 
 const closeModal = () => {
   isModalOpen.value = false
+  isHundredModalOpen.value = false
+  isFreeModalOpen.value = false
+}
+
+const openHundredModal = () => {
+  isHundredModalOpen.value = true
+}
+
+const openFreeModal = ()=> {
+  isFreeModalOpen.value = true
 }
 
 
