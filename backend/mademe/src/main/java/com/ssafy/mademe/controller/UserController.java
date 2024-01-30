@@ -3,6 +3,7 @@ package com.ssafy.mademe.controller;
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
+import com.ssafy.mademe.dto.response.SimpleLogInfoResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
@@ -54,6 +55,7 @@ public class UserController {
         return state;
     }
 
+    //회원정보 조회
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
         String mbtiStr = userService.getUserMbtiInfo(user);
@@ -65,9 +67,16 @@ public class UserController {
         return uires;
     }
 
+    //회원정보 수정
     @PutMapping("/")
     public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){
         return mapToUserInfo(userService.modifyUserInfo(user, token), "", new ArrayList<>());
+    }
+
+    //마이페이지에서 간단한 감정과 관심사 정보 조회
+    @GetMapping("simple")
+    public SimpleLogInfoResponse getSimpleLogInfo(@AuthenticationPrincipal User user){
+        return new SimpleLogInfoResponse();
     }
 
     @PostMapping("/send")
@@ -77,6 +86,7 @@ public class UserController {
         return "인증번호 전송 완료";
     }
 
+    //아이디 중복 체크
     @GetMapping("/id/{userid}")
     public void idCheck(@PathVariable("userid") String userId) {
         log.info("idCheck 진입");
@@ -90,6 +100,7 @@ public class UserController {
         }
     }
 
+    //닉네임 중복 체크
     @GetMapping("/nick/{nickname}")
     public void nickCheck(@PathVariable("nickname") String nickName) {
         boolean rst = userService.nickCheck(nickName);
@@ -99,16 +110,19 @@ public class UserController {
         }
     }
 
+    //아이디 찾기
     @GetMapping("/findid")
     public Map<String, String> findId(@RequestParam("email") String email){
         return userService.findId(email);
     }
 
+    //인증번호 확인
     @PostMapping("/code")
     public CheckCodeResponse checkCode(@RequestBody CheckCodeRequest checkCodeRequest){
         return userService.checkCode(checkCodeRequest);
     }
 
+    //비밀번호 찾기
     @PostMapping("/findpw")
     public String findPw(@RequestBody CheckCodeRequest checkCodeRequest){
         CheckCodeResponse rs = userService.checkCode(checkCodeRequest);
@@ -116,6 +130,7 @@ public class UserController {
         return "비밀번호 변경 완료";
     }
 
+    //비밀번호 변경(내 정보 수정에서)
     @PutMapping("/changepw")
     public String changePw(@RequestBody ChangePwRequest pwInfo, @AuthenticationPrincipal User user){
         boolean rst = userService.checkCurPw(user.getId(), pwInfo.getCurrent_pw());
@@ -142,6 +157,7 @@ public class UserController {
         return "회원탈퇴 완료";
     }
 
+    //refresh token 재발급
     @PostMapping("/refresh")
     public Map<String, String> reissuedToken(HttpServletRequest request){
         return userService.reissuedToken(request);
