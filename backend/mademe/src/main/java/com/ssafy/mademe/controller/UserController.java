@@ -20,6 +20,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -32,9 +33,6 @@ public class UserController {
     private final UserService userService;
     private final MailService mailService;
     private final JWTUtil jwtUtil;
-
-    @Value("${properties.test.value}")
-    private String tmp;
 
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
 
@@ -49,9 +47,11 @@ public class UserController {
     }
 
     @PostMapping("/join")
-    public String join(@RequestBody User user){
+    public Map<String, String> join(@RequestBody User user){
         userService.joinMember(user);
-        return tmp;
+        Map<String, String> state = new HashMap<>();
+        state.put("state", "success");
+        return state;
     }
 
     @GetMapping("/")
@@ -127,10 +127,13 @@ public class UserController {
     }
 
     @PostMapping("/logout")
-    public void logout(@AuthenticationPrincipal User user) {
+    public Map<String, String> logout(@AuthenticationPrincipal User user) {
         Long userId = user.getId();
         log.info(userId.toString());
         jwtUtil.doLogout(userId);
+        Map<String, String> state = new HashMap<>();
+        state.put("state", "success");
+        return state;
     }
 
     @DeleteMapping("/")
@@ -169,6 +172,7 @@ public class UserController {
                 .phoneNumber(user.getPhoneNumber())
                 .birthday(user.getBirthday())
                 .mbti(ls)
+                .point(user.getPoint())
                 .titles(titles)
                 .myIntro(user.getMyIntro())
                 .build();

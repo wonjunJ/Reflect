@@ -10,18 +10,18 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
-//    @Value("${naver.email.id}")
-//    private String NAVER_ID;
-//    @Value("${naver.email.pwd}")
-//    private String NAVER_PWD;
+    @Value("${naver.email.id}")
+    private String NAVER_ID;
+    @Value("${naver.email.pwd}")
+    private String NAVER_PWD;
 
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.naver.com");
-        javaMailSender.setUsername("dddd");
-        javaMailSender.setPassword("ddffd");
+        javaMailSender.setUsername(NAVER_ID);
+        javaMailSender.setPassword(NAVER_PWD);
 
         javaMailSender.setPort(465);
 

@@ -27,7 +27,7 @@ public class JasyptConfig {
         config.setProviderName("SunJCE"); //사용할 암호화 라이브러리
         config.setSaltGeneratorClassName("org.jasypt.salt.RandomSaltGenerator"); // salt 생성 클래스
         //PBEWITHHMACSHA512ANDAES_256 알고리즘 사용시 추가설정
-        config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
+        //config.setIvGeneratorClassName("org.jasypt.iv.RandomIvGenerator");
         config.setStringOutputType("base64"); //인코딩 방식
         encryptor.setConfig(config);
         return encryptor;
