@@ -15,6 +15,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -32,19 +33,25 @@ public class UserController {
     private final MailService mailService;
     private final JWTUtil jwtUtil;
 
+    @Value("${properties.test.value}")
+    private String tmp;
+
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
 
     @PostMapping("/login")
     public Map<String, String> login(@RequestBody User loginRequest, HttpServletResponse response){
+//        @Value("${spring.datasource.url}")
+//        String tmp;
         Map<String, String> tokens = userService.doLogin(loginRequest.getSiteId(), loginRequest.getPw());
         setCookie(loginRequest, response);
+        //tokens.put("id", tmp);
         return tokens;
     }
 
     @PostMapping("/join")
     public String join(@RequestBody User user){
         userService.joinMember(user);
-        return "success";
+        return tmp;
     }
 
     @GetMapping("/")

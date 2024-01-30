@@ -26,6 +26,8 @@ public class QMyPet extends EntityPathBase<MyPet> {
 
     public final StringPath mypetName = createString("mypetName");
 
+    public final BooleanPath selected = createBoolean("selected");
+
     public QMyPet(String variable) {
         this(MyPet.class, forVariable(variable), INITS);
     }
