@@ -130,7 +130,7 @@ const writeQuestion = () => {
 
 
 const replaceImg = (e) => {
-  import('@/assets/images/defaultRoom.jpg').then((image) => {
+  import('@/assets/defaultRoom.jpg').then((image) => {
     e.target.src = image.default;
   });
 };

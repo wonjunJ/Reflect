@@ -79,7 +79,7 @@
                 <div class="myinfo">
                     <!-- 프로필사진 -->
                     <div class="profileimg">
-                        <img src="@\assets\images\cmh (1).jpg" alt="profileimg">
+                        <img src="@\assets\cmh (1).jpg" alt="profileimg">
                     </div>
 
                     <!-- 닉네임 -->
@@ -90,7 +90,7 @@
                 
                 <!-- 내 모습 비디오 -->
                 <div class="video">
-                    <img src="@\assets\images\defaultRoom.jpg" alt="일단 임시이미지">
+                    <img src="@\assets\defaultRoom.jpg" alt="일단 임시이미지">
                 </div>
             </div>
 

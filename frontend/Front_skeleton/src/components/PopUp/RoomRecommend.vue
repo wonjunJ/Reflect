@@ -20,7 +20,7 @@
                             <div class="carousel-item active">
                                 <div class="col">
                                 <div class="card h-100">
-                                <img src="@/assets/images/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
+                                <img src="@/assets/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
                                 <div class="card-body">
                                     <h5 class="card-title">Card title</h5>
                                     <div class="d-inline-flex gap-1"><a href="#">#웹툰</a><a href="#">#해시태그</a></div>
@@ -46,7 +46,7 @@
                             <div class="carousel-item">
                                 <div class="col">
                                 <div class="card h-100">
-                                <img src="@/assets/images/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
+                                <img src="@/assets/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
                                 <div class="card-body">
                                     <h5 class="card-title">Card title</h5>
                                     <div class="d-inline-flex gap-1"><a href="#">#웹툰</a><a href="#">#해시태그</a></div>
@@ -72,7 +72,7 @@
                             <div class="carousel-item">
                                 <div class="col">
                                 <div class="card h-100">
-                                <img src="@/assets/images/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
+                                <img src="@/assets/defaultRoom.jpg" class="card-img-top" alt="방 임시 이미지">
                                 <div class="card-body">
                                     <h5 class="card-title">Card title</h5>
                                     <div class="d-inline-flex gap-1"><a href="#">#웹툰</a><a href="#">#해시태그</a></div>
