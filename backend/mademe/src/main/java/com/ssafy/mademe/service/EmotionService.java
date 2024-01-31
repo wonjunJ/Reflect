@@ -16,7 +16,7 @@ public class EmotionService {
     private final DiaryRepository diaryRepository;
 
     public EmotionCntResponse getEmoCnt(User user, int duration){
-        LocalDateTime start = LocalDate.now().minusDays(7).atTime(LocalTime.MIN);
+        LocalDateTime start = LocalDate.now().minusDays(7).atStartOfDay();
         return diaryRepository.findDiaryEmoCntByUser(user, start);
     }
 }

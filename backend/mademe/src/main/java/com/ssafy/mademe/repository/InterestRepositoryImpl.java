@@ -4,12 +4,14 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.InterestLsResponse;
+import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.Preference;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 import static com.ssafy.mademe.entity.QInterest.interest;
 
@@ -18,7 +20,7 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<Interest> findInterestList(User user, int top, Preference prf) {
+    public List<InterestResponse> findInterestList(User user, int top, Preference prf) {
         JPAQuery<Interest> query = jpaQueryFactory
                 .selectFrom(interest)
                 .where(interest.user.eq(user));
@@ -30,7 +32,10 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
         return query
                 .orderBy(interest.cnt.desc())
                 .limit(top)
-                .fetch();
+                .fetch()
+                .stream()
+                .map(this::mapToInterestResponse)  // 변환 메서드 호출
+                .collect(Collectors.toList());
 
 // --------------------------------------------------------------------
 //        return jpaQueryFactory
@@ -42,5 +47,13 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
 //                .orderBy(interest.cnt.desc())
 //                .limit(top)
 //                .fetch();
+    }
+
+    private InterestResponse mapToInterestResponse(Interest interest) {
+        return InterestResponse.builder()
+                .interestName(interest.getCompositeKey().getInterestCode().getHobbyName())
+                .preference(interest.getCompositeKey().getPreference())
+                .cnt(interest.getCnt())
+                .build();
     }
 }

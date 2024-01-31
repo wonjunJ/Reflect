@@ -45,7 +45,6 @@ public class UserService implements UserDetailsService {
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
             throw new UserNotFoundException("아이디 또는 비밀번호 확인 후 다시 로그인하세요!");
         }
-        System.out.println(user.getPw());
         if(!encoder.matches(userPw, user.getPw())){
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 올바르지 않습니다.");
             throw new InvalidPasswordException("비밀번호가 올바르지 않습니다.");

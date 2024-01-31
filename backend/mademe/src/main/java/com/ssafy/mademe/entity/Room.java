@@ -28,7 +28,7 @@ public class Room {
     private RoomType type;
 
     //User테이블 쪽으로 단방향 관계만
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
     private User ownerId;
 
@@ -39,7 +39,7 @@ public class Room {
     @Lob
     private String thumbnail;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
     private QuestionCode question;
 

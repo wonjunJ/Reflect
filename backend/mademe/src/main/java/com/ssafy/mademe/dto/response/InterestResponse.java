@@ -1,5 +1,6 @@
 package com.ssafy.mademe.dto.response;
 
+import com.ssafy.mademe.entity.Preference;
 import lombok.*;
 
 @Builder
@@ -9,4 +10,6 @@ import lombok.*;
 @AllArgsConstructor
 public class InterestResponse {
     private String interestName;
+    private Preference preference;
+    private int cnt;
 }

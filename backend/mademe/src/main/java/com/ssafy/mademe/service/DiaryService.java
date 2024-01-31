@@ -8,7 +8,9 @@ import com.ssafy.mademe.repository.MyRoomRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,15 +23,19 @@ public class DiaryService {
 
     public List<MonthDiaryResponse> getMonthDiaryStatus(User user){
         Month now = LocalDateTime.now().getMonth();
+        System.out.println(now);
         List<Diary> monthInfo = diaryRepository.findMonthStatus(user, now);
         List<MonthDiaryResponse> result = new ArrayList<>();
         for(Diary d : monthInfo){
+            LocalDate date = d.getCreateDate().toLocalDate();
+            LocalDateTime start = date.atStartOfDay();
+            LocalDateTime end = date.atTime(LocalTime.MAX);
             result.add(
                     MonthDiaryResponse.builder()
                     .diaryId(d.getId())
                     .date(d.getCreateDate().toLocalDate())
                     .emotion(d.getTotalEmotion().getId())
-                    .doCommunity(myRoomRepository.existsById_UserAndInDate(user, d.getCreateDate().toLocalDate()))
+                    .doCommunity(myRoomRepository.existsById_UserAndInDateBetween(user, start, end))
                     .build()
             );
         }

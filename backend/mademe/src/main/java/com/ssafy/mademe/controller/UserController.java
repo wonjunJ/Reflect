@@ -2,9 +2,8 @@ package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
-import com.ssafy.mademe.dto.response.CheckCodeResponse;
-import com.ssafy.mademe.dto.response.SimpleLogInfoResponse;
-import com.ssafy.mademe.dto.response.UserInfoResponse;
+import com.ssafy.mademe.dto.response.*;
+import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
 import com.ssafy.mademe.exception.user.InvalidPasswordException;
@@ -80,8 +79,9 @@ public class UserController {
     //마이페이지에서 간단한 감정과 관심사 정보 조회
     @GetMapping("/simple")
     public SimpleLogInfoResponse getSimpleLogInfo(@AuthenticationPrincipal User user){
-        return new SimpleLogInfoResponse(emotionService.getEmoCnt(user, 7),
-                interestService.getTop5Interest(user, 5));
+        EmotionCntResponse emo = emotionService.getEmoCnt(user, 7);
+        List<InterestResponse> inter = interestService.getTop5Interest(user, 5);
+        return new SimpleLogInfoResponse(emo, inter);
     }
 
     @PostMapping("/send")

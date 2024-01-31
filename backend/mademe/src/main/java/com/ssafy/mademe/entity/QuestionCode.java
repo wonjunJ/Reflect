@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 //단방향으로만 관계 설정
 @Entity
 @Getter
@@ -16,6 +18,6 @@ public class QuestionCode {
 
     private String questionName;
 
-    @OneToOne(mappedBy = "question", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
-    private Room room;
+    @OneToMany(mappedBy = "question", cascade = CascadeType.ALL)
+    private List<Room> rooms;
 }
