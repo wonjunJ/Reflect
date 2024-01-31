@@ -1,5 +1,6 @@
 package com.ssafy.mademe.dto.response;
 
+import com.ssafy.mademe.entity.Interest;
 import lombok.*;
 
 import java.util.List;
@@ -11,5 +12,5 @@ import java.util.List;
 @AllArgsConstructor
 public class SimpleLogInfoResponse {
     private EmotionCntResponse emotion;
-    private List<String> interests;
+    private List<Interest> interests;
 }

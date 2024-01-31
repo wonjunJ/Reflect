@@ -8,6 +8,8 @@ import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
 import com.ssafy.mademe.exception.user.InvalidPasswordException;
+import com.ssafy.mademe.service.EmotionService;
+import com.ssafy.mademe.service.InterestService;
 import com.ssafy.mademe.service.MailService;
 import com.ssafy.mademe.service.UserService;
 import com.ssafy.mademe.utils.JWTUtil;
@@ -33,6 +35,8 @@ public class UserController {
 
     private final UserService userService;
     private final MailService mailService;
+    private final EmotionService emotionService;
+    private final InterestService interestService;
     private final JWTUtil jwtUtil;
 
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
@@ -74,9 +78,10 @@ public class UserController {
     }
 
     //마이페이지에서 간단한 감정과 관심사 정보 조회
-    @GetMapping("simple")
+    @GetMapping("/simple")
     public SimpleLogInfoResponse getSimpleLogInfo(@AuthenticationPrincipal User user){
-        return new SimpleLogInfoResponse();
+        return new SimpleLogInfoResponse(emotionService.getEmoCnt(user, 7),
+                interestService.getTop5Interest(user, 5));
     }
 
     @PostMapping("/send")

@@ -8,10 +8,10 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class EmotionCntResponse {
-    private int happiness;
-    private int joy;
-    private int sad;
-    private int anger;
-    private int Disgust;
-    private int none;
+    private Long happiness;
+    private Long joy;
+    private Long sad;
+    private Long anger;
+    private Long Disgust;
+    private Long none;
 }
