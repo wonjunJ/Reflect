@@ -40,7 +40,7 @@
               v-for="interest in interestsPositive" 
               :key="interest.id"
             >
-              <p>{{ interest.name }}</p>
+              <p>{{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
             </div>
           </div>
           <div class="d-flex flex-column">
@@ -49,7 +49,7 @@
               v-for="interest in interestsNegative" 
               :key="interest.id"
             >
-              <p>{{ interest.name }}</p>
+              <p>{{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
             </div>
           </div>
         </div>
@@ -170,7 +170,7 @@ const barChartData = computed(() => {
     labels,
     datasets: [
       {
-        label: 'Data One',
+        label: 'MBTI',
         backgroundColor: '#f87979',
         data,
       }
@@ -258,6 +258,14 @@ const addInterest = function () {
   interestForm.value.id += 1
   interestForm.value.name = ''
   interestForm.value.emotion = ''
+}
+
+const deleteInterests = function (num) {
+  const idx = interests.value.findIndex(item => item.id === num)
+  if (idx !== -1) {
+    interests.value.splice(idx, 1)
+  }
+  // 그 관심사 삭제하는 요청 back으로 보내기
 }
 
 onMounted(() => {
