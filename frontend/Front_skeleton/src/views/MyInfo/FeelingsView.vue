@@ -123,7 +123,7 @@ const lineChartData = ref({
   
 const filteredDiarys = ref([])
   
-// 일기 목록 감정 선택 함수
+// 일기 목록 감정 선택
 const selectEmotion = function (num) {
   selectedEmotion.value = num
   // axios 요청으로 일기 불러오고 바꾸기
