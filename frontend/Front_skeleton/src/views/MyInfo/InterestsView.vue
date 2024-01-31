@@ -69,9 +69,7 @@
         </div>
         <div>
           <!-- 일기 목록 -->
-          <div v-for="diary in filteredDiarys" :key="diary.id">
-            <p>{{ diary }}</p>
-          </div>
+          <DiaryDetailList :diarys="filteredDiarys"/>
         </div>
       </div>
     </div>
@@ -83,6 +81,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import ChartRadar from '@/components/charts/ChartRadar.vue'
 import WordCloud from '@/components/WordCloud.vue'
 import ChartBar from '@/components/charts/ChartBar.vue'
+import DiaryDetailList from './components/DiaryDetailList.vue'
 
 // 워드 클라우드용 더미 데이터 (axios 요청 받아서 이 형태로 처리 필요)
 const wordCloudData = ref([

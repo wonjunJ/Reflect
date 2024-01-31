@@ -65,9 +65,7 @@
         </div>
         <div>
           <!-- 일기 목록 컴포넌트 따로 만들고 MBTI 일기랑 같이쓸까함 -->
-          <div v-for="diary in filteredDiarys" :key="diary.id">
-            <p>{{ diary }}</p>
-          </div>
+          <DiaryDetailList :diarys="filteredDiarys"/>
         </div>
       </div>
     </div>
@@ -78,6 +76,7 @@
 import { onMounted, ref } from 'vue'
 import ChartDoughnut from '@/components/charts/ChartDoughnut.vue'
 import ChartLine from '@/components/charts/ChartLine.vue'
+import DiaryDetailList from './components/DiaryDetailList.vue'
   
 // 선택된 기간과 감정코드
 const selectedPeriod = ref(7)
