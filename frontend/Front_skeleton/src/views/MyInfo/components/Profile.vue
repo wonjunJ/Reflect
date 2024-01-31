@@ -13,14 +13,14 @@
       <div>
         <PieChart :chart-data="chartData"/>
       </div>
-      <button class="btn" @click="router.push({name:'feeling'})">Detail</button>
+      <button class="btn" @click="router.push({name:'feelings'})">Detail</button>
     </div>
     <div>
       <h3>관심사</h3>
       <p>asdf</p>
       <p>asdf</p>
       <p>asdf</p>
-      <button class="btn" @click="router.push({name: 'interest'})">Detail</button>
+      <button class="btn" @click="router.push({name: 'interests'})">Detail</button>
     </div>
   </div>
 </template>
