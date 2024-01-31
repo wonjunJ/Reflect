@@ -5,6 +5,7 @@ import MyPage from '@/views/MyInfo/MyPageView.vue'
 import Signup from '@/views/User/SignupView.vue'
 import Login from '@/views/User/LoginView.vue'
 import Diary from '@/views/Diary/DiaryMain.vue'
+import Forgot from '@/views/User/ForgotView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -39,6 +40,11 @@ const router = createRouter({
       //     return {name: 'index'}
       //   }
       // }
+    },
+    {
+      path: '/forgot',
+      name: 'forgot',
+      component: Forgot,
     }
   ]
 })

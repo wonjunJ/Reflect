@@ -8,7 +8,7 @@
     <el-form-item prop="password" label="비밀번호" :label-width="state.formLabelWidth">
       <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off" show-password></el-input>
     </el-form-item>
-    <!-- <RouterLink :to="{name: 'help'}">forgot ID or password ?</RouterLink> -->
+    <RouterLink :to="{name: 'forgot'}">forgot ID or password ?</RouterLink>
     <el-form-item>
       <el-button type="primary" @click="login" :disabled="!isFormValid">login</el-button>
     </el-form-item>
