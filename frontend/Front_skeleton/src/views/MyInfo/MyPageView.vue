@@ -1,52 +1,68 @@
 <template>
-  <div>
-    <button @click="toggleRecording">{{ isRecording ? '종료' : '시작' }}</button>
-    <br><br>
-    <audio ref="audioEl" controls></audio>
+  <h1>This is MyPage</h1>
+  <div class="d-flex">
+    <aside class="aside-container">
+      <Profile :user-info="userInfo"/>
+    </aside>
+    <body class="d-flex flex-column">
+      <Calander/>
+      <QandA/>
+      <div class="d-flex">
+        <div>
+          <h4>Follower</h4>
+          <FollowList :follows="followers"/>
+        </div>
+        <div>
+          <h4>Following</h4>
+          <FollowList :follows="followings"/>
+        </div>
+        <CommunityList :communitys="communitys"/>
+      </div>
+    </body>
   </div>
 </template>
 
-<script>
-import { ref, onMounted } from 'vue';
+<script setup>
+import { ref } from 'vue'
+import Profile from './components/Profile.vue'
+import Calander from './components/Calander.vue'
+import QandA from './components/QandA.vue'
+import FollowList from './components/FollowList.vue'
+import CommunityList from './components/CommunityList.vue'
 
-export default {
-  setup() {
-    const isRecording = ref(false);
-    const audioEl = ref(null);
-    const audioArray = ref([]);
-    let mediaRecorder = null;
+// 사용자 정보 더미데이터
+const userInfo = ref({
+  username: 'test',
+  email: 'asdf@asdf.com',
+  introduction: 'Hello, my name is Elder Price and I will like to share with you the most amazing book',
+  mbti: 'INTP'
+})
 
-    const toggleRecording = async () => {
-      if(!isRecording.value){
-        const mediaStream = await navigator.mediaDevices.getUserMedia({audio: true});
-        mediaRecorder = new MediaRecorder(mediaStream);
+// 팔로워 목록
+const followers = ref([
+  { id: 1, profileimg: null, username: 'test01', alike: '75%', isonline: false},
+  { id: 2, profileimg: null, username: 'test02', alike: '60%', isonline: true},
+  { id: 3, profileimg: null, username: 'test03', alike: '85%', isonline: false}
+])
 
-        mediaRecorder.ondataavailable = (event)=>{
-          audioArray.value.push(event.data);
-        }
+// 팔로잉 목록
+const followings = ref([
+  { id: 4, profileimg: null, username: 'test04', alike: '73%', isonline: true},
+  { id: 5, profileimg: null, username: 'test05', alike: '52%', isonline: true},
+  { id: 6, profileimg: null, username: 'test06', alike: '46%', isonline: false}
+])
 
-        mediaRecorder.onstop = ()=>{
-          const blob = new Blob(audioArray.value, {"type": "audio/wav"});
-          audioArray.value.splice(0);
-          const blobURL = window.URL.createObjectURL(blob);
-          audioEl.value.src = blobURL;
-          audioEl.value.play();
-        }
-
-        mediaRecorder.start();
-        isRecording.value = true;
-
-      }else{
-        mediaRecorder.stop();
-        isRecording.value = false;
-      }
-    }
-    
-    return {
-      isRecording,
-      audioEl,
-      toggleRecording
-    }
-  }
-}
+// 가입 커뮤니티 목록
+const communitys = ref([
+  { id: 1, title: 1, people: 6, hashtag: ['soccer', 'movie']},
+  { id: 2, title: 2, people: 4, hashtag: ['baseball']},
+])
 </script>
+
+<style scoped>
+.aside-container {
+  background-color: #f0f0f0;
+  padding: 20px;
+}
+
+</style>
