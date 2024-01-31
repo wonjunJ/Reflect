@@ -223,7 +223,7 @@ const interestsNegative = computed(() => {
 // 새로운 관심사 항목 만들기용 입력 데이터
 const interestForm = ref({
   name: '',
-  emotion: '',
+  emotion: '1',
   id: 11
 })
 
@@ -256,7 +256,7 @@ const addInterest = function () {
   // axios 요청으로 백에 새로운 관심사 저장하고 적힌 값 초기화
   interestForm.value.id += 1
   interestForm.value.name = ''
-  interestForm.value.emotion = ''
+  interestForm.value.emotion = '1'
 }
 
 const deleteInterests = function (num) {
