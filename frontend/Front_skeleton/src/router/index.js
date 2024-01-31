@@ -7,6 +7,7 @@ import Login from '@/views/User/LoginView.vue'
 import Diary from '@/views/Diary/DiaryMain.vue'
 import Forgot from '@/views/User/ForgotView.vue'
 import Feelings from '@/views/MyInfo/FeelingsView.vue'
+import Interests from '@/views/MyInfo/InterestsView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -51,6 +52,11 @@ const router = createRouter({
       path: '/feelings',
       name: 'feelings',
       component: Feelings,
+    },
+    {
+      path: '/interests',
+      name: 'interests',
+      component: Interests,
     },
   ]
 })

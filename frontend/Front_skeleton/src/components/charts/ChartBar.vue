@@ -8,16 +8,10 @@ import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, Li
 import { ref } from 'vue'
 ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
 
-const chartData = ref({
-  labels: [ 'January', 'February', 'March'],
-  datasets: [
-    {
-      label: 'Data One',
-      backgroundColor: '#f87979',
-      data: [40, 20, 12]
-    }
-  ]
+const props = defineProps({
+  chartData: Object
 })
+
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false
