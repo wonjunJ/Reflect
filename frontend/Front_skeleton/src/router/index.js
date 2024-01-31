@@ -9,6 +9,10 @@ import DiaryDetail from '@/views/Diary/DiaryDetail.vue'
 import Forgot from '@/views/User/ForgotView.vue'
 import Feelings from '@/views/MyInfo/FeelingsView.vue'
 import Interests from '@/views/MyInfo/InterestsView.vue'
+import RoomListView from '@/views/Room/RoomListView.vue'
+import RoomDetailView from '@/views/Room/RoomDetailView.vue'
+import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -64,6 +68,24 @@ const router = createRouter({
       name: 'interests',
       component: Interests,
     },
+    {
+      path: '/rooms',
+      name: 'roomlist',
+      component: RoomListView,
+      // meta: { requresAuth: true},
+    },
+    {
+      path: '/roomdetail',
+      name: 'roomdetail',
+      component: RoomDetailView,
+      // meta: { requresAuth: true},
+    },
+    {
+      path: '/waiting',
+      name: 'waiting',
+      component: RoomWaitingView,
+      // meta: { requresAuth: true},  
+    }
   ]
 })
 
