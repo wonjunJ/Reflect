@@ -5,6 +5,7 @@ import MyPage from '@/views/MyInfo/MyPageView.vue'
 import Signup from '@/views/User/SignupView.vue'
 import Login from '@/views/User/LoginView.vue'
 import Diary from '@/views/Diary/DiaryMain.vue'
+import DiaryDetail from '@/views/Diary/DiaryDetail.vue'
 import Forgot from '@/views/User/ForgotView.vue'
 import Feelings from '@/views/MyInfo/FeelingsView.vue'
 import Interests from '@/views/MyInfo/InterestsView.vue'
@@ -33,15 +34,20 @@ const router = createRouter({
       component: Diary
     },
     {
+      path: '/DiaryDetail',
+      name: 'DiaryDetail',
+      component: DiaryDetail
+    },
+    {
       path: '/',
       name: 'mypage',
       component: MyPage,
-      // beforeEnter: (to, from) => {
-      //   const userStore = useUserStore()
-      //   if (!userStore.isLogin) {
-      //     return {name: 'index'}
-      //   }
-      // }
+      beforeEnter: (to, from) => {
+        const userStore = useUserStore()
+        if (!userStore.isLogin) {
+          return {name: 'index'}
+        }
+      }
     },
     {
       path: '/forgot',
