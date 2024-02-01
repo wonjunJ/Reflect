@@ -9,20 +9,23 @@
 
             <!-- 썸네일 사진-->
             <div>
-                <img :src="roomImage" @error="replaceImg" width="300px"/>
-                <!-- 사진 수정 아이콘 -->
-                <button @click="imageChange">
+              
+              <div class="preview-img" v-if="previewUrl">
+                <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width: 350x;" />
+              </div>
+              <div v-else>
+                <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width: 350px;"/>
+              </div>
+                <el-upload class="upload-demo" :before-upload="beforeUpload">
+                  <a class="img-icon" :disabled="uploading">
                     <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
                         <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
                         <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
                     </svg>
-                </button>
-            </div>
+                  </a>
+                </el-upload>
             
-            <!-- 사진 edit 모달  -->
-            <div v-if="changeImage">
-
-            </div>
+              </div>
 
 
             <!-- 대화 타입 선택 -->
@@ -40,6 +43,11 @@
                 <div>
                     <label for="title-label">Title</label>
                     <input type="text" v-model.trim="roomTitle" class="room-input">
+                </div>
+                <!-- 방 한줄 설명 -->
+                <div>
+                    <label for="describe-label">Describe</label>
+                    <input type="text" v-model.trim="roomDescribe" class="room-input">
                 </div>
             
 
@@ -70,20 +78,20 @@
             <div>
                 <!-- 비밀의 방 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="secretRoomOnOff">
+                    <input class="form-check-input" type="checkbox" role="switch" id="secretRoomOnOff" v-model="isSecret">  
                     <label class="form-check-label" for="secretRoomOnOff">비밀의 방으로</label>
                 </div>
 
                 <!-- 가면모드 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="maskOnOff">
-                    <label class="form-check-label" for="maskOnOff">가면모드</label>
+                  <input class="form-check-input" type="checkbox" role="switch" id="maskOnOff" v-model="isMask">
+                  <label class="form-check-label" for="maskOnOff">가면모드</label>
                 </div>
 
                 <!-- 익명모드 -->
                 <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="anonymousOnOff">
-                    <label class="form-check-label" for="anonymousOnOff">비밀의 방으로</label>
+                  <input class="form-check-input" type="checkbox" role="switch" id="anonymousOnOff" v-model="isAnonymous">
+                  <label class="form-check-label" for="anonymousOnOff">비밀의 방으로</label>
                 </div>
 
             </div>
@@ -91,12 +99,14 @@
             <!-- 인원수 설정 슬라이더-->
             <div>
                 <label for="limit" class="form-label">인원수</label>
-                <input type="range" class="form-range" min="2" max="8" step="1" id="limit">
+                <input type="range" v-model="memberNum" class="form-range" min="2" max="8" step="1" id="limit">
 
             </div>
-            <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
-            <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
+            <div>
+              <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
+              <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
             </div>
+          </div>
         </div>
     </div>
 
@@ -107,16 +117,54 @@
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref} from 'vue'
+import {useRouter} from 'vue-router'
+
+const router = useRouter()
 
 const { isModalOpen } = defineProps(['isModalOpen'])
 const emit = defineEmits()
-const roomImage = ref('')
 const isHundred = ref(true)
 const isFree = ref(false)
 const questions = ref(null)
-const changeImage = ref(false)
+const previewUrl = ref(null);
+let uploading = false;
+const roomTitle = ref(null)
+const roomDescribe = ref(null)
+const hashtag = ref(null)
+const isAnonymous = ref(false)
+const isMask = ref(false)
+const isSecret = ref(false)
+const memberNum = ref(null)
 
+  
+
+
+// 파일 업로드 전 호출되는 메서드
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/'); // 이미지 파일 여부 확인
+
+  if (!isImage) {
+    // 이미지 파일이 아닌 경우
+    alert('이미지 파일만 업로드할 수 있습니다.');
+    return false; // 업로드 중지
+  }
+
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    previewUrl.value = e.target.result; // 미리보기 URL 설정
+  };
+  reader.readAsDataURL(file);
+  // uploading = true;
+  return true;
+};
+
+const replaceImg = (e) => {
+  import('@/assets/defaultRoom.jpg').then((image) => {
+    e.target.src = image.default;
+  });
+};
 
 const writeHashtag = () => {
   isHundred.value = true
@@ -129,25 +177,31 @@ const writeQuestion = () => {
 }
 
 
-const replaceImg = (e) => {
-  import('@/assets/defaultRoom.jpg').then((image) => {
-    e.target.src = image.default;
-  });
-};
+const goRoom = () => {
+  const roomInfoData = {
+    isHundred: isHundred.value,
+    isFree: isFree.value,
+    questions: questions.value,
+    previewUrl: previewUrl.value,
+    roomTitle: roomTitle.value,
+    roomDescribe: roomDescribe.value,
+    hashtag: hashtag.value,
+    isAnonymous: isAnonymous.value,
+    isMask: isMask.value,
+    isSecret: isSecret.value,
+    memberNum: memberNum.value,
+  };
 
-const imageChange = () => {
+  // RoomWaitingView.vue로 이동
+  // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
+  router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
+}; 
 
 
-  // if (roomImage.value === '') {
-  //   import('@/assets/images/defaultRoom.jpg').then((image) => {
-  //     roomImage.value = image.default;
-  //   });
-  // } else {
-  //   roomImage.value = '';
-  // }
-};
+
 
 const closeModal = () => {
+  previewUrl.value = null;
   questions.value = ''
   emit('closeModal')
 };
@@ -259,7 +313,6 @@ const questionlist = [
 
 
 
-
 </script>
 
 
@@ -278,10 +331,29 @@ const questionlist = [
 }
 
 .modal-content {
-  width: 400px;
+  width: 800px;
   background: white;
   padding: 20px;
   border-radius: 8px;
 }
 
+.upload-demo {
+  display: flex;
+  align-items: center;
+}
+
+.preview-img img {
+  max-width: 350px;
+  max-height: 300px;
+}
+
+
+
+#hashtag {
+  height: 4vh;
+  place-items: center;
+  font: 16px Arial;
+}
+
 </style>
+
