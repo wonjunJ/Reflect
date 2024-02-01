@@ -85,8 +85,10 @@ public class UserService implements UserDetailsService {
     public List<String> getUserPetInfo(User user){
         MyPet petInfo = myPetRepository.findFirstById_UserAndSelectedTrue(user);
         List<String> infoLs = new ArrayList<>();
-        infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
-        infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
+        if(petInfo != null){
+            infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
+            infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
+        }
         return infoLs;
     }
 

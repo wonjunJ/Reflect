@@ -12,6 +12,6 @@ import java.util.List;
 @AllArgsConstructor
 public class SimpleLogInfoResponse {
     private EmotionCntResponse emotion;
-    //이 부분을 Interest로 User엔티티와 Diary엔티티에 대해서 추가 쿼리가 발생하며 오류가 난다. 왜지???
+    //이 부분을 Interest로 할 경우 User엔티티와 Diary엔티티에 대해서 추가 쿼리가 발생하며 오류가 난다. 왜지???
     private List<InterestResponse> interests;
 }

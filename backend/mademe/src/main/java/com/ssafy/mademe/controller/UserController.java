@@ -62,11 +62,13 @@ public class UserController {
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
         String mbtiStr = userService.getUserMbtiInfo(user);
-        List<String> titleList = userService.getTitles(user);
+        List<String> titleList = userService.getTitles(user); //정보가 없다면 빈 리스트가 리턴
         List<String> petInfo = userService.getUserPetInfo(user);
         UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
-        uires.setCharName(petInfo.get(0));
-        uires.setMyCharName(petInfo.get(1));
+        if(!petInfo.isEmpty()){
+            uires.setCharName(petInfo.get(0)); //펫의 원래 이름
+            uires.setMyCharName(petInfo.get(1)); //내가 설정한 펫의 이름
+        }
         return uires;
     }
 

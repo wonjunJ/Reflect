@@ -48,6 +48,7 @@ public class JWTUtil {
                 .getBody().getExpiration();
     }
 
+    //토큰을 생성한다.
     public String[] createAndGetTokens(Long userId){
         Claims claims = Jwts.claims();
         claims.put("userId", userId);

@@ -8,6 +8,9 @@ import java.util.*;
 public class UserMBTIMethod {
     public String getMBTIs(Map<MBTICode, Long> map){
         StringBuilder sb = new StringBuilder(); //가능한 MBTI코드들이 다 들어가있다.
+        if(map.isEmpty()){
+            return "MBTI 정보가 없습니다.";
+        }
         //I, E
         if(map.containsKey(MBTICode.I) && map.containsKey(MBTICode.E)){
             if(map.get(MBTICode.I) < map.get(MBTICode.E)){
