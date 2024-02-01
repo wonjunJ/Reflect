@@ -80,7 +80,7 @@ public class UserController {
     @GetMapping("/simple")
     public SimpleLogInfoResponse getSimpleLogInfo(@AuthenticationPrincipal User user){
         EmotionCntResponse emo = emotionService.getEmoCnt(user, 7);
-        List<InterestResponse> inter = interestService.getTop5Interest(user, 5);
+        List<InterestResponse> inter = interestService.getTop5Interest(user);
         return new SimpleLogInfoResponse(emo, inter);
     }
 

@@ -10,6 +10,6 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterestLsResponse {
-    private List<String> LIKE;
-    private List<String> UNLIKE;
+    private List<InterestResponse> LIKE;
+    private List<InterestResponse> UNLIKE;
 }

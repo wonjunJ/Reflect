@@ -9,6 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class InterestResponse {
+    private Long interestId;
     private String interestName;
     private Preference preference;
     private int cnt;

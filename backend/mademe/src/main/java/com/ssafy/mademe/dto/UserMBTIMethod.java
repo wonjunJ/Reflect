@@ -9,7 +9,7 @@ public class UserMBTIMethod {
     public String getMBTIs(Map<MBTICode, Long> map){
         StringBuilder sb = new StringBuilder(); //가능한 MBTI코드들이 다 들어가있다.
         //I, E
-        if(map.get(MBTICode.I) != null && map.get(MBTICode.E) != null){
+        if(map.containsKey(MBTICode.I) && map.containsKey(MBTICode.E)){
             if(map.get(MBTICode.I) < map.get(MBTICode.E)){
                 sb.append("E");
             } else if (map.get(MBTICode.I) > map.get(MBTICode.E)) {
@@ -18,13 +18,13 @@ public class UserMBTIMethod {
                 sb.append("I/E");
                 //sb.append("E");
             }
-        } else if (map.get(MBTICode.I) == null) {
+        } else if (map.containsKey(MBTICode.E)) {
             sb.append("E");
         } else {
             sb.append("I");
         }
         //N, S
-        if(map.get(MBTICode.N) != null && map.get(MBTICode.S) != null){
+        if(map.containsKey(MBTICode.N) && map.containsKey(MBTICode.S)){
             if(map.get(MBTICode.N) < map.get(MBTICode.S)){
                 sb.append("S");
             } else if (map.get(MBTICode.N) > map.get(MBTICode.S)) {
@@ -33,13 +33,13 @@ public class UserMBTIMethod {
                 sb.append("N/S");
                 //sb.append("S");
             }
-        } else if (map.get(MBTICode.N) == null) {
+        } else if (map.containsKey(MBTICode.S)) {
             sb.append("S");
         } else {
             sb.append("N");
         }
         //F, T
-        if(map.get(MBTICode.F) != null && map.get(MBTICode.T) != null){
+        if(map.containsKey(MBTICode.F) && map.containsKey(MBTICode.T)){
             if(map.get(MBTICode.F) < map.get(MBTICode.T)){
                 sb.append("T");
             } else if (map.get(MBTICode.F) > map.get(MBTICode.T)) {
@@ -48,13 +48,13 @@ public class UserMBTIMethod {
                 sb.append("F/T");
                 //sb.append("T");
             }
-        } else if (map.get(MBTICode.F) == null) {
+        } else if (map.containsKey(MBTICode.T)) {
             sb.append("T");
         } else {
             sb.append("F");
         }
         //J, P
-        if(map.get(MBTICode.J) != null && map.get(MBTICode.P) != null){
+        if(map.containsKey(MBTICode.J) && map.containsKey(MBTICode.P)){
             if(map.get(MBTICode.J) < map.get(MBTICode.P)){
                 sb.append("P");
             } else if (map.get(MBTICode.J) > map.get(MBTICode.P)) {
@@ -63,7 +63,7 @@ public class UserMBTIMethod {
                 sb.append("J/P");
                 //sb.append("P");
             }
-        } else if (map.get(MBTICode.J) == null) {
+        } else if (map.containsKey(MBTICode.P)) {
             sb.append("P");
         } else {
             sb.append("J");

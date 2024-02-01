@@ -51,6 +51,7 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
 
     private InterestResponse mapToInterestResponse(Interest interest) {
         return InterestResponse.builder()
+                .interestId(interest.getCompositeKey().getInterestCode().getId())
                 .interestName(interest.getCompositeKey().getInterestCode().getHobbyName())
                 .preference(interest.getCompositeKey().getPreference())
                 .cnt(interest.getCnt())
