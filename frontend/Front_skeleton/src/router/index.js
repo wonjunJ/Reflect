@@ -13,7 +13,6 @@ import RoomListView from '@/views/Room/RoomListView.vue'
 import RoomDetailView from '@/views/Room/RoomDetailView.vue'
 import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
@@ -85,7 +84,7 @@ const router = createRouter({
       name: 'waiting',
       component: RoomWaitingView,
       // meta: { requresAuth: true},  
-    }
+    },
   ]
 })
 

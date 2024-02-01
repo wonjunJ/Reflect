@@ -42,5 +42,4 @@ const userStore = useUserStore()
 </script>
 
 <style scoped>
-
 </style>
