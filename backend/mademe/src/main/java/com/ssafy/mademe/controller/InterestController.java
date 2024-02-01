@@ -2,7 +2,7 @@ package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.request.AddInterestRequest;
 import com.ssafy.mademe.dto.response.InterestLsResponse;
-import com.ssafy.mademe.dto.response.InterestResponse;
+import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.InterestService;
 import lombok.RequiredArgsConstructor;
@@ -35,8 +35,19 @@ public class InterestController {
     }
 
     @PostMapping("/")
-    public InterestLsResponse addInterest(@AuthenticationPrincipal User user,
+    public Map<String, String> addInterest(@AuthenticationPrincipal User user,
                                           @RequestBody AddInterestRequest addInterestRequest){
-        return null;
+        interestService.addInterest(user, addInterestRequest);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
+    }
+
+    @DeleteMapping("/")
+    public Map<String, String> deleteInterest(@RequestBody Interest itr){
+        interestService.deleteInterest(itr); //Interest객체에 있는 id값을 받아온다.
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
     }
 }

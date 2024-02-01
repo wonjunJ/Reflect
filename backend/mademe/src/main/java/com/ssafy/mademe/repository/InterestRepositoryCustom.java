@@ -10,4 +10,5 @@ import java.util.List;
 
 public interface InterestRepositoryCustom {
     List<InterestResponse> findInterestList(User user, int top, Preference prf);
+    Integer findFourthCount(User user, Preference prf);
 }

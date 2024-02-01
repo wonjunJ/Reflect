@@ -6,6 +6,7 @@ import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -13,7 +14,7 @@ import java.util.Objects;
 @Embeddable
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
+@Getter @Setter
 public class EmdInterest implements Serializable {
     //단방향 관계만
     @ManyToOne(fetch = FetchType.LAZY)

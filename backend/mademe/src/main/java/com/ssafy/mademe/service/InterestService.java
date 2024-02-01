@@ -1,8 +1,12 @@
 package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.UserMBTIMethod;
+import com.ssafy.mademe.dto.request.AddInterestRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.*;
+import com.ssafy.mademe.entity.embedded.EmdInterest;
+import com.ssafy.mademe.exception.interest.ItrNotFoundException;
+import com.ssafy.mademe.repository.InterestCodeRepository;
 import com.ssafy.mademe.repository.InterestRepository;
 import com.ssafy.mademe.repository.MBTILogRepository;
 import com.ssafy.mademe.repository.OMBTICntRepository;
@@ -12,6 +16,7 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -20,6 +25,7 @@ public class InterestService {
     private final InterestRepository interestRepository;
     private final MBTILogRepository mbtiLogRepository;
     private final OMBTICntRepository ombtiCntRepository;
+    private final InterestCodeRepository interestCodeRepository;
     private final UserMBTIMethod userMBTIMethod = new UserMBTIMethod();
 
     public List<InterestResponse> getTop5Interest(User user){
@@ -60,6 +66,36 @@ public class InterestService {
                 .collect(Collectors.toList());
     }
 
+    public void addInterest(User user, AddInterestRequest addInterestRequest){
+        Interest itr = interestRepository.findFirstByUserAndCompositeKey_PreferenceAndCompositeKey_InterestCode_HobbyName(user,
+                addInterestRequest.getPreference(), addInterestRequest.getName());
+        Integer fourth = interestRepository.findFourthCount(user, addInterestRequest.getPreference());
+        if(itr != null){ //추가하려는 관심사가 이미 나한테 있으므로 그냥 값을 수정
+            addFourthLocation(itr, fourth);
+            return;
+        }
+        //새로운 관심사를 추가
+        itr = new Interest();
+        itr.setUser(user);
+        InterestCode codeId = checkInterestCode(addInterestRequest.getName());
+        EmdInterest emd = new EmdInterest(codeId, addInterestRequest.getPreference());
+        itr.setCompositeKey(emd);
+        addFourthLocation(itr, fourth);
+    }
+
+    public void deleteInterest(Interest itr){
+        Optional<Interest> interest = interestRepository.findById(itr.getId());
+        if(interest.isPresent()){
+            interest.get().getUser().setId(interest.get().getUser().getId());
+            interest.get().getCompositeKey().getInterestCode().setId(interest.get().getCompositeKey().getInterestCode().getId());
+            interest.get().getCompositeKey().setPreference(interest.get().getCompositeKey().getPreference());
+            interest.get().setCnt(0);
+            interestRepository.save(itr);
+            return;
+        }
+        throw new ItrNotFoundException("삭제할 관심사가 존재하지 않습니다.");
+    }
+
     public int calPercent(Map<MBTICode, Long> map, MBTICode key){
         MBTICode oppositeKey;
         if(key.equals(MBTICode.I) || key.equals(MBTICode.E)){
@@ -82,5 +118,25 @@ public class InterestService {
         response.setMbti(input.getCompositeKey().getMbti());
         response.setCnt(input.getCnt());
         return response;
+    }
+
+    //해당하는 관심사명에 대해서 InterestCode 테이블에 값이 존재하는지를 체크(없으면 값을 새로 저장하고 리턴)
+    public InterestCode checkInterestCode(String name){
+        InterestCode codeId = interestCodeRepository.findFirstByHobbyName(name);
+        if(codeId == null){
+            codeId = new InterestCode();
+            codeId.setHobbyName(name);
+            return interestCodeRepository.save(codeId);
+        }
+        return codeId;
+    }
+
+    public void addFourthLocation(Interest itr, Integer fourth){ //관심사를 4번째자리 다음으로 추가하는 로직
+        if(fourth == null || fourth == 0 || fourth == 1){
+            itr.setCnt(1);
+        }else{
+            itr.setCnt(fourth-1);
+        }
+        interestRepository.save(itr);
     }
 }

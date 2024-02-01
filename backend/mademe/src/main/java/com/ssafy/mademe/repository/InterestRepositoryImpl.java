@@ -23,7 +23,7 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
     public List<InterestResponse> findInterestList(User user, int top, Preference prf) {
         JPAQuery<Interest> query = jpaQueryFactory
                 .selectFrom(interest)
-                .where(interest.user.eq(user));
+                .where(interest.user.eq(user), interest.cnt.gt(0));
 
         if (prf != null) {
             query.where(interest.compositeKey.preference.eq(prf));
@@ -49,9 +49,23 @@ public class InterestRepositoryImpl implements InterestRepositoryCustom {
 //                .fetch();
     }
 
+    @Override
+    public Integer findFourthCount(User user, Preference prf) {
+        return jpaQueryFactory
+                .select(
+                        interest.cnt
+                )
+                .from(interest)
+                .where(interest.user.eq(user), interest.compositeKey.preference.eq(prf))
+                .orderBy(interest.cnt.desc())
+                .offset(3)
+                .limit(1)
+                .fetchOne();
+    }
+
     private InterestResponse mapToInterestResponse(Interest interest) {
         return InterestResponse.builder()
-                .interestId(interest.getCompositeKey().getInterestCode().getId())
+                .interestId(interest.getId()) //관심사 코드의 아이디가 아니라 내 관심사에 대한 아이디값
                 .interestName(interest.getCompositeKey().getInterestCode().getHobbyName())
                 .preference(interest.getCompositeKey().getPreference())
                 .cnt(interest.getCnt())
