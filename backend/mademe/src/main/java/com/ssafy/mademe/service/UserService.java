@@ -108,9 +108,13 @@ public class UserService implements UserDetailsService {
     }
 
     public void checkUser(User user) {
-        if(user.getSiteId() != null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
+        if(user.getSiteId() == null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
             throw new DuplicateUserIdException("이미 가입된 이메일입니다.");
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 일치하지 않습니다.");
+        } else if (user.getSiteId() != null) {
+            if(!userRepository.existsBySiteId(user.getSiteId())){
+                throw new UserNotFoundException("가입된 아이디가 아닙니다.");
+            }
         }
     }
 

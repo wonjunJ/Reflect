@@ -24,7 +24,7 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<RoomInfoResponse> findRoomInfoByUser(User user, LocalDate indate, Pageable pageable) {
+    public List<RoomInfoResponse> findRoomInfoByUser(User user, LocalDate indate, Boolean isExit, Pageable pageable) {
         return jpaQueryFactory
                 .select(
                         room.id,
@@ -40,7 +40,8 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                 .join(myRoom.id.room, room)
                 .where(
                         myRoom.id.user.eq(user),
-                        eqDate(indate)
+                        eqDate(indate),
+                        isFalseExit(isExit)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -51,10 +52,17 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
     }
 
     private BooleanExpression eqDate(LocalDate indate){ //이 메소드가 null을 리턴하면 위의 쿼리 조건문 무시
-        if(indate == null){
+        if(indate == null){ //날짜 조건이 없다.
             return null;
         }
         return myRoom.inDate.between(indate.atStartOfDay(), indate.atTime(LocalTime.MAX));
+    }
+
+    private BooleanExpression isFalseExit(Boolean isExit){ //isExit가 false면 퇴장하지 않은 방만 보내주도록 하기 위해
+        if(isExit == null){
+            return null;
+        }
+        return myRoom.isExit.eq(isExit);
     }
 
     private RoomInfoResponse mapToRoomInfoResponse(Tuple tuple){

@@ -36,7 +36,7 @@ public class SecurityConfig {
                                 "user/id/*", "user/nick/*", "user/send", "user/findid",
                                 "user/code", "user/findpw", "/reflect-socket/**").permitAll()
                         .requestMatchers("/user/*", "/follow/*", "/app/*", "/diary/*",
-                                "/interest/*").hasRole("USER")
+                                "/interest/*", "/question/*", "/room/*").hasRole("USER")
                         .anyRequest().authenticated())
                 .sessionManagement((sessionManagement) ->
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)

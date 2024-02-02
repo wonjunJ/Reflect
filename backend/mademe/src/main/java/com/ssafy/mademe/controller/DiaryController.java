@@ -5,6 +5,7 @@ import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.DiaryService;
+import com.ssafy.mademe.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -25,6 +26,7 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class DiaryController {
     private final DiaryService diaryService;
+    private final RoomService roomService;
 
     @GetMapping("/")
     public List<MonthDiaryResponse> getMonthDiaryStatus(@AuthenticationPrincipal User user){
@@ -38,7 +40,7 @@ public class DiaryController {
         Map<String, Object> json = new HashMap<>();
         SimpleDiaryResponse dInfos = diaryService.getSimpleDiaryInfo(diaryId);
         json.put("diary", dInfos);
-        json.put("community", diaryService.getRoomInfos(user, dInfos.getDate(), pageable));
+        json.put("community", roomService.getRoomInfos(user, dInfos.getDate(), null, pageable));
         return json;
     }
 }

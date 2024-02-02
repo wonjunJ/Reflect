@@ -55,9 +55,9 @@ public class DiaryService {
         throw new DiaryNotFoundException("해당 일기 정보가 없습니다.");
     }
 
-    public List<RoomInfoResponse> getRoomInfos(User user, LocalDate indate, Pageable pageable){
-        return myRoomRepository.findRoomInfoByUser(user, indate, pageable);
-    }
+//    public List<RoomInfoResponse> getRoomInfos(User user, LocalDate indate, Pageable pageable){
+//        return myRoomRepository.findRoomInfoByUser(user, indate, pageable);
+//    }
 
     private SimpleDiaryResponse mapToSimpleDiary(Diary diary){
         return SimpleDiaryResponse.builder()

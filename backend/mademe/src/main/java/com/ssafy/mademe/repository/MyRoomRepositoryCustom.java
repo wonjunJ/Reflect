@@ -8,5 +8,5 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface MyRoomRepositoryCustom {
-    List<RoomInfoResponse> findRoomInfoByUser(User user, LocalDate indate, Pageable pageable);
+    List<RoomInfoResponse> findRoomInfoByUser(User user, LocalDate indate, Boolean isExit, Pageable pageable);
 }
