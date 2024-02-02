@@ -18,35 +18,24 @@ public class QQuestionCode extends EntityPathBase<QuestionCode> {
 
     private static final long serialVersionUID = 234381220L;
 
-    private static final PathInits INITS = PathInits.DIRECT2;
-
     public static final QQuestionCode questionCode = new QQuestionCode("questionCode");
 
     public final NumberPath<Long> id = createNumber("id", Long.class);
 
     public final StringPath questionName = createString("questionName");
 
-    public final QRoom room;
+    public final ListPath<Room, QRoom> rooms = this.<Room, QRoom>createList("rooms", Room.class, QRoom.class, PathInits.DIRECT2);
 
     public QQuestionCode(String variable) {
-        this(QuestionCode.class, forVariable(variable), INITS);
+        super(QuestionCode.class, forVariable(variable));
     }
 
     public QQuestionCode(Path<? extends QuestionCode> path) {
-        this(path.getType(), path.getMetadata(), PathInits.getFor(path.getMetadata(), INITS));
+        super(path.getType(), path.getMetadata());
     }
 
     public QQuestionCode(PathMetadata metadata) {
-        this(metadata, PathInits.getFor(metadata, INITS));
-    }
-
-    public QQuestionCode(PathMetadata metadata, PathInits inits) {
-        this(QuestionCode.class, metadata, inits);
-    }
-
-    public QQuestionCode(Class<? extends QuestionCode> type, PathMetadata metadata, PathInits inits) {
-        super(type, metadata, inits);
-        this.room = inits.isInitialized("room") ? new QRoom(forProperty("room"), inits.get("room")) : null;
+        super(QuestionCode.class, metadata);
     }
 
 }

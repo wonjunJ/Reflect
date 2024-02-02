@@ -2,11 +2,13 @@ package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
-import com.ssafy.mademe.dto.response.CheckCodeResponse;
-import com.ssafy.mademe.dto.response.UserInfoResponse;
+import com.ssafy.mademe.dto.response.*;
+import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
 import com.ssafy.mademe.exception.user.InvalidPasswordException;
+import com.ssafy.mademe.service.EmotionService;
+import com.ssafy.mademe.service.InterestService;
 import com.ssafy.mademe.service.MailService;
 import com.ssafy.mademe.service.UserService;
 import com.ssafy.mademe.utils.JWTUtil;
@@ -32,6 +34,8 @@ public class UserController {
 
     private final UserService userService;
     private final MailService mailService;
+    private final EmotionService emotionService;
+    private final InterestService interestService;
     private final JWTUtil jwtUtil;
 
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
@@ -54,20 +58,32 @@ public class UserController {
         return state;
     }
 
+    //회원정보 조회
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
         String mbtiStr = userService.getUserMbtiInfo(user);
-        List<String> titleList = userService.getTitles(user);
+        List<String> titleList = userService.getTitles(user); //정보가 없다면 빈 리스트가 리턴
         List<String> petInfo = userService.getUserPetInfo(user);
         UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
-        uires.setCharName(petInfo.get(0));
-        uires.setMyCharName(petInfo.get(1));
+        if(!petInfo.isEmpty()){
+            uires.setCharName(petInfo.get(0)); //펫의 원래 이름
+            uires.setMyCharName(petInfo.get(1)); //내가 설정한 펫의 이름
+        }
         return uires;
     }
 
+    //회원정보 수정
     @PutMapping("/")
     public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){
         return mapToUserInfo(userService.modifyUserInfo(user, token), "", new ArrayList<>());
+    }
+
+    //마이페이지에서 간단한 감정과 관심사 정보 조회
+    @GetMapping("/simple")
+    public SimpleLogInfoResponse getSimpleLogInfo(@AuthenticationPrincipal User user){
+        EmotionCntResponse emo = emotionService.getEmoCnt(user, 7);
+        List<InterestResponse> inter = interestService.getTop5Interest(user);
+        return new SimpleLogInfoResponse(emo, inter);
     }
 
     @PostMapping("/send")
@@ -77,6 +93,7 @@ public class UserController {
         return "인증번호 전송 완료";
     }
 
+    //아이디 중복 체크
     @GetMapping("/id/{userid}")
     public void idCheck(@PathVariable("userid") String userId) {
         log.info("idCheck 진입");
@@ -90,6 +107,7 @@ public class UserController {
         }
     }
 
+    //닉네임 중복 체크
     @GetMapping("/nick/{nickname}")
     public void nickCheck(@PathVariable("nickname") String nickName) {
         boolean rst = userService.nickCheck(nickName);
@@ -99,16 +117,19 @@ public class UserController {
         }
     }
 
+    //아이디 찾기
     @GetMapping("/findid")
     public Map<String, String> findId(@RequestParam("email") String email){
         return userService.findId(email);
     }
 
+    //인증번호 확인
     @PostMapping("/code")
     public CheckCodeResponse checkCode(@RequestBody CheckCodeRequest checkCodeRequest){
         return userService.checkCode(checkCodeRequest);
     }
 
+    //비밀번호 찾기
     @PostMapping("/findpw")
     public String findPw(@RequestBody CheckCodeRequest checkCodeRequest){
         CheckCodeResponse rs = userService.checkCode(checkCodeRequest);
@@ -116,6 +137,7 @@ public class UserController {
         return "비밀번호 변경 완료";
     }
 
+    //비밀번호 변경(내 정보 수정에서)
     @PutMapping("/changepw")
     public String changePw(@RequestBody ChangePwRequest pwInfo, @AuthenticationPrincipal User user){
         boolean rst = userService.checkCurPw(user.getId(), pwInfo.getCurrent_pw());
@@ -142,6 +164,7 @@ public class UserController {
         return "회원탈퇴 완료";
     }
 
+    //refresh token 재발급
     @PostMapping("/refresh")
     public Map<String, String> reissuedToken(HttpServletRequest request){
         return userService.reissuedToken(request);

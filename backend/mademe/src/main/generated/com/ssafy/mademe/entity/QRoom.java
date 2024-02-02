@@ -67,7 +67,7 @@ public class QRoom extends EntityPathBase<Room> {
     public QRoom(Class<? extends Room> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
         this.ownerId = inits.isInitialized("ownerId") ? new QUser(forProperty("ownerId")) : null;
-        this.question = inits.isInitialized("question") ? new QQuestionCode(forProperty("question"), inits.get("question")) : null;
+        this.question = inits.isInitialized("question") ? new QQuestionCode(forProperty("question")) : null;
     }
 
 }

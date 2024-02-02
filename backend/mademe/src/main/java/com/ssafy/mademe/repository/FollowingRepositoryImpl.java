@@ -3,6 +3,7 @@ package com.ssafy.mademe.repository;
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.FollowingResponse;
+import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.QFollowing;
 import com.ssafy.mademe.entity.QUser;
 import com.ssafy.mademe.entity.User;
@@ -40,5 +41,14 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
                     tuple.get(2, String.class)));
         }
         return flist;
+    }
+
+    @Override
+    public UserInfoResponse findFollowingInfoByUser(User user, Long id) {
+//        Tuple result = jpaQueryFactory
+//                .select(
+//
+//                )
+        return null;
     }
 }

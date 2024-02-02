@@ -25,6 +25,6 @@ public class Interest {
     @Embedded
     private EmdInterest compositeKey;
 
-    @ColumnDefault("0")
+    @ColumnDefault("1")
     private int cnt;
 }

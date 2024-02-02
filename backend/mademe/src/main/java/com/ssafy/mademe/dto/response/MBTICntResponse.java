@@ -11,4 +11,5 @@ import lombok.*;
 public class MBTICntResponse {
     private MBTICode mbtiCode;
     private Long cnt;
+    private int percent;
 }

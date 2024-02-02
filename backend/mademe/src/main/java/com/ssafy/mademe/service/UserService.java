@@ -9,10 +9,7 @@ import com.ssafy.mademe.entity.MyPet;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.entity.UserTitle;
 import com.ssafy.mademe.exception.user.*;
-import com.ssafy.mademe.repository.MBTILogRepository;
-import com.ssafy.mademe.repository.MyPetRepository;
-import com.ssafy.mademe.repository.UserRepository;
-import com.ssafy.mademe.repository.UserTitleRepository;
+import com.ssafy.mademe.repository.*;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
@@ -88,8 +85,10 @@ public class UserService implements UserDetailsService {
     public List<String> getUserPetInfo(User user){
         MyPet petInfo = myPetRepository.findFirstById_UserAndSelectedTrue(user);
         List<String> infoLs = new ArrayList<>();
-        infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
-        infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
+        if(petInfo != null){
+            infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
+            infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
+        }
         return infoLs;
     }
 
@@ -109,9 +108,13 @@ public class UserService implements UserDetailsService {
     }
 
     public void checkUser(User user) {
-        if(user.getSiteId() != null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
+        if(user.getSiteId() == null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
             throw new DuplicateUserIdException("이미 가입된 이메일입니다.");
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 일치하지 않습니다.");
+        } else if (user.getSiteId() != null) {
+            if(!userRepository.existsBySiteId(user.getSiteId())){
+                throw new UserNotFoundException("가입된 아이디가 아닙니다.");
+            }
         }
     }
 
