@@ -86,11 +86,8 @@ public class InterestService {
     public void deleteInterest(Interest itr){
         Optional<Interest> interest = interestRepository.findById(itr.getId());
         if(interest.isPresent()){
-            interest.get().getUser().setId(interest.get().getUser().getId());
-            interest.get().getCompositeKey().getInterestCode().setId(interest.get().getCompositeKey().getInterestCode().getId());
-            interest.get().getCompositeKey().setPreference(interest.get().getCompositeKey().getPreference());
             interest.get().setCnt(0);
-            interestRepository.save(itr);
+            interestRepository.save(interest.get());
             return;
         }
         throw new ItrNotFoundException("삭제할 관심사가 존재하지 않습니다.");
