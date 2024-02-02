@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.EmotionCntResponse;
 //import com.ssafy.mademe.entity.QDiary;
+import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.EmotionCode;
 import com.ssafy.mademe.entity.User;

@@ -18,5 +18,6 @@ public class FollowingResponse {
     private String mbti;
     private String followIntro;
     //private final int alike; //유사도
+    private boolean is_follow;
     private boolean is_online;
 }

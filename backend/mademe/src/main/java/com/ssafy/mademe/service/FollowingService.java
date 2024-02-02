@@ -31,19 +31,20 @@ public class FollowingService {
     public List<FollowingResponse> getFollowingList(User user, Pageable pageable){
         List<FollowingResponse> ls = followingRepository.findFollowingListByUser(user, pageable);
         for(FollowingResponse res : ls){
+            res.set_follow(true);
             //null이 아니라면 상대가 로그인 상태
             res.set_online(redisTemplate.opsForValue().get("AT:" + res.getUserId()) != null);
         }
         return ls;
     }
 
-    public FollowingResponse getFollowingInfo(Long id){
+    public FollowingResponse getFollowingInfo(User user, Long id){
         Optional<User> follow = userRepository.findById(id);
         if(follow.isPresent()){
             String mbtiStr = userService.getUserMbtiInfo(follow.get());
             List<String> titleList = userService.getTitles(follow.get()); //정보가 없다면 빈 리스트가 리턴
             List<InterestResponse> inter = interestService.getTop5Interest(follow.get());
-            return mapToFollowingInfo(follow.get(), mbtiStr, inter, titleList);
+            return mapToFollowingInfo(user, follow.get(), mbtiStr, inter, titleList);
         }
         throw new UserNotFoundException("일치하는 회원을 찾을 수 없습니다.");
     }
@@ -67,17 +68,18 @@ public class FollowingService {
         followingRepository.deleteById(emd);
     }
 
-    private FollowingResponse mapToFollowingInfo(User user, String mbti,
+    private FollowingResponse mapToFollowingInfo(User user, User follow, String mbti,
                                                  List<InterestResponse> interests, List<String> titles){
         return FollowingResponse.builder()
-                .userId(user.getId())
-                .profileImg(user.getProfileImg())
-                .nickName(user.getNickName())
+                .userId(follow.getId())
+                .profileImg(follow.getProfileImg())
+                .nickName(follow.getNickName())
                 .interests(interests)
                 .titles(titles)
                 .mbti(mbti)
-                .followIntro(user.getMyIntro())
-                .is_online(redisTemplate.opsForValue().get("AT:" + user.getId()) != null)
+                .followIntro(follow.getMyIntro())
+                .is_follow(followingRepository.existsById_UserIdAndId_FollowId(user, follow))
+                .is_online(redisTemplate.opsForValue().get("AT:" + follow.getId()) != null)
                 .build();
     }
 }
