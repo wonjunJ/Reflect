@@ -17,8 +17,13 @@
             <RouterLink :to="{name: 'roomlist' }">Community</RouterLink> &nbsp;
           </li>
         </div>
+        <div class="d-flex flex-row" v-if="userStore.isLogin">
+          <li class="nav-item">
+            <img src="#" alt="포춘쿠키아이콘" @click="onpenCookieModal">
+          </li>
+        </div>
         <li v-if="!userStore.isLogin" class="nav-item">
-            <RouterLink :to="{name: 'signup'}">signup</RouterLink>
+          <RouterLink :to="{name: 'signup'}">signup</RouterLink>
         </li>
         &nbsp;
         <li v-if="!userStore.isLogin" class="nav-item">
@@ -29,15 +34,27 @@
         </li>
       </ul>
     </div>
+    <FortuneCookie :isCookie="isCookie" @closeModal="closeModal" />
   </div>
 </nav>
 </template>
 
 <script setup>
+import { ref } from 'vue';
 import { RouterLink } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import FortuneCookie from './PopUp/FortuneCookie.vue';
 
 const userStore = useUserStore()
+const isCookie = ref(false)
+
+const onpenCookieModal = () => {
+  isCookie.value = true
+}
+
+const closeModal = () => {
+  isCookie.value = false
+}
 
 </script>
 

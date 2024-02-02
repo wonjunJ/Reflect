@@ -13,7 +13,7 @@
 </template>
 
 <script setup>
-import {ref, defineEmits, defineProps} from 'vue';
+import {ref} from 'vue';
 import { RouterLink } from 'vue-router';
 
 const { isEnterRoom } = defineProps(['isEnterRoom'])

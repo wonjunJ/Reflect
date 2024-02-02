@@ -81,7 +81,7 @@
               </ul>
           </div>
 
-          <!-- 버튼 -->
+          <!-- 버튼 -->`
           <div class="d-inline-flex gap-1">
 
               <!-- 방 추천 드롭다운 -->
@@ -92,7 +92,7 @@
                   <ul class="dropdown-menu">
                       <li><a class="dropdown-item" @click="openHundredModal">100문 100답</a></li>
                       <li><a class="dropdown-item" @click="openFreeModal">자유주제</a></li>
-                     
+                    
                   </ul>
               </div>
 

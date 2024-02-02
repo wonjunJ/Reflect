@@ -149,6 +149,7 @@ export default {
 </script>
 
 <style scoped>
+@import "https://unpkg.com/@yaireo/tagify/dist/tagify.css";
 .pet {
     width: 150px;
     height: 165px;
