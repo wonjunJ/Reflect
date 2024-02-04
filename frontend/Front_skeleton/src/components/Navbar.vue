@@ -17,7 +17,7 @@
             <RouterLink :to="{name: 'roomlist' }">Community</RouterLink> &nbsp;
           </li>
         </div>
-        <div class="d-flex flex-row" v-if="userStore.isLogin">
+        <div class="d-flex flex-row">
           <li class="nav-item">
             <img src="#" alt="포춘쿠키아이콘" @click="onpenCookieModal">
           </li>

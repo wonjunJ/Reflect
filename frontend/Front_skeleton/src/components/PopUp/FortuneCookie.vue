@@ -24,13 +24,7 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
-
-const fortuneCookie = document.querySelector("#cookie1")
-const screen1 = document.querySelector(".screen1")
-const screen2 = document.querySelector(".screen2")
-const btnReset = document.querySelector("button")
-
+// import { ref } from 'vue';
 const { isCookie } = defineProps(['isCookie'])
 const emit = defineEmits()
 
@@ -116,50 +110,55 @@ const fortunePhrases = [
 let item = 0
 
 window.onload = function(){
+  const fortuneCookie = document.getElementById("cookie1")
+  const screen1 = document.querySelector(".screen1")
+  const screen2 = document.querySelector(".screen2")
+  const btnReset = document.querySelector("button")
+
+  function screenToggle() {
+    screen1.classList.toggle("hide")
+    screen2.classList.toggle("hide")
+  }
+  
+  function generateLuckyNumbers(count) {
+    const luckyNumbers = [];
+    for (let i = 0; i < count; i++) {
+      luckyNumbers.push(Math.floor(Math.random() * 100));
+    }
+    console.log(luckyNumbers)
+    return luckyNumbers;
+  }
+  
+  function openCookie() {
+    screenToggle()
+    const luckyNumbers = generateLuckyNumbers(7);
+    document.querySelector(".lucky-text").innerText = fortunePhrases[item]
+    document.querySelector(".lucky-numbers span").innerText = luckyNumbers.join(', ');
+  }
+  
+  function cookieReset(e) {
+    screenToggle()
+    item = Math.round(Math.random() * (fortunePhrases.length - 1))
+  }
+  
+  function handleEnter(event) {
+    if(event.key == 'Enter' && screen2.classList.contains("hide")) {
+    openCookie()
+    } else if(event.key == 'Enter' && screen1.classList.contains("hide")) {
+    cookieReset()
+  } 
+  }
+  
+  const closeModal = () => {
+      cookieReset()
+      emit('closeModal')
+  }
+  
   fortuneCookie.addEventListener('click', openCookie)
-  btnReset.addEventListener('click', cookieReset)
+  btnReset.addEventListener('click', closeModal)
   document.addEventListener('keypress', handleEnter)
 }
 
-
-function openCookie() {
-  screenToggle()
-  const luckyNumbers = generateLuckyNumbers(7);
-  document.querySelector(".lucky-text").innerText = fortunePhrases[item]
-  document.querySelector(".ucky-numbers span").innerText = luckyNumbers.join(', ');
-}
-
-function cookieReset(e) {
-  screenToggle()
-  item = Math.round(Math.random() * (fortunePhrases.length - 1))
-}
-
-function generateLuckyNumbers(count) {
-  const luckyNumbers = [];
-  for (let i = 0; i < count; i++) {
-    luckyNumbers.push(Math.floor(Math.random() * 100));
-  }
-  console.log(luckyNumbers)
-  return luckyNumbers;
-}
-
-function screenToggle() {
-  screen1.classList.toggle("hide")
-  screen2.classList.toggle("hide")
-}
-
-function handleEnter(event) {
- if(event.key == 'Enter' && screen2.classList.contains("hide")) {
-  openCookie()
- } else if(event.key == 'Enter' && screen1.classList.contains("hide")) {
-  cookieReset()
-} 
-}
-
-const closeModal = () => {
-    cookieReset()
-    emit('closeModal')
-}
 
 </script>
 

@@ -1,6 +1,7 @@
 <template>
   <div v-if="isModalOpen" class="modal">
     <div class="create-container">
+      <div class="room-back"></div>
       <div class="create-top">
         <p>방 만들기</p>  
       </div>
@@ -11,16 +12,15 @@
             <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:250px;" />
           </div>
           <div v-else>
-            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:250px;"/>
+            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
           </div>
+          <div class="up-img">
             <el-upload class="upload-demo" :before-upload="beforeUpload">
-              <a class="img-icon" :disabled="uploading">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                    <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                    <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                </svg>
-              </a>
+              <div class="btn-container">
+                <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
+              </div>
             </el-upload>
+          </div>
         </div>
 
         <!-- 대화타입 백문백답 -->
@@ -43,13 +43,13 @@
 
           <!-- 방 제목 -->
           <div class="room-title">
-              <label for="title-label">Title</label>
+              <label for="title-label">방 제목</label>
               <input type="text" v-model.trim="roomTitle" class="room-input">
           </div>
 
           <!-- 방 한줄 설명 -->
           <div class="room-describe">
-              <label for="describe-label">Describe</label>
+              <label for="describe-label">한 줄 설명</label>
               <input type="text" v-model.trim="roomDescribe" class="room-input">
           </div>
 
@@ -63,10 +63,10 @@
 
           
           <!-- 백문백답 --><!-- 질문선택-->
-          <div v-if="isHundred" class="select-hundred">
-              <label for="questions" class="qestions-label">Question  </label>
-              <select v-model="questions" class="question-select" id="questions">
-                <option value="">질문 선택</option>
+          <div v-if="isHundred" class="select-hundred" >
+              <label for="questions" class="qestions-label">질문  </label>
+              <select class="question-select" id="questions" required="required">
+                <option value="" selected disabled hidden>질문을 선택해주세요.</option>
                 <option v-for="question in questionlist" :key="question.pk" :value="question.id">
                   {{ question.id }}
                 </option>
@@ -303,23 +303,84 @@ const questionlist = [
 .create-container {
   width: 800px;
   height: 500px;
-  padding: 30px 20px 30px 20px;
+  padding: 10px 20px 30px 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(8, 1fr);
-  background-color: beige;
+  background-color: #D5F0C1;
+}
+
+.room-back {
+  grid-column: 1/6;
+  grid-row: 2/8;
+  background-color: #AAD9BB;
+  border-radius: 5px;
+}
+.btn-container{
+  background-color: white;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 40px;
 }
 
 .create-top {
   grid-column: 1 / 3;
   grid-row: 1 / 2;
-  align-content: center;
-  justify-content: center;
+}
+
+.create-top p {
+  font-size: 2rem;
+  font-weight: bold;
 }
 
 .room-img {
   grid-column: 1 / 3;
   grid-row: 2 / 5;
+  padding: 10px;
+}
+
+.preview-img {
+  margin-top: 10px;
+}
+
+.up-img {
+  margin-top: 3px;
+  width: 100%;
+  margin-left: 0.7rem;
+  max-width: 250px;
+}
+
+
+.img-btn.cyan {
+  position: relative;
+  display: inline-block;
+  font-size: 1rem;
+  padding: 3px 4rem;
+  height: 28px;
+  border-radius: 6px;
+  text-align: center;
+  transition: top .1s linear;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  background-color: #7fccde;
+  box-shadow: 0 0 0 1px #7fccde inset,
+        0 0 0 2px rgba(255,255,255,0.15) inset,
+        0 2px 0 0 rgba(102, 164, 178, .6),
+        0 2px 0 1px rgba(0,0,0,.4),
+        0 2px 2px 1px rgba(0,0,0,0.5);
+}
+.img-btn.cyan:active {
+  top: 5px;
+  box-shadow: 0 0 0 1px #7fccde inset,
+  0 0 0 2px rgba(255,255,255,0.15) inset,
+  0 0 0 1px rgba(0,0,0,0.4);
+}
+.img-btn.cyan:hover {
+  background-color: #afe8f5;
+}
+
+a.img-btn {
+  text-decoration: none;
+  color: white;
 }
 
 .type-hundred {
@@ -345,20 +406,72 @@ const questionlist = [
 .room-title {
   grid-column: 1 / 4;
   grid-row: 5 / 6;
+  /* line-height: 56.58px; */
+}
+
+.room-title label {
+  margin-top: 30px;
+  margin-left: 10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
 }
 
 .room-describe {
   grid-column: 1 / 4;
   grid-row: 6 / 7;
+  margin-left: 10px;
+  margin-top: 10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
 }
 
 .room-hashtag {
+  margin-left: 10px;
+  margin-top: -10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
   grid-column: 1 / 4;
   grid-row: 7 / 8;
 }
 .select-hundred {
+  margin-left: 10px;
+  margin-top: -10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
   grid-column: 1 / 4;
   grid-row: 7 / 8;
+}
+
+.select-hundred label {
+  padding-right: 5px;
 }
 
 .member-list {
@@ -366,16 +479,12 @@ const questionlist = [
   grid-row: 5 / 8;
 }
 
-
 .create-bottom {
   grid-column: 2/ 5;
   grid-row: 8 / 9;
   align-content: center;
   justify-content: space-evenly;
 }
-
-
-
 
 
 
