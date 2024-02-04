@@ -52,12 +52,13 @@
                         </div>
                     </div>
                     <div class="roomEnterBtn">
-                        <RouterLink  :to="{name:'roomdetail'}" >
-                            <button class="setbtn">
+                        <input v-model="mySessionId" class="form-control" type="text" required />
+                        <RouterLink :to="{ name: 'roomdetail' }">
+                            <button class="setbtn" @click="enterRoom">
                                 ENTER
                             </button>
-                    </RouterLink>
-                        
+                        </RouterLink>
+
                     </div>
                 </div>
             </div>
@@ -65,30 +66,23 @@
 
         <div class=chatInfoBack>
             <div class="chatInfo">
-                <div class = "chatContent">
+                <div class="chatContent">
                     <div class="myInfo">
-                    <div class="myInfoTitle">
-                        <div class = "myInfoImg">
-                            <img src="@\assets\cmh (1).jpg" alt="profileimg">
+                        <div class="myInfoTitle">
+                            <div class="myInfoImg">
+                                <img src="@\assets\cmh (1).jpg" alt="profileimg">
+                            </div>
+                            <div class="myInfoNickname">닉네임</div>
                         </div>
-                        <div class = "myInfoNickname">닉네임</div>
+                        <!--사용자 비디오  Session 연결해야 나타남-->
+                        <div ref="previewContainer" class="preview-container">
+                            <video ref="previewVideo" autoplay playsinline></video>
+                        </div>   
                     </div>
-                    <div class="myInfoVideo">
-                        <img src="@\assets\defaultRoom.jpg" alt="일단 임시이미지">
+                    <div class="chatSetting">
+                        <button class="setbtn" @click="toggleCamera">{{ isCameraOn ? '카메라 끄기' : '카메라 켜기' }}</button>
+                        <button class="setbtn" @click="toggleMicrophone">{{ isMicrophoneOn ? '마이크 끄기' : '마이크 켜기' }}</button>
                     </div>
-                </div>
-                <div class="chatSetting">
-                    
-                        <button class="setbtn">
-                            카메라
-                        </button>
-                    
-                   
-                        <button class="setbtn">
-                            마이크
-                        </button>
-             
-                </div>
                 </div>
             </div>
         </div>
@@ -97,7 +91,147 @@
 </template>
 
 <script>
+import axios from "axios";
+import { OpenVidu } from "openvidu-browser";
+import UserVideo from "../../components/RoomVideo/UserVideo.vue"
 
+axios.defaults.headers.post["Content-Type"] = "application/json";
+
+const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/';
+
+export default {
+
+    components: {
+        UserVideo,
+    },
+
+    data() {
+        return {
+            isCameraOn: false,
+            isMicrophoneOn: false,
+            previewVideo: null,
+            openviduSession: null,
+            previewContainer: null,
+            // OpenVidu objects
+            OV: undefined,
+            session: undefined,
+            mainStreamManager: undefined,
+            publisher: undefined,
+            subscribers: [],
+            mySessionId: "SessionA",
+            myUserName: "Participant" + Math.floor(Math.random() * 100),
+        };
+    },
+
+    mounted() {
+        this.setupOpenViduSession();
+        this.previewContainer = this.$refs.previewContainer;
+    },
+
+    methods: {
+        setupOpenViduSession() {
+            this.openviduSession = new OpenVidu();
+        },
+
+        async setupCameraPreview() {
+            const previewVideo = this.$refs.previewVideo;
+
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({
+            video: { width: 1000, height: 1000 }, // 원하는 해상도로 조절
+            audio: true,
+        });
+
+        previewVideo.srcObject = stream;
+        this.isCameraOn = true;
+        this.isMicrophoneOn = true;
+
+        // 동적으로 카메라 프리뷰 크기 조절
+        const { offsetWidth, offsetHeight } = this.previewContainer;
+        previewVideo.width = offsetWidth;
+        previewVideo.height = offsetHeight;
+        } catch (error) {
+            console.error('카메라 미리보기 설정 오류:', error);
+        }
+    },
+    toggleCamera() {
+      if (this.isCameraOn) {
+        this.stopCamera();
+      } else {
+        this.startCamera();
+      }
+    },
+    toggleMicrophone() {
+      if (this.isMicrophoneOn) {
+        this.stopMicrophone();
+      } else {
+        this.startMicrophone();
+      }
+    },
+    startCamera() {
+      this.setupCameraPreview();
+    },
+    stopCamera() {
+      const previewVideo = this.$refs.previewVideo;
+      const stream = previewVideo.srcObject;
+
+      if (stream) {
+        const tracks = stream.getTracks();
+        tracks.forEach((track) => track.stop());
+      }
+
+      previewVideo.srcObject = null;
+      this.isCameraOn = false;
+    },
+    startMicrophone() {
+      const previewVideo = this.$refs.previewVideo;
+      const stream = previewVideo.srcObject;
+
+      if (stream) {
+        const audioTracks = stream.getAudioTracks();
+        audioTracks.forEach((track) => (track.enabled = true));
+        this.isMicrophoneOn = true;
+      }
+    },
+    stopMicrophone() {
+      const previewVideo = this.$refs.previewVideo;
+      const stream = previewVideo.srcObject;
+
+      if (stream) {
+        const audioTracks = stream.getAudioTracks();
+        audioTracks.forEach((track) => (track.enabled = false));
+        this.isMicrophoneOn = false;
+      }
+    },
+    },
+
+    beforeDestroy() {
+        this.stopCamera();
+        this.stopMicrophone();
+    },
+    // 수정필요
+    // enterRoom() {
+    //   this.store.dispatch('roomModule/doEnterRoom', {
+    //     userId: this.myUserId,
+    //     roomId: this.roomId,
+    //   }).then((status) => {
+    //     if (status == 200) {
+    //       this.$router.push({ name: 'room', params: { roomId: this.roomId }, query: { video: this.videoActive, audio: this.audioActive } }).then(() => {
+    //         if (this.session) this.session.disconnect();
+    //         this.session = undefined;
+    //         this.publisher = undefined;
+    //         this.OV = undefined;
+
+    //         window.removeEventListener("beforeunload", this.leaveSession);
+    //       })
+    //     }
+    //     else {
+    //       this.store.commit("errorModule/SET_STATUS", status);
+    //     }
+    //   });
+    // },
+
+};
 </script>
 
 <style>
@@ -118,11 +252,11 @@
     background-color: #80BCBD;
 }
 
-.roomInfoContent{
-    padding:50px;
+.roomInfoContent {
+    padding: 50px;
 }
 
-.roomSubTitle{
+.roomSubTitle {
     display: flex;
     justify-content: flex-start;
     flex-shrink: 0;
@@ -135,7 +269,7 @@
 
 }
 
-.roomTitle{
+.roomTitle {
     flex-shrink: 0;
     color: #000;
     font-family: Inter;
@@ -145,7 +279,7 @@
     line-height: normal;
 }
 
-.roomDetail{
+.roomDetail {
     flex-shrink: 0;
     color: #000;
     font-family: Inter;
@@ -155,7 +289,7 @@
     line-height: normal;
 }
 
-.roomHashtag{
+.roomHashtag {
     flex-shrink: 0;
     color: #000;
     font-family: Inter;
@@ -176,12 +310,12 @@
     background-color: white;
 }
 
-.chatContent{ 
-    height:100%;
-    padding: 5% 10% 5% 10% ;
+.chatContent {
+    height: 100%;
+    padding: 5% 10% 5% 10%;
 }
 
-.myInfo{
+.myInfo {
     padding: 30px;
     border-radius: 10px;
     background-color: #AAD9BB;
@@ -189,11 +323,11 @@
     flex-direction: column;
 }
 
-.myInfoTitle{
+.myInfoTitle {
     padding: 10px;
 }
 
-.myInfoImg img{
+.myInfoImg img {
     width: 50px;
     height: 50px;
     flex-shrink: 0;
@@ -214,8 +348,9 @@
     float: left;
 }
 
-.myInfoVideo{
-    width:100%;
+.myInfoVideo {
+    width: 100%;
+    height: auto;
 
 }
 
@@ -225,7 +360,6 @@
     margin: 50px;
     justify-content: space-evenly
 }
-
 
 
 .setbtn {
@@ -248,4 +382,24 @@
     height: 97px;
     flex-shrink: 0;
     float: left;
-}</style>
+}
+
+
+.preview-container {
+    height: 42vh; 
+    width: auto; 
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    overflow: hidden; 
+}
+
+
+.preview-container video {
+    height: 100%; 
+    width: auto;
+    object-fit: cover; 
+}
+
+
+</style>

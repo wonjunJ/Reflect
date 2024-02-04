@@ -1,12 +1,14 @@
 <template>
-    <div v-if="streamManager">
+    <div class = "myVideo" v-if="streamManager">
+        <div ><p>{{ clientData }}</p></div>
+
         <ov-video :stream-manager="streamManager"/>
-        <div><p>{{ clientData }}</p></div>
+       
     </div>
-    </template>
+</template>
     
-    <script>
-    import OvVideo from './OvVideo';
+<script>
+    import OvVideo from './OvVideo.vue';
     
     export default {
         name: 'UserVideo',
@@ -29,9 +31,17 @@
         methods: {
             getConnectionData () {
                 const { connection } = this.streamManager.stream;
+                console.log(connection.session.sessionId);
                 return JSON.parse(connection.data);
             },
         },
     };
-    </script>
-    
+</script>
+
+<style >
+/* .myVideo{
+    margin:50px;
+   width: 500px;
+    background-color: #AAD9BB;
+} */
+</style>

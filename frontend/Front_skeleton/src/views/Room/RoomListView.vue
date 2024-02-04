@@ -191,10 +191,6 @@ import { useRoomStore} from '@/stores/room'
 // import Slider from '@vueform/slider'
 
 
-
-
-
-
 const roomStore = useRoomStore()
 const isAll = ref(true)
 const isWaiting = ref(false)
