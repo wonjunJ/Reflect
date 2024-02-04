@@ -1,7 +1,6 @@
 package com.ssafy.mademe.repository;
 
 import com.ssafy.mademe.entity.MBTICode;
-import com.ssafy.mademe.entity.MBTILog;
 import com.ssafy.mademe.entity.User;
 
 import java.util.List;

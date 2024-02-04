@@ -14,7 +14,7 @@ public class FollowingResponse {
     private final String profileImg;
     private final String nickName;
     private List<InterestResponse> interests;
-    private List<String> titles;
+    private List<String> titles; //칭호
     private String mbti;
     private String followIntro;
     //private final int alike; //유사도

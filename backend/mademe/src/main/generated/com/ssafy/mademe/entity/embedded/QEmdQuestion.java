@@ -22,7 +22,7 @@ public class QEmdQuestion extends BeanPath<EmdQuestion> {
 
     public static final QEmdQuestion emdQuestion = new QEmdQuestion("emdQuestion");
 
-    public final com.ssafy.mademe.entity.QQuestionCode qCode;
+    public final com.ssafy.mademe.entity.QQuestionCode qcode;
 
     public final com.ssafy.mademe.entity.QUser user;
 
@@ -44,7 +44,7 @@ public class QEmdQuestion extends BeanPath<EmdQuestion> {
 
     public QEmdQuestion(Class<? extends EmdQuestion> type, PathMetadata metadata, PathInits inits) {
         super(type, metadata, inits);
-        this.qCode = inits.isInitialized("qCode") ? new com.ssafy.mademe.entity.QQuestionCode(forProperty("qCode")) : null;
+        this.qcode = inits.isInitialized("qcode") ? new com.ssafy.mademe.entity.QQuestionCode(forProperty("qcode")) : null;
         this.user = inits.isInitialized("user") ? new com.ssafy.mademe.entity.QUser(forProperty("user")) : null;
     }
 

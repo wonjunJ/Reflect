@@ -51,6 +51,7 @@ public class UserService implements UserDetailsService {
         }
         String[] tokens = jwtUtil.createAndGetTokens(user.getId());
         Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("userId", user.getId().toString()); //STOMP 웹소켓 통신을 위한 구독을 하기 위해
         tokenMap.put("AccessToken", tokens[0]);
         tokenMap.put("RefreshToken", tokens[1]);
         return tokenMap;

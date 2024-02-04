@@ -1,6 +1,7 @@
 package com.ssafy.mademe.repository;
 
 import com.querydsl.core.Tuple;
+import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
@@ -8,7 +9,9 @@ import com.ssafy.mademe.entity.QFollowing;
 import com.ssafy.mademe.entity.QUser;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.support.PageableExecutionUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -18,7 +21,7 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
     private final JPAQueryFactory jpaQueryFactory;
 
     @Override
-    public List<FollowingResponse> findFollowingListByUser(User user, Pageable pageable) {
+    public Page<FollowingResponse> findFollowingListByUser(User user, Pageable pageable) {
         List<Tuple> results = jpaQueryFactory
                 .select(
                         QUser.user.id,
@@ -28,7 +31,8 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
                 .from(QFollowing.following)
                 .join(QFollowing.following.id.followId, QUser.user)
                 .where(
-                        QFollowing.following.id.userId.eq(user)
+                        QFollowing.following.id.userId.eq(user),
+                        QUser.user.isWithdrawal.eq(false)
                 )
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
@@ -40,7 +44,17 @@ public class FollowingRepositoryImpl implements FollowingRepositoryCustom {
                     tuple.get(1, String.class),
                     tuple.get(2, String.class)));
         }
-        return flist;
+
+        JPAQuery<Long> count = jpaQueryFactory
+                .select(QFollowing.following.count())
+                .from(QFollowing.following)
+                .join(QFollowing.following.id.followId, QUser.user)
+                .where(
+                        QFollowing.following.id.userId.eq(user),
+                        QUser.user.isWithdrawal.eq(false)
+                );
+
+        return PageableExecutionUtils.getPage(flist, pageable, count::fetchOne);
     }
 
     @Override

@@ -26,18 +26,18 @@ public class EmdQuestion implements Serializable {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "question_id")
-    private QuestionCode qCode;
+    private QuestionCode qcode;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         EmdQuestion emdQuestion = (EmdQuestion) o;
-        return Objects.equals(user, emdQuestion.user) && Objects.equals(qCode, emdQuestion.qCode);
+        return Objects.equals(user, emdQuestion.user) && Objects.equals(qcode, emdQuestion.qcode);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(user, qCode);
+        return Objects.hash(user, qcode);
     }
 }

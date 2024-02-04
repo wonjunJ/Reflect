@@ -11,12 +11,12 @@ import com.ssafy.mademe.repository.InterestRepository;
 import com.ssafy.mademe.repository.MBTILogRepository;
 import com.ssafy.mademe.repository.OMBTICntRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -66,6 +66,26 @@ public class InterestService {
                 .collect(Collectors.toList());
     }
 
+    public Map<String, Object> getMbtiLogInfos(User user, MBTICode code, Pageable pageable){
+        Page<MBTILog> mbtiLogs = mbtiLogRepository.findByUserAndMbtiCodeOrderByDiaryCreateDateDesc(user, code, pageable);
+        List<DiaryLogResponse> logdata = new ArrayList<>();
+        for(MBTILog logs : mbtiLogs){
+            logdata.add(mapToDiaryLog(logs));
+        }
+        Map<String, Object> json = new HashMap<>();
+        //페이징 처리를 위한 Page객체로 변환
+        Page<DiaryLogResponse> result = new PageImpl<>(logdata, pageable, mbtiLogs.getTotalElements());
+        json.put("pagingInfo", PagingInfoResponse.builder()
+                        .totalPage(result.getTotalPages())
+                        .pageNum(result.getNumber())
+                        .isFirst(result.isFirst())
+                        .hasNext(result.hasNext())
+                        .build()
+        );
+        json.put("data", logdata);
+        return json;
+    }
+
     public void addInterest(User user, AddInterestRequest addInterestRequest){
         Interest itr = interestRepository.findFirstByUserAndCompositeKey_PreferenceAndCompositeKey_InterestCode_HobbyName(user,
                 addInterestRequest.getPreference(), addInterestRequest.getName());
@@ -104,7 +124,8 @@ public class InterestService {
         } else {
             oppositeKey = key.equals(MBTICode.J) ? MBTICode.P : MBTICode.J;
         }
-        double percentNum = (map.get(key)/(double)(map.get(key) + map.get(oppositeKey))) * 100;
+        Long oppoVal = map.containsKey(oppositeKey) ? map.get(oppositeKey) : 0;
+        double percentNum = (map.get(key)/(double)(map.get(key) + oppoVal)) * 100;
         System.out.println(percentNum);
         return (int) Math.round(percentNum);
     }
@@ -118,7 +139,7 @@ public class InterestService {
     }
 
     //해당하는 관심사명에 대해서 InterestCode 테이블에 값이 존재하는지를 체크(없으면 값을 새로 저장하고 리턴)
-    public InterestCode checkInterestCode(String name){
+    private InterestCode checkInterestCode(String name){
         InterestCode codeId = interestCodeRepository.findFirstByHobbyName(name);
         if(codeId == null){
             codeId = new InterestCode();
@@ -128,12 +149,21 @@ public class InterestService {
         return codeId;
     }
 
-    public void addFourthLocation(Interest itr, Integer fourth){ //관심사를 4번째자리 다음으로 추가하는 로직
+    private void addFourthLocation(Interest itr, Integer fourth){ //관심사를 4번째자리 다음으로 추가하는 로직
         if(fourth == null || fourth == 0 || fourth == 1){
             itr.setCnt(1);
         }else{
             itr.setCnt(fourth-1);
         }
         interestRepository.save(itr);
+    }
+
+    private DiaryLogResponse mapToDiaryLog(MBTILog mbtiLog){
+        return DiaryLogResponse.builder()
+                .id(mbtiLog.getId())
+                .diaryId(mbtiLog.getDiary().getId())
+                .createDate(mbtiLog.getDiary().getCreateDate())
+                .sentence(mbtiLog.getSentence())
+                .build();
     }
 }
