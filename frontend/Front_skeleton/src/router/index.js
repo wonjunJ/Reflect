@@ -78,7 +78,7 @@ const router = createRouter({
       // meta: { requresAuth: true},
     },
     {
-      path: '/roomdetail',
+      path: '/roomdetail/:roomTitle',
       name: 'roomdetail',
       component: RoomDetailView,
       // meta: { requresAuth: true},
