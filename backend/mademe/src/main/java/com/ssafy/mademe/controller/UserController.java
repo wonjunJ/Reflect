@@ -80,6 +80,9 @@ public class UserController {
         return uires;
     }
 
+//    @GetMapping("/mypet")
+//    public
+
     //회원정보 수정
     @PutMapping("/")
     public UserInfoResponse modifyUserInfo(@RequestBody UserInfoResponse user, @AuthenticationPrincipal User token){

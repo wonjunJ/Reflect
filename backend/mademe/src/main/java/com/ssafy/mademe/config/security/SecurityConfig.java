@@ -43,7 +43,7 @@ public class SecurityConfig {
         return httpSecurity
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(csrf -> csrf.disable())
-                //.cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
                                 "user/id/*", "user/nick/*", "user/send", "user/findid",
