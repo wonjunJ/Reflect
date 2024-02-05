@@ -12,7 +12,7 @@
                         </div>
                     </div>
                     <div class="roomTitle">
-                        <p>웹툰 이야기 할 사람</p>
+                        <p>{{ roomTitle }}</p>
                     </div>
                     <div class="roomHashtag">
                         <p><a href="#">#웹툰</a><a href="#">#자유</a><a href="#">#아포칼립스</a></p>
@@ -52,12 +52,8 @@
                         </div>
                     </div>
                     <div class="roomEnterBtn">
-                        <input v-model="mySessionId" class="form-control" type="text" required />
-                        <RouterLink :to="{ name: 'roomdetail' }">
-                            <button class="setbtn" @click="enterRoom">
-                                ENTER
-                            </button>
-                        </RouterLink>
+                        <!-- <input v-model="mySessionId" class="form-control" type="text" required /> -->
+                        <button class="setbtn" @click="enterRoom">Enter</button>
 
                     </div>
                 </div>
@@ -77,7 +73,7 @@
                         <!--사용자 비디오  Session 연결해야 나타남-->
                         <div ref="previewContainer" class="preview-container">
                             <video ref="previewVideo" autoplay playsinline></video>
-                        </div>   
+                        </div>
                     </div>
                     <div class="chatSetting">
                         <button class="setbtn" @click="toggleCamera">{{ isCameraOn ? '카메라 끄기' : '카메라 켜기' }}</button>
@@ -112,23 +108,22 @@ export default {
             previewVideo: null,
             openviduSession: null,
             previewContainer: null,
+            roomTitle: "SessionA"
             // OpenVidu objects
-            OV: undefined,
-            session: undefined,
-            mainStreamManager: undefined,
-            publisher: undefined,
-            subscribers: [],
-            mySessionId: "SessionA",
-            myUserName: "Participant" + Math.floor(Math.random() * 100),
         };
     },
 
     mounted() {
         this.setupOpenViduSession();
         this.previewContainer = this.$refs.previewContainer;
+        this.setupCameraPreview();
     },
 
     methods: {
+
+        enterRoom() {
+            this.$router.push({ name: 'roomdetail', params: { roomTitle: this.roomTitle }, query: { isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
+        },
         setupOpenViduSession() {
             this.openviduSession = new OpenVidu();
         },
@@ -136,73 +131,73 @@ export default {
         async setupCameraPreview() {
             const previewVideo = this.$refs.previewVideo;
 
-        try {
-            const stream = await navigator.mediaDevices.getUserMedia({
-            video: { width: 1000, height: 1000 }, // 원하는 해상도로 조절
-            audio: true,
-        });
+            try {
+                const stream = await navigator.mediaDevices.getUserMedia({
+                    video: { width: 1000, height: 1000 }, // 원하는 해상도로 조절
+                    audio: true,
+                });
 
-        previewVideo.srcObject = stream;
-        this.isCameraOn = true;
-        this.isMicrophoneOn = true;
+                previewVideo.srcObject = stream;
+                this.isCameraOn = true;
+                this.isMicrophoneOn = true;
 
-        // 동적으로 카메라 프리뷰 크기 조절
-        const { offsetWidth, offsetHeight } = this.previewContainer;
-        previewVideo.width = offsetWidth;
-        previewVideo.height = offsetHeight;
-        } catch (error) {
-            console.error('카메라 미리보기 설정 오류:', error);
-        }
-    },
-    toggleCamera() {
-      if (this.isCameraOn) {
-        this.stopCamera();
-      } else {
-        this.startCamera();
-      }
-    },
-    toggleMicrophone() {
-      if (this.isMicrophoneOn) {
-        this.stopMicrophone();
-      } else {
-        this.startMicrophone();
-      }
-    },
-    startCamera() {
-      this.setupCameraPreview();
-    },
-    stopCamera() {
-      const previewVideo = this.$refs.previewVideo;
-      const stream = previewVideo.srcObject;
+                // 동적으로 카메라 프리뷰 크기 조절
+                const { offsetWidth, offsetHeight } = this.previewContainer;
+                previewVideo.width = offsetWidth;
+                previewVideo.height = offsetHeight;
+            } catch (error) {
+                console.error('카메라 미리보기 설정 오류:', error);
+            }
+        },
+        toggleCamera() {
+            if (this.isCameraOn) {
+                this.stopCamera();
+            } else {
+                this.startCamera();
+            }
+        },
+        toggleMicrophone() {
+            if (this.isMicrophoneOn) {
+                this.stopMicrophone();
+            } else {
+                this.startMicrophone();
+            }
+        },
+        startCamera() {
+            this.setupCameraPreview();
+        },
+        stopCamera() {
+            const previewVideo = this.$refs.previewVideo;
+            const stream = previewVideo.srcObject;
 
-      if (stream) {
-        const tracks = stream.getTracks();
-        tracks.forEach((track) => track.stop());
-      }
+            if (stream) {
+                const tracks = stream.getTracks();
+                tracks.forEach((track) => track.stop());
+            }
 
-      previewVideo.srcObject = null;
-      this.isCameraOn = false;
-    },
-    startMicrophone() {
-      const previewVideo = this.$refs.previewVideo;
-      const stream = previewVideo.srcObject;
+            previewVideo.srcObject = null;
+            this.isCameraOn = false;
+        },
+        startMicrophone() {
+            const previewVideo = this.$refs.previewVideo;
+            const stream = previewVideo.srcObject;
 
-      if (stream) {
-        const audioTracks = stream.getAudioTracks();
-        audioTracks.forEach((track) => (track.enabled = true));
-        this.isMicrophoneOn = true;
-      }
-    },
-    stopMicrophone() {
-      const previewVideo = this.$refs.previewVideo;
-      const stream = previewVideo.srcObject;
+            if (stream) {
+                const audioTracks = stream.getAudioTracks();
+                audioTracks.forEach((track) => (track.enabled = true));
+                this.isMicrophoneOn = true;
+            }
+        },
+        stopMicrophone() {
+            const previewVideo = this.$refs.previewVideo;
+            const stream = previewVideo.srcObject;
 
-      if (stream) {
-        const audioTracks = stream.getAudioTracks();
-        audioTracks.forEach((track) => (track.enabled = false));
-        this.isMicrophoneOn = false;
-      }
-    },
+            if (stream) {
+                const audioTracks = stream.getAudioTracks();
+                audioTracks.forEach((track) => (track.enabled = false));
+                this.isMicrophoneOn = false;
+            }
+        },
     },
 
     beforeDestroy() {
@@ -221,7 +216,6 @@ export default {
     //         this.session = undefined;
     //         this.publisher = undefined;
     //         this.OV = undefined;
-
     //         window.removeEventListener("beforeunload", this.leaveSession);
     //       })
     //     }
@@ -363,13 +357,15 @@ export default {
 
 
 .setbtn {
+    width: 200px;
+    height: 60px;
     flex-shrink: 0;
     border-radius: 50px;
     background: #D5F0C1;
     box-shadow: 0px 4px 4px 0px rgba(0, 0, 0, 0.25);
     color: #000;
     font-family: Inter;
-    font-size: 10px;
+    font-size: 30px;
     font-style: normal;
     font-weight: 700;
     line-height: normal;
@@ -386,20 +382,18 @@ export default {
 
 
 .preview-container {
-    height: 42vh; 
-    width: auto; 
+    height: 42vh;
+    width: auto;
     display: flex;
     justify-content: center;
     align-items: center;
-    overflow: hidden; 
+    overflow: hidden;
 }
 
 
 .preview-container video {
-    height: 100%; 
+    height: 100%;
     width: auto;
-    object-fit: cover; 
+    object-fit: cover;
 }
-
-
 </style>
