@@ -12,11 +12,9 @@ import Interests from '@/views/MyInfo/InterestsView.vue'
 import RoomListView from '@/views/Room/RoomListView.vue'
 import RoomDetailView from '@/views/Room/RoomDetailView.vue'
 import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
-<<<<<<< HEAD
 import DiaryListVue from '@/components/Diary/DiaryList.vue'
 import DiaryDetailVue from '@/views/Diary/DiaryDetail.vue'
-=======
->>>>>>> c750c1c7834941139a7365a0a48384f42c140b2e
+
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
