@@ -204,7 +204,7 @@ const idCheck = function () {
   state.isIdCheck = false // 일단 초기화
   axios({
     method: 'get',
-    url: `http://i10d207.p.ssafy.io:8080/user/id/${state.form.id}/`
+    url: `http://i10d207.p.ssafy.io:443/api/user/id/${state.form.id}/`
   })
     .then(res => {
       console.log(res.data)
@@ -227,9 +227,10 @@ const nicknameCheck = function () {
   state.isNicknameCheck = false // 일단 초기화
   axios({
     method: 'get',
-    url: `http://i10d207.p.ssafy.io:8080/user/nick/${state.form.nickname}`
+    url: `http://i10d207.p.ssafy.io:443/api/user/nick/${state.form.nickname}`
   })
     .then(res => {
+      console.log(res)
       state.isNicknameCheck = true
       state.nicknameValidationMessage = '사용 가능한 닉네임입니다.'
     })
@@ -251,7 +252,7 @@ const sendEmail = function () {
 
   axios({
     method: 'post',
-    url: `http://i10d207.p.ssafy.io:8080/user/send/`,
+    url: `https://i10d207.p.ssafy.io:443/api/user/send/`,
     data : {
       email: state.form.email
     }
@@ -278,7 +279,7 @@ const validateEmail = function () {
   clearInterval(emailValidationTimer)
   axios({
     method : 'post',
-    url: `http://i10d207.p.ssafy.io:8080/user/code/`,
+    url: `https://i10d207.p.ssafy.io:443/api/user/code/`,
     data : {
       email: state.form.email,
       code : state.emailCode
@@ -302,7 +303,7 @@ const isEmailValid = computed(() => {
 const signup = function () {
   axios({
     method: post,
-    url: `http://i10d207.p.ssafy.io:8080/user/join/`,
+    url: `https://i10d207.p.ssafy.io:443/api/user/join/`,
     body : {
       siteId: state.form.id,
       pw: state.form.password,
