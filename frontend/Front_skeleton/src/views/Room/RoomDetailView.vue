@@ -8,13 +8,17 @@
         <div class="cameraSection">
           <div id="video-container" class="col-md-6">
             <user-video :stream-manager="publisher" />
-            <user-video v-for="sub in subscribers" :key="sub.stream.connection.connectionId" :stream-manager="sub"/>
+            <user-video v-for="sub in subscribers" :key="sub.stream.connection.connectionId" :stream-manager="sub" />
           </div>
 
         </div>
         <div class="roomContent">
           <div class="peopleInfo">
             <div class="peopleInfoTitle">
+              {{ isCameraOn }}
+              {{ isMicrophoneOn }}
+              {{ roomTitle }}
+              {{ mySessionId }}
               <div class="peopleTitle">방인원</div>
               <div class="peopleNum">3/4</div>
             </div>
@@ -59,9 +63,14 @@ const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'htt
 export default {
   name: "App",
 
-  created() {  
+
+  created() {
+    this.isCameraOn = this.$route.query.isCameraOn;
+    this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
+    this.roomTitle = this.$route.params.roomTitle;
+    this.mySessionId = this.$route.params.roomTitle;
     this.joinSession();
-    },
+  },
 
   components: {
     UserVideo,
@@ -75,16 +84,18 @@ export default {
       mainStreamManager: undefined,
       publisher: undefined,
       subscribers: [],
-
+      isCameraOn: null,
+      isMicrophoneOn: null,
+      roomTitle: null,
       // Join form
-      mySessionId: "SessionA",
+      mySessionId: null,
       myUserName: "Participant" + Math.floor(Math.random() * 100),
     };
   },
 
   methods: {
     joinSession() {
-  
+
       this.OV = new OpenVidu();
       this.session = this.OV.initSession();
 
