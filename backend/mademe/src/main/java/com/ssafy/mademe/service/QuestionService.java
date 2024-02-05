@@ -43,6 +43,7 @@ public class QuestionService {
     public QuestionResponse addMyQAnswer(User user, QuestionRequest request){
         Optional<QuestionCode> code = questionCodeRepository.findById(request.getQuestionId());
         if(code.isPresent()){ //백문백답 리스트에 있는 질문이다.
+            //이 질문에 과거 내가 답했던 이력이 있는지 확인하기 위해(삭제를 해도 답변이 null이 되지 내역에는 남기 때문)
             QuestionRecord qrecord = checkRecord(user, code.get());
             qrecord.setAnswer(request.getAnswer());
             QuestionRecord rst = questionRecordRepository.save(qrecord);
