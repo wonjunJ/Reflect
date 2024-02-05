@@ -109,7 +109,7 @@ const fortunePhrases = [
 
 let item = 0
 
-window.onload = function(){
+window.onload = function() {
   const fortuneCookie = document.getElementById("cookie1")
   const screen1 = document.querySelector(".screen1")
   const screen2 = document.querySelector(".screen2")

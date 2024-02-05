@@ -1,6 +1,6 @@
 <template>
   <div>
-    <label for="hashtag">Hashtag</label>
+    <label for="hashtag">해시태그</label>
     <input name='hashtag' id="hashtag" pattern='^[A-Za-z_✲ ]{1,15}$'>
   </div>
 </template>
@@ -98,6 +98,34 @@ export default {
 @import "https://unpkg.com/@yaireo/tagify/dist/tagify.css";
 .advance .tagify__tag{
     --tag-hover: var(--tag-bg);
+}
+
+label {
+    margin-left: 10px;
+    margin-top: -10px;
+    font-family: 'Heebo', sans-serif;
+    position: relative;
+    display: inline-block;
+    height: 50%;
+    width: 7rem;
+    padding: 5px;
+    text-align: center;
+    border-radius: 5px;
+    font-size: medium;
+    font-size: 0.75rem;
+    font-weight: 500;
+    letter-spacing: 0.025rem;
+    font-style: normal;
+    color: #FFFFFF;
+    background-color: #7fccde;
+    border-radius: 5px;
+    -webkit-border-radius: 0rem;
+    -moz-border-radius: 0rem;
+    padding: 0.35rem 0.5rem;
+    border-style: none;
+    border-width: 0rem;
+    border-color: #7fccde;
+    width: 7rem;
 }
 </style>
 

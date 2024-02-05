@@ -1,9 +1,5 @@
 <template>
-<<<<<<< HEAD
   <nav class="navbar navbar-expand-lg" style="background-color: #80BCBD;">
-=======
-  <nav class="navbar navbar-expand-lg bg-body-tertiary" id="nav">
->>>>>>> c750c1c7834941139a7365a0a48384f42c140b2e
   <div class="container-fluid">
     <RouterLink class="navbar-brand" :to="{name: 'index'}">Navbar</RouterLink>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -24,7 +20,7 @@
         </li>
         &nbsp;
         <li class="nav-item">
-          <img src="#" alt="포춘쿠키아이콘" @click="onpenCookieModal">
+          <img class="fortune-icon" src="@/assets/fortune-icon.jpg" alt="포춘쿠키아이콘" @click="onpenCookieModal">
         </li>
         <li v-if="!userStore.isLogin" class="nav-item">
             <RouterLink :to="{name: 'signup'}">signup</RouterLink>
@@ -64,4 +60,9 @@ const closeModal = () => {
 </script>
 
 <style scoped>
+.fortune-icon{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
 </style>

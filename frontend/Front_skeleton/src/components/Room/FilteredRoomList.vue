@@ -1,6 +1,5 @@
 <template>
     <div>
-        <h1>필터링된 방 목록</h1>
         <div class="row row-cols-1 row-cols-md-3 g-4">
             
             <div class="col">

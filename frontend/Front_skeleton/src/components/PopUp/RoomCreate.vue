@@ -75,7 +75,8 @@
           
           <!-- 인원수 설정 칸 -->
           <div class="member-limit">
-            <input type="number" v-model="memberNum">
+            <p>인원수</p>
+            <MemberLimitSlider />
           </div>
 
 
@@ -308,6 +309,7 @@ const questionlist = [
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(8, 1fr);
   background-color: #D5F0C1;
+  border-radius: 20px;
 }
 
 .room-back {
@@ -403,10 +405,28 @@ a.img-btn {
   grid-row: 1fr;
 }
 
+.create-container label {
+  font-family: 'Heebo', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025rem;
+  font-style: normal;
+  color: #FFFFFF;
+  background-color: #7fccde;
+  border-radius: 5px;
+  -webkit-border-radius: 0rem;
+  -moz-border-radius: 0rem;
+  padding: 0.35rem 0.5rem;
+  border-style: none;
+  border-width: 0rem;
+  border-color: #7fccde;
+  width: 7rem;
+}
+
+
 .room-title {
   grid-column: 1 / 4;
   grid-row: 5 / 6;
-  /* line-height: 56.58px; */
 }
 
 .room-title label {
@@ -417,29 +437,57 @@ a.img-btn {
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
+}
+.room-title input {
+  margin-left: 5px;
+  width: 20rem;
+  height: 32px;
+  font-size: 15px;
+  border: 0;
+  border-radius: 5px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
+}
+.room-describe input {
+  margin-left: 5px;
+  width: 20rem;
+  height: 32px;
+  font-size: 15px;
+  border: 0;
+  border-radius: 5px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
 }
 
 .room-describe {
   grid-column: 1 / 4;
   grid-row: 6 / 7;
+}
+
+.room-describe label {
+  margin-top: 12.5px;
   margin-left: 10px;
-  margin-top: 10px;
   position: relative;
   display: inline-block;
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
+  line-height: 110%;
+}
+.room-hashtag {
+  grid-column: 1 / 4;
+  grid-row: 7 / 8;
 }
 
-.room-hashtag {
+.room-hashtag label {
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
@@ -447,45 +495,79 @@ a.img-btn {
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-  grid-column: 1 / 4;
-  grid-row: 7 / 8;
 }
 .select-hundred {
+  grid-column: 1 / 4;
+  grid-row: 7 / 8;
+  
+}
+
+.select-hundred select {
+  margin-left: 5px;
+}
+
+.type-hundred {
+  padding-top: 10px;
+}
+.type-hundred button {
+  height: 100%;
+  width: 100%;
+}
+
+.type-free{
+  padding-top: 10px;
+}
+.type-free button {
+  height: 100%;
+  width: 100%;
+}
+
+.room-setting {
+  padding-top: 10px;
+  width: 100%;
+  height: 100%;
+
+}
+
+.room-setting button {
+  width: 100%;
+
+
+}   
+
+.select-hundred label {
+  line-height: 100%;
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
   display: inline-block;
+  flex: left;
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-  grid-column: 1 / 4;
-  grid-row: 7 / 8;
 }
 
-.select-hundred label {
-  padding-right: 5px;
-}
-
-.member-list {
+.member-limit {
   grid-column: 4 / 6;
   grid-row: 5 / 8;
+  width: 100%;
+  height: 100%;
+  background-color: aqua;
+  border-radius: 5px;
 }
 
 .create-bottom {
   grid-column: 2/ 5;
   grid-row: 8 / 9;
-  align-content: center;
-  justify-content: space-evenly;
+  align-items: center;
+  justify-items: center;
 }
-
 
 
 .upload-demo {
