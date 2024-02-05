@@ -85,8 +85,7 @@ const isFormValid = computed(() => {
 })
 
 function login() {
-    userStore.login()
-    router.push({name: 'mypage'})
+    userStore.login(state.form.id, state.form.password)
 }
 </script>
 
