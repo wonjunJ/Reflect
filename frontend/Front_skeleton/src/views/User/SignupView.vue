@@ -243,6 +243,7 @@ const nicknameCheck = function () {
     })
 }
 
+
 let emailValidationTimer = null
 
 const sendEmail = function () {
