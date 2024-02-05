@@ -68,6 +68,15 @@ public class UserService implements UserDetailsService {
         }
     }
 
+    public void oauthJoin(User user){
+        try {
+            user.setOauth(true);
+            userRepository.save(user);
+        }catch (Exception e){
+            throw new FailedJoinException("회원가입에 실패하였습니다.");
+        }
+    }
+
     public String getUserMbtiInfo(User user){
         //유저의 mbti정보만 얻는다.
         Map<MBTICode, Long> map = mbtiLogRepository.findMbtiByUser(user);
@@ -94,9 +103,10 @@ public class UserService implements UserDetailsService {
     }
 
     public User modifyUserInfo(UserInfoResponse modified, User origin){ //값이 변경되지 않았을 경우에도 원래의 값을 받아야 한다.
-        if(modified.getEmail() != null && userRepository.existsByEmail(modified.getEmail())){
-            throw new DuplicateUserIdException("중복된 이메일입니다.");
-        }
+//        if(modified.getEmail() != null && userRepository.existsByEmail(modified.getEmail())){
+//            throw new DuplicateUserIdException("중복된 이메일입니다.");
+//        }
+        //이메일 수정은 없다.
         origin.setName(modified.getName());
         origin.setNickName(modified.getNickName());
         origin.setEmail(modified.getEmail());
@@ -112,7 +122,7 @@ public class UserService implements UserDetailsService {
         if(user.getSiteId() == null && userRepository.existsByEmail(user.getEmail())){ //회원가입을 할때 보내는 인증번호(이메일 중복 검사를 한번 거친다)
             throw new DuplicateUserIdException("이미 가입된 이메일입니다.");
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "유저 정보가 일치하지 않습니다.");
-        } else if (user.getSiteId() != null) {
+        } else if (user.getSiteId() != null) { //비밀번호 찾기 할때 보내는 인증번호
             if(!userRepository.existsBySiteId(user.getSiteId())){
                 throw new UserNotFoundException("가입된 아이디가 아닙니다.");
             }

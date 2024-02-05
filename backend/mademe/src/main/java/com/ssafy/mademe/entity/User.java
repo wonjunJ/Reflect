@@ -56,6 +56,10 @@ public class User implements UserDetails {
 
     private String myIntro;
 
+    //소셜 로그인을 하였을 경우 true(1), 자체 로그인을 하였을 경우 false(0)
+    @Column(columnDefinition = "TINYINT(1) default 0")
+    private boolean isOauth;
+
     //회원일 경우 false(0), 탈퇴할 경우 true(1)
     @Column(columnDefinition = "TINYINT(1) default 0")
     private boolean isWithdrawal;

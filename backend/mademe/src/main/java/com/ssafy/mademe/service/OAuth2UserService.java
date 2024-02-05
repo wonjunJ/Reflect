@@ -26,7 +26,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                 .getUserInfoEndpoint()
                 .getUserNameAttributeName();
 
-        System.out.println(userNameAttributeName);
+        System.out.println("값은 뭘까 "+userNameAttributeName);
 
         // DB 저장로직이 필요하면 추가
 

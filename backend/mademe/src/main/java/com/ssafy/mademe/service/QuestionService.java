@@ -24,7 +24,7 @@ public class QuestionService {
 
     public List<QuestionResponse> getMyQRecords(User user){
         //답변이 null이 아닌 경우만 찾아서 리턴
-        List<QuestionRecord> recordList = questionRecordRepository.findByCompositeKey_UserAndAnswerIsNotNull(user);
+        List<QuestionRecord> recordList = questionRecordRepository.findByCompositeKey_UserAndAnswerIsNotNullOrderByCompositeKeyQcodeIdAsc(user);
         //mapping함수를 통해서 QuestionRecord 타입의 리스트를 QuestionResponse 타입의 리스트로 바꿔준다.
         return recordList
                 .stream()

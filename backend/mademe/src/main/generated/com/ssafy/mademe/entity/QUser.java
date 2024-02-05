@@ -36,6 +36,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final ListPath<Interest, QInterest> interests = this.<Interest, QInterest>createList("interests", Interest.class, QInterest.class, PathInits.DIRECT2);
 
+    public final BooleanPath isOauth = createBoolean("isOauth");
+
     public final BooleanPath isWithdrawal = createBoolean("isWithdrawal");
 
     public final DateTimePath<java.time.LocalDateTime> joinDate = createDateTime("joinDate", java.time.LocalDateTime.class);

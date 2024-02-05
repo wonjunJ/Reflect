@@ -58,6 +58,14 @@ public class UserController {
         return state;
     }
 
+    @PostMapping("/social/join")
+    public Map<String, String> oauthJoin(@RequestBody User user){
+        userService.oauthJoin(user);
+        Map<String, String> state = new HashMap<>();
+        state.put("state", "success");
+        return state;
+    }
+
     //회원정보 조회
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
@@ -198,6 +206,7 @@ public class UserController {
                 .point(user.getPoint())
                 .titles(titles)
                 .myIntro(user.getMyIntro())
+                .isOauth(user.isOauth())
                 .build();
     }
 }

@@ -1,6 +1,9 @@
 package com.ssafy.mademe.config.security;
 
+import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.repository.UserRepository;
 import com.ssafy.mademe.service.OAuth2UserService;
+import com.ssafy.mademe.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -32,6 +35,8 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final JwtAccessDeniedHandler jwtAccessDeniedHandler;
     private final OAuth2UserService oAuth2UserService;
+    private final UserRepository userRepository;
+    private final JWTUtil jwtUtil;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -75,7 +80,8 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
         configuration.setAllowedOrigins(Arrays.asList(
                 "http://localhost:8080",
-                "http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173"
+                "http://127.0.0.1:5500", "http://localhost:5173", "http://127.0.0.1:5173",
+                "https://i10d207.p.ssafy.io:443/"
         ));
 
         configuration.setAllowedMethods(Arrays.asList("GET","POST","PUT","PATCH","DELETE"));
@@ -93,9 +99,21 @@ public class SecurityConfig {
 
             String id = defaultOAuth2User.getAttributes().get("id").toString();
             String properties = defaultOAuth2User.getAttributes().get("properties").toString();
-            String body = """
-                    {"id":"%s", "properties":"%s"}
-                    """.formatted(id, properties);
+            Boolean isLogin = userRepository.existsBySiteIdAndIsOauthIsTrue(id);
+            StringBuilder body = new StringBuilder();
+            body.append(
+                    String.format("{\"id\":\"%s\", \"properties\":\"%s\", \"isLogin\":\"%s\"", id, properties, isLogin.toString())
+            );
+            if(isLogin){
+                User user = userRepository.findBySiteId(id);
+                String[] tokens = jwtUtil.createAndGetTokens(user.getId());
+                body.append(String.format(", \"userId\":\"%d\", \"AccessToken\":\"%s\", \"RefreshToken\":\"%s\"",
+                        user.getId(), tokens[0], tokens[1]));
+            }
+            body.append("}");
+//            String body = """
+//                    {"id":"%s", "properties":"%s", "isLogin":"%s"}
+//                    """.formatted(id, properties, isLogin.toString());
 
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
