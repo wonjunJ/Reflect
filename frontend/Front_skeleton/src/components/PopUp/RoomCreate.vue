@@ -8,16 +8,16 @@
 
         <!-- 썸네일 사진 -->
         <div class="room-img">
-          <div class="preview-img" v-if="previewUrl">
-            <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:250px;" />
-          </div>
-          <div v-else>
-            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
-          </div>
           <div class="up-img">
             <el-upload class="upload-demo" :before-upload="beforeUpload">
-              <div class="btn-container">
+              <!-- <div class="btn-container">
                 <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
+              </div> -->
+              <div class="preview-img" v-if="previewUrl">
+                <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:15rem;" />
+              </div>
+              <div v-else>
+                <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
               </div>
             </el-upload>
           </div>
@@ -36,9 +36,11 @@
 
         <!-- 방 설정 버튼 -->
         <div class="room-setting">
-          <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
-          <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
-          <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+          <div class="setting-container">
+            <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
+            <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
+            <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+          </div>
         </div>
 
           <!-- 방 제목 -->
@@ -75,8 +77,12 @@
           
           <!-- 인원수 설정 칸 -->
           <div class="member-limit">
-            <p>인원수</p>
-            <MemberLimitSlider />
+            <div class="limit-container">
+              <p>인원수</p>
+              <div class="slider">
+                <MemberLimitSlider />
+              </div>
+            </div>
           </div>
 
 
@@ -303,7 +309,7 @@ const questionlist = [
 }
 .create-container {
   width: 800px;
-  height: 500px;
+  height: 550px;
   padding: 10px 20px 30px 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -313,6 +319,8 @@ const questionlist = [
 }
 
 .room-back {
+  width: 100%;
+  height: 100%;
   grid-column: 1/6;
   grid-row: 2/8;
   background-color: #AAD9BB;
@@ -338,21 +346,30 @@ const questionlist = [
 .room-img {
   grid-column: 1 / 3;
   grid-row: 2 / 5;
-  padding: 10px;
+  margin-top: 10px;
+  margin-left: 10px;
+  background-color: #80BCBD;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
-.preview-img {
-  margin-top: 10px;
-}
 
 .up-img {
-  margin-top: 3px;
   width: 100%;
-  margin-left: 0.7rem;
-  max-width: 250px;
+  /* max-width: 250px; */
 }
 
 
+
+/* .edit-img{
+  width: 15px;
+  height: 15px;
+
+} */
+
+/* 
 .img-btn.cyan {
   position: relative;
   display: inline-block;
@@ -383,7 +400,7 @@ const questionlist = [
 a.img-btn {
   text-decoration: none;
   color: white;
-}
+} */
 
 .type-hundred {
   grid-column: 3 / 4;
@@ -425,12 +442,18 @@ a.img-btn {
 
 
 .room-title {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  grid-column: 1 / 5;
   grid-row: 5 / 6;
+  background-color: #80BCBD;
+  margin:0 0px 10px 10px;
+  border-radius: 5px 5px 0 0;
+  display: flex;
 }
 
 .room-title label {
-  margin-top: 30px;
+  padding-top: 30px;
   margin-left: 10px;
   position: relative;
   display: inline-block;
@@ -442,6 +465,7 @@ a.img-btn {
   font-size: medium;
 }
 .room-title input {
+  flex: left;
   margin-left: 5px;
   width: 20rem;
   height: 32px;
@@ -453,6 +477,7 @@ a.img-btn {
   background-color: rgb(233, 233, 233);
 }
 .room-describe input {
+  flex: left;
   margin-left: 5px;
   width: 20rem;
   height: 32px;
@@ -465,8 +490,13 @@ a.img-btn {
 }
 
 .room-describe {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0px 0px 10px 10px;
+  grid-column: 1 / 5;
   grid-row: 6 / 7;
+  display: flex;
 }
 
 .room-describe label {
@@ -483,11 +513,17 @@ a.img-btn {
   line-height: 110%;
 }
 .room-hashtag {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  grid-column: 1 / 5;
   grid-row: 7 / 8;
+  display: flex;
+  border-radius: 0 0 0 5px;
 }
 
-.room-hashtag label {
+/* .room-hashtag label {
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
@@ -498,46 +534,16 @@ a.img-btn {
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-}
+} */
 .select-hundred {
-  grid-column: 1 / 4;
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  border-radius: 0 0 5px 5px;
+  grid-column: 1 / 5;
   grid-row: 7 / 8;
+  display: flex;
   
 }
-
-.select-hundred select {
-  margin-left: 5px;
-}
-
-.type-hundred {
-  padding-top: 10px;
-}
-.type-hundred button {
-  height: 100%;
-  width: 100%;
-}
-
-.type-free{
-  padding-top: 10px;
-}
-.type-free button {
-  height: 100%;
-  width: 100%;
-}
-
-.room-setting {
-  padding-top: 10px;
-  width: 100%;
-  height: 100%;
-
-}
-
-.room-setting button {
-  width: 100%;
-
-
-}   
-
 .select-hundred label {
   line-height: 100%;
   margin-left: 10px;
@@ -553,13 +559,87 @@ a.img-btn {
   font-size: medium;
 }
 
+
+.select-hundred select {
+  font-size: small;
+  flex: left;
+  margin-left: 5px;
+  height: 2rem;
+  border-radius: 5px;
+  padding-left: 5px;
+}
+
+.select-hundred select:hover {
+  background-color: rgb(238, 217, 198);
+}
+
+.type-hundred {
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-hundred button {
+  height: 100%;
+  width: 100%;
+}
+
+.type-free{
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-free button {
+  height: 100%;
+  width: 100%;
+}
+
+.room-setting {
+  margin-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+
+.setting-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-content: stretch;
+  flex-flow: row wrap;
+  background-color: #80BCBD;
+
+}
+
+.room-setting button {
+  width: 100%;
+}   
+
 .member-limit {
-  grid-column: 4 / 6;
+  grid-column: 5 / 6;
   grid-row: 5 / 8;
   width: 100%;
   height: 100%;
-  background-color: aqua;
-  border-radius: 5px;
+  background-color: #80BCBD;
+  padding-right: 10px;
+  border-radius: 0 5px 5px 0;
+  display: flex;
+}
+
+.limit-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.member-limit p {
+  font-size: larger;
+  font-weight: 700;
+}
+
+.member-limit.slider {
+  width: 100%;
 }
 
 .create-bottom {

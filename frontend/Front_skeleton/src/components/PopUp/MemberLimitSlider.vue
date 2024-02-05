@@ -1,5 +1,5 @@
 <template>
-    <div class="value">{{ currentValue }}</div>
+    <div class="limit-value">{{ currentValue }}</div>
     <input type="range" min="2" max="8" step="1" v-model="currentValue">
 </template>
   
@@ -22,14 +22,14 @@ body {
   padding-top: 40px;
   text-shadow: white 1px 1px 1px;
 }
-.value {
+.limit-value {
   text-align: center;
   font-weight: bold;
   font-size: 4em;
   width: 30px;
   height: 10px;
   line-height: 6px;
-  margin: 4px auto;
+  margin: -10px auto 50px auto;
   letter-spacing: -.07em;
   text-shadow: white 2px 2px 2px;
 }
