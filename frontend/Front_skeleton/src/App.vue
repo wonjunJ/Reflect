@@ -6,7 +6,7 @@ import Footer from './components/Footer.vue'
 </script>
 
 <template>
-  <div>
+  <div id="app">
     <Navbar/>
     <RouterView/>
     <div>
@@ -29,7 +29,7 @@ export default {
       deg: 0,
       deg_y: 0,
       mousePosition: { x: 0, y: 0 },
-      position: { x: 600, y: 300 },
+      position: { x: 1000, y: 500 },
       count: 0,
       speed: 50,
       isCatchUp: false,
@@ -153,9 +153,18 @@ export default {
     width: 150px;
     height: 165px;
     position: absolute;
-    left: 600px; /* X 좌표 */
-    top: 300px; /* Y 좌표 */
+    left: 1000px; /* X 좌표 */
+    top: 500px; /* Y 좌표 */
     background-size: cover;
     z-index: 1000;
+}
+#app {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+.content {
+  flex: 1;
 }
 </style>

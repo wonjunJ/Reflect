@@ -2,10 +2,10 @@
   <h1>This is MyPage</h1>
   <div class="d-flex">
     <aside class="aside-container">
-      <Profile :user-info="userInfo" @change-character="changeCharacter"/>
+      <Profile :user-info="userInfo"/>
     </aside>
-    <body class="d-flex flex-column body">
-      <Calendar/>
+    <body class="d-flex flex-column">
+      <Calander/>
       <QandA/>
       <div class="d-flex">
         <div>
@@ -25,7 +25,7 @@
 <script setup>
 import { ref } from 'vue'
 import Profile from './components/Profile.vue'
-import Calendar from './components/Calendar.vue'
+import Calander from './components/Calander.vue'
 import QandA from './components/QandA.vue'
 import FollowList from './components/FollowList.vue'
 import CommunityList from './components/CommunityList.vue'
@@ -33,13 +33,10 @@ import CommunityList from './components/CommunityList.vue'
 // 사용자 정보 더미데이터
 const userInfo = ref({
   username: 'test',
-  profileimg: null,
   email: 'asdf@asdf.com',
   introduction: 'Hello, my name is Elder Price and I will like to share with you the most amazing book',
-  mbti: 'INTP',
-  characterId: 1,
+  mbti: 'INTP'
 })
-const emit = defineEmits(['changeCharacter'])
 
 // 팔로워 목록
 const followers = ref([
@@ -60,19 +57,12 @@ const communitys = ref([
   { id: 1, title: 1, people: 6, hashtag: ['soccer', 'movie']},
   { id: 2, title: 2, people: 4, hashtag: ['baseball']},
 ])
-
-const changeCharacter = (num) => {
-  userInfo.value.characterId = num
-  emit('changeCharacter', num)
-}
 </script>
 
 <style scoped>
 .aside-container {
-  background-color: #AAD9BB;
+  background-color: #f0f0f0;
   padding: 20px;
 }
-.body {
-  background-color: #F9F7C9;
-} 
+
 </style>

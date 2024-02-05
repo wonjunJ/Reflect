@@ -1,7 +1,7 @@
 <template>
   <h1>Interest</h1>
   <div class="d-flex">
-    <div class="d-flex flex-column left-item">
+    <div class="d-flex flex-column">
       <div>
         <h2>관심사</h2>
         <WordCloud :data="wordCloudData"/>
@@ -20,7 +20,7 @@
         </div>
       </div>
     </div>
-    <div class="d-flex flex-column right-item">
+    <div class="d-flex flex-column">
       <div>
         <h2>관심사 목록</h2>
         <div class="border">
@@ -37,19 +37,19 @@
           <div class="d-flex flex-column">
             <h3>긍정</h3>
             <div 
-              v-for="(interest, index) in interestsPositive" 
+              v-for="interest in interestsPositive" 
               :key="interest.id"
             >
-              <p>{{ index + 1 }}. {{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
+              <p>{{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
             </div>
           </div>
           <div class="d-flex flex-column">
             <h3>부정</h3>
             <div 
-              v-for="(interest, index) in interestsNegative" 
+              v-for="interest in interestsNegative" 
               :key="interest.id"
             >
-              <p>{{index + 1}}. {{ interest.name }}<button @click="deleteInterests(interest.id)">🗑</button></p>
+              <p>{{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
             </div>
           </div>
         </div>
@@ -224,43 +224,39 @@ const interestsNegative = computed(() => {
 const interestForm = ref({
   name: '',
   emotion: '1',
-  id: 12
+  id: 11
 })
 
 // 새로운 관심사 항목 만들기
 const addInterest = function () {
-  if (interestForm.value.name) {
-    let weight = 0
-    if (interestForm.value.emotion === '1') {
-      if (interestsPositive.value.length > 3) {
-        weight = interestsPositive.value[3].weight - 1
-      } else if (interestsPositive.value.length !== 0) {
-        weight = interestsPositive.value[interestsPositive.value.length-1] -1
-      } else {
-        weight = 10
-      }
+  let weight = 0
+  if (interestForm.value.emotion === '1') {
+    if (interestsPositive.value.length > 3) {
+      weight = interestsPositive.value[3].weight - 1
+    } else if (interestsPositive.value.length !== 0) {
+      weight = interestsPositive.value[interestsPositive.value.length-1] -1
     } else {
-      if (interestsNegative.value.length > 3) {
-        weight = interestsNegative.value[3].weight - 1
-      } else if (interestsNegative.value.length !== 0) {
-        weight = interestsNegative.value[interestsNegative.value.length-1] -1
-      } else {
-        weight = 10
-      }
+      weight = 10
     }
-    interests.value.push({
-      id: interestForm.value.id,
-      name: interestForm.value.name,
-      emotion: Number(interestForm.value.emotion),
-      weight: weight
-    })
-    // axios 요청으로 백에 새로운 관심사 저장하고 적힌 값 초기화
-    interestForm.value.id += 1
-    interestForm.value.name = ''
-    interestForm.value.emotion = '1'
   } else {
-    window.alert('관심사를 입력해주세요')
+    if (interestsNegative.value.length > 3) {
+      weight = interestsNegative.value[3].weight - 1
+    } else if (interestsNegative.value.length !== 0) {
+      weight = interestsNegative.value[interestsNegative.value.length-1] -1
+    } else {
+      weight = 10
+    }
   }
+  interests.value.push({
+    id: interestForm.value.id,
+    name: interestForm.value.name,
+    emotion: Number(interestForm.value.emotion),
+    weight: weight
+  })
+  // axios 요청으로 백에 새로운 관심사 저장하고 적힌 값 초기화
+  interestForm.value.id += 1
+  interestForm.value.name = ''
+  interestForm.value.emotion = '1'
 }
 
 const deleteInterests = function (num) {
@@ -277,12 +273,8 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.left-item {
-  background-color: #F9F7C9;
-  padding: 20px;
-}
-
-.right-item {
-  background-color: #AAD9BB;
+.box {
+  height: 500px;
+  width: 500px;
 }
 </style>

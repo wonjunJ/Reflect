@@ -2,15 +2,15 @@
   <div ref="snowContainer" class="snow-background">
     <div class="greeting-box">
       <p>{{ talk }}</p>
-      <button @click="startListening">일기 쓰기</button>
-      <button @click="stopListening">일기 종료</button>
+      <button @click="startListening(); startRecording()">일기 쓰기</button>
+      <button @click="stopListening(); stopRecording(); toggleVideoStream();">일기 종료</button>
       <br>
       <video ref="videoElement" autoplay muted></video>
       <!-- 비디오 스트림 켜기/끄기 버튼 -->
-      <button @click="toggleVideoStream">{{ isVideoStreamOn ? '비디오 끄기' : '비디오 켜기' }}</button>
+      <button @click="toggleVideoStream">{{ isVideoStreamOn ? '비디오 켜기' : '비디오 끄기' }}</button>
     </div>
-   <!-- 모달 창 -->
-   <div v-if="isModalVisible" class="modal">
+    <!-- 모달 창 -->
+    <div v-if="isModalVisible" class="modal">
       <div class="modal-content">
         <h1> 오늘의 일기 확인 </h1>
         <textarea v-model="transcribedText" style="width: 900px; height: 500px;"></textarea>
@@ -19,14 +19,13 @@
         </div>
       </div>
     </div>
-    
   </div>
 </template>
 
 <script>
 import { onMounted, ref } from 'vue';
 import OpenAI from 'openai';
-// import DairyPopup from '@/components/Diary/DairyPopup.vue';
+import AWS from 'aws-sdk';
 
 export default {
   setup() {
@@ -52,19 +51,23 @@ export default {
   },
   data() {
     return {
-    recognition: null,
-    transcribedText: '',
-    interimTranscript: '',
-    talk:"안녕! 오늘의 일기를 쓸래?",
-    isModalVisible: false,
-    videoElement: null,
-    videoMediaRecorder: null,
-    isVideoRecording: false,
-    videoChunks: [],
+      recognition: null,
+      transcribedText: '',
+      interimTranscript: '',
+      talk: "안녕! 오늘의 일기를 쓸래?",
+      isModalVisible: false,
+      videoElement: null,
+      videoMediaRecorder: null,
+      isVideoRecording: false,
+      isVideoStreamOn: false,
+      videoChunks: [],
+      mediaRecorder: null,
+      stream: null,
+      fileUrl: null,
     };
-},
-methods: {
-  async setupVideoRecorder() {
+  },
+  methods: {
+    async setupVideoRecorder() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
         this.videoElement.srcObject = stream;
@@ -74,31 +77,17 @@ methods: {
             this.videoChunks.push(event.data);
           }
         };
-        this.videoMediaRecorder.onstop = () => {
+        this.videoMediaRecorder.onstop = async () => {
           const blob = new Blob(this.videoChunks, { type: 'video/webm' });
-          const downloadUrl = URL.createObjectURL(blob);
-          const a = document.createElement('a');
-          document.body.appendChild(a);
-          a.style = 'display: none';
-          a.href = downloadUrl;
-          a.download = 'my_recording.webm'; // 다운로드할 파일 이름 지정
-          a.click();
-
-          // 메모리 누수 방지를 위해 생성한 URL 해제
-          window.URL.revokeObjectURL(downloadUrl);
-
-          // 다운로드 링크 요소 제거
-          document.body.removeChild(a);
-
-          // 다음 녹화를 위해 videoChunks 배열 초기화
-          this.videoChunks.length = 0;
+          await this.uploadToS3(blob); // S3에 업로드
+          this.videoChunks.length = 0; // 다음 녹화를 위해 videoChunks 배열 초기화
         };
       } catch (error) {
         console.error('비디오 접근 에러:', error);
       }
     },
     toggleVideoStream() {
-      if (this.isVideoStreamOn) {
+      if (!this.isVideoStreamOn) {
         // 비디오 스트림을 끕니다.
         this.videoElement.srcObject.getTracks().forEach(track => track.stop());
         this.videoElement.srcObject = null;
@@ -108,71 +97,109 @@ methods: {
       }
       this.isVideoStreamOn = !this.isVideoStreamOn;
     },
-  closeModal() {
-    try{
-      this.isModalVisible = false;
-      //this.sendToChatGPT(this.transcribedText);
-      this.$router.push({ name: 'DiaryDetail' });
-      
-    } catch(err){
-      console.log('오류발생',err)
-    }
-  },
-  async navigateToAnotherPage(value) {
-    // 기다렸다가 받은 값(value)을 사용하여 페이지 이동
-    
-  },
-  startListening() {
-  // 브라우저 지원 여부 확인
-  if ('webkitSpeechRecognition' in window) {
-      this.recognition = new webkitSpeechRecognition();
-      this.recognition.continuous = true;
-      this.recognition.interimResults = true;
-      this.startVideoRecording();
-      this.recognition.onstart = () => {
-        this.talk = '오늘 하루는 어땠어?'
-        console.log('음성 인식이 시작되었습니다.');
-      };
-
-      this.recognition.onresult = (event) => {
-      this.interimTranscript = '';
-      for (let i = event.resultIndex; i < event.results.length; i++) {
-          const transcript = event.results[i][0].transcript;
-          if (event.results[i].isFinal) {
-          this.transcribedText += transcript + ' ';
-          
-          } else {
-          this.interimTranscript += transcript;
-          }
-        }
-        console.log('중간 결과:', this.interimTranscript);
-      };
-
-      this.recognition.onerror = (event) => {
-        console.error('음성 인식 오류:', event.error);
-      };
-
-      this.recognition.onend = () => {
-        // 팝업 띄우기
-        this.isModalVisible = true; // 모달 창 표시
-        this.modifiedText = this.transcribedText; // 모달에 표시될 텍스트 설정
-        
-        //this.sendToChatGPT(this.transcribedText); // 음성 인식 결과를 ChatGPT API로 보냄
-      console.log('음성 인식이 종료되었습니다.');
-      };
-
-      this.recognition.start();
+    startRecording() {
+      if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'inactive') {
+        this.videoMediaRecorder.start();
+        this.isVideoRecording = true;
+      }
+    },
+    stopRecording() {
+      if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'recording') {
+        this.videoMediaRecorder.stop();
+        this.isVideoRecording = false;
       } else {
-          console.error('이 브라우저에서는 음성 인식이 지원되지 않습니다.');
+        console.log('비디오 녹화가 이미 중지되었거나 시작되지 않았습니다.');
       }
-      },
-      stopListening() {
+    },
+    async uploadToS3(blob) {
+      try {
+        // AWS SDK 설정
+        AWS.config.update({
+          accessKeyId: 'AKIAYS2NVQEAPWSNKXES',
+          secretAccessKey: import.meta.env.VITE_S3_ACCESS_KEY,
+          region: 'ap-southeast-2'
+        });
+
+        // S3 객체를 생성합니다.
+        const s3 = new AWS.S3();
+
+        // 파일 업로드를 위한 설정을 정의합니다.
+        const params = {
+          Bucket: 'mademe',
+          Key: 'recording.webm', // 업로드된 파일의 이름
+          Body: blob,
+          ContentType: 'video/webm' // 파일의 컨텐츠 타입
+        };
+
+        // S3로 파일을 업로드합니다.
+        const uploadResult = await s3.upload(params).promise();
+
+        // 업로드된 파일의 URL을 저장합니다.
+        this.fileUrl = uploadResult.Location;
+      } catch (error) {
+        console.error('S3 업로드 오류:', error);
+      }
+    },
+    closeModal() {
+      try {
+        this.isModalVisible = false;
+        this.videoElement.srcObject = null;
+        //this.sendToChatGPT(this.transcribedText);
+        this.isVideoStreamOn = false;
+        this.videoMediaRecorder.stop();
+        this.isVideoRecording = false;
+        this.$router.push({ name: 'DiaryDetail' });
+      } catch (err) {
+        console.log('오류발생', err)
+      }
+    },
+    async navigateToAnotherPage(value) {
+      // 기다렸다가 받은 값(value)을 사용하여 페이지 이동
+    },
+    startListening() {
+      if ('webkitSpeechRecognition' in window) {
+        this.recognition = new webkitSpeechRecognition();
+        this.recognition.continuous = true;
+        this.recognition.interimResults = true;
+        this.recognition.onstart = () => {
+          this.talk = '오늘 하루는 어땠어?';
+          console.log('음성 인식이 시작되었습니다.');
+        };
+
+        this.recognition.onresult = (event) => {
+          this.interimTranscript = '';
+          for (let i = event.resultIndex; i < event.results.length; i++) {
+            const transcript = event.results[i][0].transcript;
+            if (event.results[i].isFinal) {
+              this.transcribedText += transcript + ' ';
+            } else {
+              this.interimTranscript += transcript;
+            }
+          }
+          console.log('중간 결과:', this.interimTranscript);
+        };
+
+        this.recognition.onerror = (event) => {
+          console.error('음성 인식 오류:', event.error);
+        };
+
+        this.recognition.onend = () => {
+          this.isModalVisible = true; // 모달 창 표시
+          console.log('음성 인식이 종료되었습니다.');
+        };
+
+        this.recognition.start();
+      } else {
+        console.error('이 브라우저에서는 음성 인식이 지원되지 않습니다.');
+      }
+    },
+    stopListening() {
       if (this.recognition) {
-          this.recognition.stop();
-          this.stopVideoRecording();
+        this.recognition.stop();
+        console.log('음성 인식이 중지되었습니다.');
       }
-      },
-      async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
+    },
+    async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
         try {
         const openai = new OpenAI({
             apiKey: import.meta.env.VITE_API_URL,
@@ -289,9 +316,8 @@ methods: {
         this.videoMediaRecorder.start();
         this.isVideoRecording = true;
       }
-    },
-
-    stopVideoRecording() {
+     },
+     stopVideoRecording() {
     if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'recording') {
       // 녹화 중지
       this.videoMediaRecorder.stop();
@@ -306,7 +332,7 @@ methods: {
       console.log('비디오 녹화가 이미 중지되었거나 시작되지 않았습니다.');
     }
   },
-},
+  },
 };
 </script>
 <style scoped>

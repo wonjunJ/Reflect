@@ -1,5 +1,9 @@
 <template>
+<<<<<<< HEAD
+  <nav class="navbar navbar-expand-lg" style="background-color: #80BCBD;">
+=======
   <nav class="navbar navbar-expand-lg bg-body-tertiary" id="nav">
+>>>>>>> c750c1c7834941139a7365a0a48384f42c140b2e
   <div class="container-fluid">
     <RouterLink class="navbar-brand" :to="{name: 'index'}">Navbar</RouterLink>
     <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
@@ -7,16 +11,18 @@
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
       <ul class="navbar-nav">
-        <div class="d-flex flex-row" v-if="userStore.isLogin">
-          <li class="nav-item">
-            <RouterLink :to="{name: 'Diary' }">Diary</RouterLink> &nbsp;
-          </li>
-        </div>
-        <div class="d-flex flex-row" v-if="userStore.isLogin">
-          <li class="nav-item">
-            <RouterLink :to="{name: 'roomlist' }">Community</RouterLink> &nbsp;
-          </li>
-        </div>
+        <li v-if="userStore.isLogin" class="nav-item">
+            <RouterLink :to="{name: 'mypage'}">mypage</RouterLink>
+        </li>
+        &nbsp;
+        <li v-if="userStore.isLogin" class="nav-item">
+            <RouterLink :to="{name: 'Diary'}">Diary</RouterLink>
+        </li>
+        &nbsp;
+        <li v-if="userStore.isLogin" class="nav-item">
+            <RouterLink :to="{name: 'roomlist'}">roomlist</RouterLink>
+        </li>
+        &nbsp;
         <li v-if="!userStore.isLogin" class="nav-item">
             <RouterLink :to="{name: 'signup'}">signup</RouterLink>
         </li>
