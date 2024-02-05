@@ -36,7 +36,7 @@
                                 </div>
 
                                 <div class="card-footer text-center">
-                                    <a href="#" class="btn btn-primary">Join</a>
+                                    <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
                                 </div>
                                 </div>
                                 </div>
@@ -62,7 +62,8 @@
                                 </div>
 
                                 <div class="card-footer text-center">
-                                    <a href="#" class="btn btn-primary">Join</a>
+                                    <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
+
                                 </div>
                                 </div>
                                 </div>
@@ -88,7 +89,7 @@
                                 </div>
 
                                 <div class="card-footer text-center">
-                                    <a href="#" class="btn btn-primary">Join</a>
+                                    <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
                                 </div>
                                 </div>
                                 </div>
@@ -113,18 +114,32 @@
         </div>
 
     </div>
+    <div>
+        <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeEnterModal"/>
+    </div>
     </div>
 </template>
 
 <script setup>
-import { defineProps, defineEmits } from 'vue'
+import { ref } from 'vue'
+import RoomEnter from '@/components/PopUp/RoomEnter.vue';
+
+const isEnterRoom = ref(false)
+
+const openEnterModalOpen = () => {
+    isEnterRoom.value =  true
+}
+
+const closeEnterModal = () => {
+    isEnterRoom.value =  false
+}
 
 const { isHundredModalOpen, isFreeModalOpen } = defineProps(['isHundredModalOpen', 'isFreeModalOpen']);
 const emit = defineEmits()
 
 
 const closeModal = () => {
-  emit('closeModal')
+    emit('closeModal')
 };
 
 

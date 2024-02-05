@@ -1,133 +1,138 @@
 <template>
-
   <div v-if="isModalOpen" class="modal">
-    <div class="modal-content">
+    <div class="create-container">
+      <div class="room-back"></div>
+      <div class="create-top">
+        <p>방 만들기</p>  
+      </div>
 
-        <h3>방 만들기</h3>
-        <!-- 모달 내용 -->
-        <div>
-
-            <!-- 썸네일 사진-->
-            <div>
-                <img :src="roomImage" @error="replaceImg" width="300px"/>
-                <!-- 사진 수정 아이콘 -->
-                <button @click="imageChange">
-                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-pencil-square" viewBox="0 0 16 16">
-                        <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z"/>
-                        <path fill-rule="evenodd" d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z"/>
-                    </svg>
-                </button>
-            </div>
-            
-            <!-- 사진 edit 모달  -->
-            <div v-if="changeImage">
-
-            </div>
-
-
-            <!-- 대화 타입 선택 -->
-            <div>
-                <h3>대화 타입</h3>
-                <div>
-                  <button type="button" class="btn btn-primary" @click="writeQuestion">백문백답</button>
-                  <button type="button" class="btn btn-primary" @click="writeHashtag">자유주제</button>
-                </div>
-            </div>
-
-
-            <div>
-                <!-- 방 제목 -->
-                <div>
-                    <label for="title-label">Title</label>
-                    <input type="text" v-model.trim="roomTitle" class="room-input">
-                </div>
-            
-
-                <!-- 자유주제/100문100답에 따라 다르게 나옴 -->
-                
-                <!-- 자유주제 --><!-- 해시태그  -->
-                <div v-if="isHundred">
-                    <label for="hashtag-label">Hashtag  </label>
-                    <input type="text" v-model.trim="hashtag" class="room-input">
-                </div>
-
-                
-                <!-- 백문백답 --><!-- 질문선택-->
-                <div v-if="isFree">
-                    <label for="questions" class="qestions-label">Question  </label>
-                    <select v-model="questions" class="question-select" id="questions">
-                      <option value="" disabled selected>질문 선택</option>
-                      <option v-for="question in questionlist" :key="question.pk" :value="question.id">
-                        {{ question.id }}
-                      </option>
-                    </select>
-                </div>
-
-            </div>
-
-
-            <!-- 방 설정 토글 -->
-            <div>
-                <!-- 비밀의 방 -->
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="secretRoomOnOff">
-                    <label class="form-check-label" for="secretRoomOnOff">비밀의 방으로</label>
-                </div>
-
-                <!-- 가면모드 -->
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="maskOnOff">
-                    <label class="form-check-label" for="maskOnOff">가면모드</label>
-                </div>
-
-                <!-- 익명모드 -->
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" role="switch" id="anonymousOnOff">
-                    <label class="form-check-label" for="anonymousOnOff">비밀의 방으로</label>
-                </div>
-
-            </div>
-
-            <!-- 인원수 설정 슬라이더-->
-            <div>
-                <label for="limit" class="form-label">인원수</label>
-                <input type="range" class="form-range" min="2" max="8" step="1" id="limit">
-
-            </div>
-            <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
-            <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
-            </div>
+        <!-- 썸네일 사진 -->
+        <div class="room-img">
+          <div class="preview-img" v-if="previewUrl">
+            <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:250px;" />
+          </div>
+          <div v-else>
+            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
+          </div>
+          <div class="up-img">
+            <el-upload class="upload-demo" :before-upload="beforeUpload">
+              <div class="btn-container">
+                <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
+              </div>
+            </el-upload>
+          </div>
         </div>
+
+        <!-- 대화타입 백문백답 -->
+        <div class="type-hundred">
+          <button type="button" class="btn btn-primary" @click="writeQuestion">백문백답</button>
+        </div>
+
+        <!-- 대화타입 자유주제 -->
+        <div class="type-free">
+          <button type="button" class="btn btn-primary" @click="writeHashtag">자유주제</button>
+        </div>
+
+
+        <!-- 방 설정 버튼 -->
+        <div class="room-setting">
+          <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
+          <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
+          <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+        </div>
+
+          <!-- 방 제목 -->
+          <div class="room-title">
+              <label for="title-label">방 제목</label>
+              <input type="text" v-model.trim="roomTitle" class="room-input">
+          </div>
+
+          <!-- 방 한줄 설명 -->
+          <div class="room-describe">
+              <label for="describe-label">한 줄 설명</label>
+              <input type="text" v-model.trim="roomDescribe" class="room-input">
+          </div>
+
+
+          <!-- 자유주제/100문100답에 따라 다르게 나옴 -->
+          
+          <!-- 자유주제 --><!-- 해시태그  -->
+          <div v-if="isFree" class="room-hashtag">
+            <Tagify />
+          </div>
+
+          
+          <!-- 백문백답 --><!-- 질문선택-->
+          <div v-if="isHundred" class="select-hundred" >
+              <label for="questions" class="qestions-label">질문  </label>
+              <select class="question-select" id="questions" required="required">
+                <option value="" selected disabled hidden>질문을 선택해주세요.</option>
+                <option v-for="question in questionlist" :key="question.pk" :value="question.id">
+                  {{ question.id }}
+                </option>
+              </select>
+          </div>  
+          
+          <!-- 인원수 설정 칸 -->
+          <div class="member-limit">
+            <input type="number" v-model="memberNum">
+          </div>
+
+
+      <div class="create-bottom">
+        <!-- 버튼 -->
+        <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
+        <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
+      </div>
+
     </div>
-
-
-
-  
-
+  </div>
 </template>
 
 <script setup>
-import { ref, defineProps, defineEmits } from 'vue'
+import { ref} from 'vue'
+import {useRouter} from 'vue-router'
+
+
+const router = useRouter()
 
 const { isModalOpen } = defineProps(['isModalOpen'])
 const emit = defineEmits()
-const roomImage = ref('')
 const isHundred = ref(true)
 const isFree = ref(false)
 const questions = ref(null)
-const changeImage = ref(false)
+const previewUrl = ref(null);
+let uploading = false;
+const roomTitle = ref(null)
+const roomDescribe = ref(null)
+const hashtag = ref(null)
+const isAnonymous = ref(false)
+const isMask = ref(false)
+const isSecret = ref(false)
+const memberNum = ref(null)
+
+  
 
 
-const writeHashtag = () => {
-  isHundred.value = true
-  isFree.value = false
-}
+// 파일 업로드 전 호출되는 메서드
+const beforeUpload = (file) => {
+  const isImage = file.type.startsWith('image/'); // 이미지 파일 여부 확인
 
-const writeQuestion = () => {
-  isHundred.value = false
-  isFree.value = true
-}
+  if (!isImage) {
+    // 이미지 파일이 아닌 경우
+    alert('이미지 파일만 업로드할 수 있습니다.');
+    return false; // 업로드 중지
+  }
 
+  const reader = new FileReader();
+
+  reader.onload = (e) => {
+    previewUrl.value = e.target.result; // 미리보기 URL 설정
+  };
+  reader.readAsDataURL(file);
+  // uploading = true;
+  return true;
+};
 
 const replaceImg = (e) => {
   import('@/assets/defaultRoom.jpg').then((image) => {
@@ -135,19 +140,42 @@ const replaceImg = (e) => {
   });
 };
 
-const imageChange = () => {
+const writeQuestion = () => {
+  isHundred.value = true
+  isFree.value = false
+}
+
+const writeHashtag= () => {
+  isHundred.value = false
+  isFree.value = true
+}
 
 
-  // if (roomImage.value === '') {
-  //   import('@/assets/images/defaultRoom.jpg').then((image) => {
-  //     roomImage.value = image.default;
-  //   });
-  // } else {
-  //   roomImage.value = '';
-  // }
-};
+const goRoom = () => {
+  const roomInfoData = {
+    isHundred: isHundred.value,
+    isFree: isFree.value,
+    questions: questions.value,
+    previewUrl: previewUrl.value,
+    roomTitle: roomTitle.value,
+    roomDescribe: roomDescribe.value,
+    hashtag: hashtag.value,
+    isAnonymous: isAnonymous.value,
+    isMask: isMask.value,
+    isSecret: isSecret.value,
+    memberNum: memberNum.value,
+  };
+
+  // RoomWaitingView.vue로 이동
+  // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
+  router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
+}; 
+
+
+
 
 const closeModal = () => {
+  previewUrl.value = null;
   questions.value = ''
   emit('closeModal')
 };
@@ -258,11 +286,7 @@ const questionlist = [
 ];
 
 
-
-
 </script>
-
-
 
 <style scoped>
 .modal {
@@ -276,12 +300,197 @@ const questionlist = [
   justify-content: center;
   align-items: center;
 }
+.create-container {
+  width: 800px;
+  height: 500px;
+  padding: 10px 20px 30px 20px;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  background-color: #D5F0C1;
+}
 
-.modal-content {
-  width: 400px;
-  background: white;
-  padding: 20px;
-  border-radius: 8px;
+.room-back {
+  grid-column: 1/6;
+  grid-row: 2/8;
+  background-color: #AAD9BB;
+  border-radius: 5px;
+}
+.btn-container{
+  background-color: white;
+  border-radius: 4px;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.create-top {
+  grid-column: 1 / 3;
+  grid-row: 1 / 2;
+}
+
+.create-top p {
+  font-size: 2rem;
+  font-weight: bold;
+}
+
+.room-img {
+  grid-column: 1 / 3;
+  grid-row: 2 / 5;
+  padding: 10px;
+}
+
+.preview-img {
+  margin-top: 10px;
+}
+
+.up-img {
+  margin-top: 3px;
+  width: 100%;
+  margin-left: 0.7rem;
+  max-width: 250px;
+}
+
+
+.img-btn.cyan {
+  position: relative;
+  display: inline-block;
+  font-size: 1rem;
+  padding: 3px 4rem;
+  height: 28px;
+  border-radius: 6px;
+  text-align: center;
+  transition: top .1s linear;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.15);
+  background-color: #7fccde;
+  box-shadow: 0 0 0 1px #7fccde inset,
+        0 0 0 2px rgba(255,255,255,0.15) inset,
+        0 2px 0 0 rgba(102, 164, 178, .6),
+        0 2px 0 1px rgba(0,0,0,.4),
+        0 2px 2px 1px rgba(0,0,0,0.5);
+}
+.img-btn.cyan:active {
+  top: 5px;
+  box-shadow: 0 0 0 1px #7fccde inset,
+  0 0 0 2px rgba(255,255,255,0.15) inset,
+  0 0 0 1px rgba(0,0,0,0.4);
+}
+.img-btn.cyan:hover {
+  background-color: #afe8f5;
+}
+
+a.img-btn {
+  text-decoration: none;
+  color: white;
+}
+
+.type-hundred {
+  grid-column: 3 / 4;
+  grid-row: 2 / 5;
+}
+
+.type-free {
+  grid-column: 4 / 5;
+  grid-row: 2 / 5;
+}
+
+.room-setting {
+  grid-column: 5 / 6;
+  grid-row: 2 / 5;
+}
+
+.room-setting button {
+  grid-column: 5 / 6;
+  grid-row: 1fr;
+}
+
+.room-title {
+  grid-column: 1 / 4;
+  grid-row: 5 / 6;
+  /* line-height: 56.58px; */
+}
+
+.room-title label {
+  margin-top: 30px;
+  margin-left: 10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
+}
+
+.room-describe {
+  grid-column: 1 / 4;
+  grid-row: 6 / 7;
+  margin-left: 10px;
+  margin-top: 10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
+}
+
+.room-hashtag {
+  margin-left: 10px;
+  margin-top: -10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
+  grid-column: 1 / 4;
+  grid-row: 7 / 8;
+}
+.select-hundred {
+  margin-left: 10px;
+  margin-top: -10px;
+  position: relative;
+  display: inline-block;
+  height: 50%;
+  width: 7rem;
+  padding: 5px;
+  border: solid 1px black;
+  text-align: center;
+  border-radius: 5px;
+  font-size: medium;
+  grid-column: 1 / 4;
+  grid-row: 7 / 8;
+}
+
+.select-hundred label {
+  padding-right: 5px;
+}
+
+.member-list {
+  grid-column: 4 / 6;
+  grid-row: 5 / 8;
+}
+
+.create-bottom {
+  grid-column: 2/ 5;
+  grid-row: 8 / 9;
+  align-content: center;
+  justify-content: space-evenly;
+}
+
+
+
+.upload-demo {
+  display: flex;
+  align-items: center;
 }
 
 </style>
