@@ -92,15 +92,17 @@ public class SecurityConfig {
             DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
             String id = defaultOAuth2User.getAttributes().get("id").toString();
+            String properties = defaultOAuth2User.getAttributes().get("properties").toString();
             String body = """
-                    {"id":"%s"}
-                    """.formatted(id);
+                    {"id":"%s", "properties":"%s"}
+                    """.formatted(id, properties);
 
             response.setContentType(MediaType.APPLICATION_JSON_VALUE);
             response.setCharacterEncoding(StandardCharsets.UTF_8.name());
 
             PrintWriter writer = response.getWriter();
             writer.println(body);
+            //Front로 데이터를 전송
             writer.flush();
         });
     }
