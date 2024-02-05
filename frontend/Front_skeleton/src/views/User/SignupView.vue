@@ -204,9 +204,36 @@ const nicknameCheck = function () {
   state.isNicknameCheck = false // 일단 초기화
   const nicknameValue = state.form.nickname // 닉네임 값 가져오기
 
-  // API 요청이 들어가야하는 부분
-  state.nicknameValidationMessage = 'click'
-  state.isNicknameCheck = true
+
+let emailValidationTimer = null
+
+const sendEmail = function () {
+  state.emailValidationMessage = ""
+  state.isEmailsend = true
+
+  axios({
+    method: 'post',
+    url: `http://i10d207.p.ssafy.io:8080/user/send/`,
+    data : {
+      email: state.form.email
+    }
+  })
+    .then((res) => {
+      let duration = 120
+      emailValidationTimer = setInterval(() => {
+        if (duration > 0 && !state.isEmailCheck) {
+          state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
+          duration--
+        } else {
+          clearInterval(emailValidationTimer)
+          state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
+          state.isEmailsend = false
+        }
+      }, 1000)
+    })
+    .catch((err) => {
+      state.emailValidationMessage = '인증번호 전송 중 오류가 발생했습니다.'
+    })
 }
 
 // 중복확인 이후 id 값이 변한 경우 검사여부 다시 false로 만들기
