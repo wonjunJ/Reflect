@@ -84,6 +84,7 @@ watch(() => selectedDate.value.getMonth(), (newMonth, oldMonth) => {
     console.log('month changed')
     // axios 요청 뒤에 넣기
   }
+  getDateText()
 })
 </script>
 
