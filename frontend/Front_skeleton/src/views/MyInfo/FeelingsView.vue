@@ -40,12 +40,12 @@
           <button class="btn btn-primary"
             :disabled="selectedEmotion===1"
             @click="selectEmotion(1)">
-            Joy
+            Happy
           </button>
           <button class="btn btn-primary"
             :disabled="selectedEmotion===2"
             @click="selectEmotion(2)">
-            Happy
+            Joy
           </button>
           <button class="btn btn-primary"
             :disabled="selectedEmotion===3"
