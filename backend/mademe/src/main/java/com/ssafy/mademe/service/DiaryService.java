@@ -1,14 +1,17 @@
 package com.ssafy.mademe.service;
 
+import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
 import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
-import com.ssafy.mademe.entity.Diary;
-import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.exception.diary.DiaryNotFoundException;
 import com.ssafy.mademe.repository.DiaryRepository;
+import com.ssafy.mademe.repository.EmotionCodeRepository;
 import com.ssafy.mademe.repository.MyRoomRepository;
+import com.ssafy.mademe.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -23,16 +26,18 @@ import java.util.Optional;
 public class DiaryService {
     private final DiaryRepository diaryRepository;
     private final MyRoomRepository myRoomRepository;
+    private final EmotionCodeRepository emotionCodeRepository;
+    private final UserRepository userRepository;
 
-    public List<MonthDiaryResponse> getMonthDiaryStatus(User user){
+    public List<MonthDiaryResponse> getMonthDiaryStatus(User user, LocalDate date){
         Month now = LocalDateTime.now().getMonth();
         //System.out.println(now);
-        List<Diary> monthInfo = diaryRepository.findMonthStatus(user, now);
+        List<Diary> monthInfo = diaryRepository.findMonthStatus(user, date);
         List<MonthDiaryResponse> result = new ArrayList<>();
         for(Diary d : monthInfo){
-            LocalDate date = d.getCreateDate().toLocalDate();
-            LocalDateTime start = date.atStartOfDay();
-            LocalDateTime end = date.atTime(LocalTime.MAX);
+            LocalDate tmp = d.getCreateDate().toLocalDate();
+            LocalDateTime start = tmp.atStartOfDay();
+            LocalDateTime end = tmp.atTime(LocalTime.MAX);
             result.add(
                     MonthDiaryResponse.builder()
                     .diaryId(d.getId())
@@ -53,9 +58,58 @@ public class DiaryService {
         throw new DiaryNotFoundException("해당 일기 정보가 없습니다.");
     }
 
-//    public List<RoomInfoResponse> getRoomInfos(User user, LocalDate indate, Pageable pageable){
-//        return myRoomRepository.findRoomInfoByUser(user, indate, pageable);
-//    }
+    @Transactional
+    public void addDiaryGPTLog(User user, DiaryGPTRequest request){
+        Diary diary = new Diary();
+        diary.setContent(request.getDailyData().getContent());
+        diary.setDiaryScore(request.getDailyData().getDailyScore());
+        diary.setKeyword(keywordListToString(request.getDailyData().getKeywords()));
+        String emoName = request.getDailyData().getDailyEmotion();
+        EmotionCode code = emotionCodeRepository.findFirstByEmotionName(emoName);
+        diary.setTotalEmotion(code);
+        List<EmotionLog> emoDatas = addEmotionLog(request);
+        for(EmotionLog elog : emoDatas){
+            diary.addEmotionLog(elog);
+        }
+        List<MBTILog> mbtiDatas = addMbtiLog(request);
+        for(MBTILog mlog : mbtiDatas){
+            diary.addMbtiLog(mlog);
+            user.addMbtiLog(mlog);
+        }
+        user.addDiary(diary);
+        diaryRepository.save(diary);
+        userRepository.save(user);
+    }
+
+    public List<EmotionLog> addEmotionLog(DiaryGPTRequest diaryGPTRequest){
+        List<EmotionLog> logs = new ArrayList<>();
+        //EmotionLog emotionLog = new EmotionLog();
+        List<DiaryGPTRequest.EmotionData> emotionDatas = diaryGPTRequest.getEmotionData();
+        for(DiaryGPTRequest.EmotionData data : emotionDatas){
+            EmotionCode code = emotionCodeRepository.findFirstByEmotionName(data.getEmotion());
+            for(String sentence : data.getSentences()){
+                EmotionLog emotionLog = new EmotionLog();
+                emotionLog.setEmotionCode(code);
+                emotionLog.setSentence(sentence);
+                logs.add(emotionLog);
+            }
+        }
+        return logs;
+    }
+
+    public List<MBTILog> addMbtiLog(DiaryGPTRequest diaryGPTRequest){
+        List<MBTILog> logs = new ArrayList<>();
+        List<DiaryGPTRequest.MBTIData> mbtiDatas = diaryGPTRequest.getMbtiData();
+        for(DiaryGPTRequest.MBTIData data : mbtiDatas){
+            for(String sentence : data.getSentences()){
+                MBTILog mbtiLog = new MBTILog();
+                mbtiLog.setMbtiCode(data.getMbti());
+                mbtiLog.setSentence(sentence);
+                logs.add(mbtiLog);
+            }
+        }
+        return logs;
+    }
 
     private SimpleDiaryResponse mapToSimpleDiary(Diary diary){
         return SimpleDiaryResponse.builder()
@@ -64,5 +118,14 @@ public class DiaryService {
                 .diaryScore(diary.getDiaryScore())
                 .keyword(diary.getKeyword())
                 .build();
+    }
+
+    private String keywordListToString(List<String> keywords){
+        StringBuilder sb = new StringBuilder();
+        for(String keyword : keywords){
+            sb.append("#");
+            sb.append(keyword);
+        }
+        return sb.toString();
     }
 }

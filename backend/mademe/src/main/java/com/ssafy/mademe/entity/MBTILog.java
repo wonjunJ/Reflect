@@ -24,8 +24,8 @@ public class MBTILog {
     @Enumerated(EnumType.STRING)
     private MBTICode mbtiCode;
 
-    @Transient
-    private Long cnt;
+//    @Transient
+//    private Long cnt;
 
     @Lob
     private String sentence;

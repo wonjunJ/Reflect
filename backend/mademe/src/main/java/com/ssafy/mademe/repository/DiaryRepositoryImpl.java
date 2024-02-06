@@ -10,6 +10,7 @@ import com.ssafy.mademe.entity.EmotionCode;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
 import java.util.List;
@@ -56,12 +57,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     }
 
     @Override
-    public List<Diary> findMonthStatus(User user, Month now) {
+    public List<Diary> findMonthStatus(User user, LocalDate date) {
         return jpaQueryFactory
                 .selectFrom(diary)
                 .where(
                         diary.user.eq(user),
-                        diary.createDate.month().eq(now.getValue())
+                        diary.createDate.year().eq(date.getYear()),
+                        diary.createDate.month().eq(date.getMonthValue())
                 )
                 .fetch();
     }

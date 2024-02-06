@@ -2,13 +2,11 @@ package com.ssafy.mademe.dto.gpt.request;
 
 import com.ssafy.mademe.entity.MBTICode;
 import com.ssafy.mademe.entity.Preference;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import java.util.List;
 
+@Builder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -19,6 +17,8 @@ public class DiaryGPTRequest {
     private List<EmotionData> emotionData; // emotionData 키에 대응하는 리스트
 
     // Nested class for dailyData
+    @Getter
+    @Setter
     public static class DailyData {
         private List<InterestData> interestData;
         private List<String> keywords;
@@ -27,6 +27,8 @@ public class DiaryGPTRequest {
         private String content;
         // getters, setters, and other inner classes
 
+        @Getter
+        @Setter
         public static class InterestData {
             private String interest;
             private Preference preference; // LIKE or UNLIKE
@@ -35,6 +37,8 @@ public class DiaryGPTRequest {
     }
 
     // Nested class for mbtiData
+    @Getter
+    @Setter
     public static class MBTIData {
         private MBTICode mbti;
         private List<String> sentences;
@@ -42,6 +46,8 @@ public class DiaryGPTRequest {
     }
 
     // Nested class for emotionData
+    @Getter
+    @Setter
     public static class EmotionData {
         private String emotion;
         private List<String> sentences;

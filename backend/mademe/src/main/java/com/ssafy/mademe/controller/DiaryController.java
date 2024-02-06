@@ -1,5 +1,6 @@
 package com.ssafy.mademe.controller;
 
+import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.DiaryService;
@@ -9,12 +10,11 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -30,8 +30,11 @@ public class DiaryController {
 
     //이 달의 총괄 상태
     @GetMapping("/")
-    public List<MonthDiaryResponse> getMonthDiaryStatus(@AuthenticationPrincipal User user){
-        return diaryService.getMonthDiaryStatus(user);
+    public List<MonthDiaryResponse> getMonthDiaryStatus(@AuthenticationPrincipal User user,
+                                                        @DateTimeFormat(pattern = "yyyy-MM")
+                                                        @RequestParam("date")
+                                                        LocalDate date){
+        return diaryService.getMonthDiaryStatus(user,date);
     }
 
     //간단 데일리 정보 얻기
@@ -51,5 +54,14 @@ public class DiaryController {
                 .build()
         );
         return json;
+    }
+
+    @PostMapping("/gpt")
+    public Map<String, String> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
+        DiaryGPTRequest request = data.get("data");
+        diaryService.addDiaryGPTLog(user, request);
+        Map<String, String> state = new HashMap<>();
+        state.put("state", "success");
+        return state;
     }
 }

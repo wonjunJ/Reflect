@@ -45,8 +45,8 @@ public class SecurityConfig {
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
-                                "user/id/*", "user/nick/*", "user/send", "user/findid",
-                                "user/code", "user/findpw", "/reflect-socket/**").permitAll()
+                                "/user/id/*", "/user/nick/*", "/user/send", "/user/findid",
+                                "/user/code", "/user/findpw", "/reflect-socket/**").permitAll()
                         .requestMatchers("/user/*", "/follow/*", "/app/*", "/diary/*",
                                 "/interest/*", "/question/*", "/room/*", "/emotion/*",
                                 "/pet/*").hasRole("USER")
