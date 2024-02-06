@@ -19,16 +19,20 @@ public class DiaryGPTRequest {
     // Nested class for dailyData
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class DailyData {
         private List<InterestData> interestData;
         private List<String> keywords;
-        private int dailyScore;
-        private String dailyEmotion;
+        private int daily_score;
+        private String daily_emotion;
         private String content;
         // getters, setters, and other inner classes
 
         @Getter
         @Setter
+        @NoArgsConstructor
+        @AllArgsConstructor
         public static class InterestData {
             private String interest;
             private Preference preference; // LIKE or UNLIKE
@@ -39,6 +43,8 @@ public class DiaryGPTRequest {
     // Nested class for mbtiData
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class MBTIData {
         private MBTICode mbti;
         private List<String> sentences;
@@ -48,6 +54,8 @@ public class DiaryGPTRequest {
     // Nested class for emotionData
     @Getter
     @Setter
+    @NoArgsConstructor
+    @AllArgsConstructor
     public static class EmotionData {
         private String emotion;
         private List<String> sentences;

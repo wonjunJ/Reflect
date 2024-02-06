@@ -71,6 +71,7 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                         isFalseExit(isExit)
                 );
 
+        //QueryDsl에서 페이징 처리 최적화를 하기 위해
         return PageableExecutionUtils.getPage(data, pageable, count::fetchOne);
     }
 

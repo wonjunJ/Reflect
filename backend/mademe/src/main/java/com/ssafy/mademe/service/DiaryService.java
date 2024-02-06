@@ -31,21 +31,13 @@ public class DiaryService {
 
     public List<MonthDiaryResponse> getMonthDiaryStatus(User user, LocalDate date){
         Month now = LocalDateTime.now().getMonth();
-        //System.out.println(now);
-        List<Diary> monthInfo = diaryRepository.findMonthStatus(user, date);
-        List<MonthDiaryResponse> result = new ArrayList<>();
-        for(Diary d : monthInfo){
-            LocalDate tmp = d.getCreateDate().toLocalDate();
+        //List<Diary> monthInfo = diaryRepository.findMonthStatus(user, date);
+        List<MonthDiaryResponse> result = diaryRepository.findMonthStatus(user, date);
+        for(MonthDiaryResponse d : result){ //각 일자에 대한 커뮤니티 상태를 조회한다.
+            LocalDate tmp = d.getDate();
             LocalDateTime start = tmp.atStartOfDay();
             LocalDateTime end = tmp.atTime(LocalTime.MAX);
-            result.add(
-                    MonthDiaryResponse.builder()
-                    .diaryId(d.getId())
-                    .date(d.getCreateDate().toLocalDate())
-                    .emotion(d.getTotalEmotion().getId())
-                    .doCommunity(myRoomRepository.existsById_UserAndInDateBetween(user, start, end))
-                    .build()
-            );
+            d.setDoCommunity(myRoomRepository.existsById_UserAndInDateBetween(user, start, end));
         }
         return result;
     }
@@ -59,13 +51,15 @@ public class DiaryService {
     }
 
     @Transactional
-    public void addDiaryGPTLog(User user, DiaryGPTRequest request){
+    public User addDiaryGPTLog(User user, DiaryGPTRequest request){
         Diary diary = new Diary();
         diary.setContent(request.getDailyData().getContent());
-        diary.setDiaryScore(request.getDailyData().getDailyScore());
+        diary.setDiaryScore(request.getDailyData().getDaily_score());
         diary.setKeyword(keywordListToString(request.getDailyData().getKeywords()));
-        String emoName = request.getDailyData().getDailyEmotion();
+        String emoName = request.getDailyData().getDaily_emotion(); //그 날의 총괄 감정
+        System.out.println("이게???" + emoName);
         EmotionCode code = emotionCodeRepository.findFirstByEmotionName(emoName);
+        System.out.println(code.getId());
         diary.setTotalEmotion(code);
         List<EmotionLog> emoDatas = addEmotionLog(request);
         for(EmotionLog elog : emoDatas){
@@ -74,11 +68,19 @@ public class DiaryService {
         List<MBTILog> mbtiDatas = addMbtiLog(request);
         for(MBTILog mlog : mbtiDatas){
             diary.addMbtiLog(mlog);
-            user.addMbtiLog(mlog);
+            mlog.setUser(user);
         }
-        user.addDiary(diary);
+        LocalDate yesterday = LocalDate.now().minusDays(1);
+        LocalDateTime start = yesterday.atStartOfDay();
+        LocalDateTime end = yesterday.atTime(LocalTime.MAX);
+        if(diaryRepository.existsByUserAndCreateDateBetween(user, start, end)){ //어제 날짜로 쓴 일기가 있다.
+            userRepository.increaseCntById(user.getId()); //일기 연속 작성 일자에 +1
+        }else {
+            user.setRecordTime(0);
+        }
+        diary.setUser(user);
         diaryRepository.save(diary);
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     public List<EmotionLog> addEmotionLog(DiaryGPTRequest diaryGPTRequest){
@@ -105,9 +107,11 @@ public class DiaryService {
                 MBTILog mbtiLog = new MBTILog();
                 mbtiLog.setMbtiCode(data.getMbti());
                 mbtiLog.setSentence(sentence);
+                System.out.println(mbtiLog.getMbtiCode());
                 logs.add(mbtiLog);
             }
         }
+        System.out.println(logs.size());
         return logs;
     }
 

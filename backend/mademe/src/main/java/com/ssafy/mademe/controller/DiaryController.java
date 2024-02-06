@@ -56,10 +56,13 @@ public class DiaryController {
         return json;
     }
 
+    //일기 작성(GPT 분석 데이터까지 함께 저장)
     @PostMapping("/gpt")
     public Map<String, String> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
         DiaryGPTRequest request = data.get("data");
-        diaryService.addDiaryGPTLog(user, request);
+        //request.getDailyData().getKeywords().forEach(s -> System.out.println("data는 " + s));
+        User suser = diaryService.addDiaryGPTLog(user, request);
+        //칭호 획득 관련 처리 추가
         Map<String, String> state = new HashMap<>();
         state.put("state", "success");
         return state;

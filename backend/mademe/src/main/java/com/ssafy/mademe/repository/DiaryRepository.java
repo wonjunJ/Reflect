@@ -9,4 +9,5 @@ import java.util.List;
 
 public interface DiaryRepository extends JpaRepository<Diary, Long>, DiaryRepositoryCustom {
     List<Diary> findByUserAndCreateDateAfter(User user, LocalDateTime dateTime);
+    Boolean existsByUserAndCreateDateBetween(User user, LocalDateTime start, LocalDateTime end);
 }
