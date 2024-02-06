@@ -558,7 +558,7 @@ a.img-btn {
   grid-row: 5 / 8;
   width: 100%;
   height: 100%;
-  background-color: aqua;
+  background-color: #afe8f5;
   border-radius: 5px;
 }
 
