@@ -10,7 +10,6 @@ import java.util.Map;
 import jakarta.annotation.PostConstruct;
 
 
-@CrossOrigin(origins = "*")
 @RestController
 public class WebRTCController {
 
