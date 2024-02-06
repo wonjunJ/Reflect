@@ -46,10 +46,10 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
                                 "user/id/*", "user/nick/*", "user/send", "user/findid",
-                                "user/code", "user/findpw", "/reflect-socket/**").permitAll()
+                                "user/code", "user/findpw", "/reflect-socket/**", "api/sessions", "api/sessions/**").permitAll()
                         .requestMatchers("/user/*", "/follow/*", "/app/*", "/diary/*",
                                 "/interest/*", "/question/*", "/room/*", "/emotion/*",
-                                "/pet/*").hasRole("USER")
+                                "/pet/*", "api/sessions", "api/sessions/**").hasRole("USER")
                         .anyRequest().authenticated())
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                         .loginPage("/login")

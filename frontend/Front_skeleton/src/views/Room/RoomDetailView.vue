@@ -68,7 +68,7 @@ export default {
     this.isCameraOn = this.$route.query.isCameraOn;
     this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
     this.roomTitle = this.$route.params.roomTitle;
-    this.mySessionId = this.$route.params.roomTitle;
+    // this.mySessionId = this.$route.params.roomTitle;
     this.joinSession();
   },
 
@@ -88,7 +88,7 @@ export default {
       isMicrophoneOn: null,
       roomTitle: null,
       // Join form
-      mySessionId: null,
+      mySessionId: "SessionA",
       myUserName: "Participant" + Math.floor(Math.random() * 100),
     };
   },
@@ -174,6 +174,7 @@ export default {
      */
     async getToken(mySessionId) {
       const sessionId = await this.createSession(mySessionId);
+      console.log("sessionID is : " + sessionId);
       return await this.createToken(sessionId);
     },
 

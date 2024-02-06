@@ -5,12 +5,13 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
+import lombok.extern.slf4j.Slf4j;
 import java.util.Map;
 import jakarta.annotation.PostConstruct;
 
 
 @RestController
+@Slf4j
 public class WebRTCController {
 
     @Value("${OPENVIDU_URL}")
@@ -35,6 +36,7 @@ public class WebRTCController {
             throws OpenViduJavaClientException, OpenViduHttpException {
         SessionProperties properties = SessionProperties.fromJson(params).build();
         Session session = openvidu.createSession(properties);
+        log.info("sessionID : " + session.getSessionId());
         return new ResponseEntity<>(session.getSessionId(), HttpStatus.OK);
     }
 
