@@ -1,6 +1,11 @@
 <template>
     <div>
-      <h1>Made Me</h1>
+      <div id="videoContainer">
+        <video ref="videoElement"  width="640" height="480" autoplay muted @play="onPlay"></video>
+        <canvas id="videoCanvas" width="720" height="560"></canvas>
+      </div>
+      <div id="displayText"></div>
+      <h1>Reflect</h1>
 
       <ul id="menu">
         <li v-for="(item, index) in menuItems" :key="index" :class="{ 'on': index === activeMenu }">
@@ -27,24 +32,43 @@ import img2 from '@/img/메인제품소개.png';
 import img3 from '@/img/커뮤니티페이지.png';
 import img4 from '@/img/펫고르기.png';
 import { ref, onMounted } from 'vue';
+const detectionOptions = {
+    withLandmarks: true,
+    withDescriptors: true,
+    minConfidence: 0.5,
+    MODEL_URLS: {
+      Mobilenetv1Model:
+        "https://raw.githubusercontent.com/ml5js/ml5-data-and-models/main/models/faceapi/ssd_mobilenetv1_model-weights_manifest.json",
+      FaceExpressionModel:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_expression_model-weights_manifest.json",
+      TinyFaceLandmarkModel:
+        // "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json",
+      FaceLandmark68TinyNet:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+      FaceRecognitionModel:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_recognition_model-weights_manifest.json",
+    },
+  };
 export default {
-  setup() {
-    const snowContainer = ref(null);
+  // setup() {
+  //   const snowContainer = ref(null);
     
-    onMounted(() => {
-      const Snow = new SnowCanvas();
-      Snow.createSnowFlakes(1000);
+  //   onMounted(() => {
+  //     const Snow = new SnowCanvas();
+  //     Snow.createSnowFlakes(1000);
 
-      const canvas = Snow.getCanvas();
+  //     const canvas = Snow.getCanvas();
       
-    });
-    return { snowContainer };
+  //   });
+  //   return { snowContainer };
     
-   },
+  //  },
   data() {
-    
+     
     return {
-      
+      videoElement: null,
+      detectionOptions,
       menuItems: ['일기 쓰기', '일기 관리', '커뮤 니티', '다양한 캐릭터'],
       activeMenu: 0,
       sections: [
@@ -72,32 +96,12 @@ export default {
     };
   },
   mounted() {
-    this.setSectionHeight();
-    window.addEventListener('resize', this.setSectionHeight);
-    window.addEventListener('scroll', this.handleScroll);
-    
+    this.videoElement = this.$refs.videoElement;
+    this.startVideo();
+    this.loadModels();
   },
-  beforeDestroy() {
-    window.removeEventListener('resize', this.setSectionHeight);
-    window.removeEventListener('scroll', this.handleScroll);
-  },
+  
   methods: {
-    setSectionHeight() {
-      let ht = window.innerHeight;
-      document.querySelectorAll('section').forEach((section) => {
-        section.style.height = `${ht}px`;
-      });
-    },
-    handleScroll() {
-      let ht = window.innerHeight;
-      let scroll = window.scrollY;
-
-      this.menuItems.forEach((_, index) => {
-        if (scroll >= ht * index && scroll < ht * (index + 1)) {
-          this.activeMenu = index;
-        }
-      });
-    },
     scrollToSection(index) {
       let ht = window.innerHeight;
       let nowTop = index * ht + 56;
@@ -106,6 +110,106 @@ export default {
         behavior: 'smooth',
       });
     },
+
+    async loadModels() {
+      await Promise.all([
+      faceapi.nets.ssdMobilenetv1.loadFromUri(detectionOptions.MODEL_URLS.Mobilenetv1Model),
+          faceapi.nets.tinyFaceDetector.loadFromUri(
+            detectionOptions.MODEL_URLS.TinyFaceLandmarkModel
+          ),
+          faceapi.nets.faceLandmark68Net.loadFromUri(
+            detectionOptions.MODEL_URLS.FaceLandmark68TinyNet
+          ),
+          faceapi.nets.faceRecognitionNet.loadFromUri(
+            detectionOptions.MODEL_URLS.FaceRecognitionModel
+          ),
+          faceapi.nets.faceExpressionNet.loadFromUri(
+            detectionOptions.MODEL_URLS.FaceExpressionModel
+          ),
+      ]);
+      this.startVideo();
+    },
+    async startVideo() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        this.videoElement.srcObject = stream;
+      } catch (err) {
+        console.error('Error starting video stream:', err);
+      }
+    },
+    async onPlay() {
+  const video = this.videoElement;
+  const canvas = document.getElementById('videoCanvas');
+
+  // 비디오 요소의 실제 크기를 사용하여 displaySize 설정
+  const displaySize = { width: video.videoWidth, height: video.videoHeight };
+  faceapi.matchDimensions(canvas, displaySize);
+
+  // 이전에 감지된 표정을 저장할 변수
+  let previousExpression = "";
+
+  setInterval(async () => {
+    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    faceapi.draw.drawDetections(canvas, resizedDetections);
+    faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+    faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+    // 각 얼굴의 표정에 대한 정보를 가져오고 가장 높은 확률의 표정을 출력합니다.
+    resizedDetections.forEach((face) => {
+      const expressions = face.expressions;
+      const dominantExpression = this.getDominantExpression(expressions);
+
+      // 이전에 감지된 표정과 다를 경우에만 출력
+      if (dominantExpression !== previousExpression) {
+        console.log(`Dominant Expression: ${dominantExpression}`);
+        previousExpression = dominantExpression;
+        this.displayTextBasedOnExpression(dominantExpression);
+      }
+    });
+  }, 300);
+},
+
+// 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
+getDominantExpression(expressions) {
+  let dominantExpression = "";
+  let maxProbability = 0;
+
+  Object.keys(expressions).forEach((expression) => {
+    const probability = expressions[expression];
+    if (probability > maxProbability) {
+      maxProbability = probability;
+      dominantExpression = expression;
+    }
+  });
+
+  return dominantExpression;
+},
+// Display different texts based on dominantExpression
+displayTextBasedOnExpression(dominantExpression) {
+  const textElement = document.getElementById('displayText');
+
+  switch (dominantExpression) {
+    case 'happy':
+      textElement.innerText = '오늘은 어떤 좋은 일 있었니?';
+      console.log(textElement.innerText)
+      break;
+    case 'sad':
+    case 'angry':
+      textElement.innerText = '오늘 안 좋은 일이 있었니?';
+      console.log(textElement.innerText)
+      break;
+    case 'surprised':
+      textElement.innerText = '오늘 많이 피곤 했나요?';
+      console.log(textElement.innerText)
+      break;
+    default:
+      textElement.innerText = ''; // Clear text if the expression is not recognized
+      break;
+  }
+}
+    
   },
 };
 </script>
@@ -113,6 +217,15 @@ export default {
 <style scoped>
 @charset "utf-8";
 @import url(//spoqa.github.io/spoqa-han-sans/css/SpoqaHanSansNeo.css);
+#videoContainer {
+  position: relative;
+}
+
+#video, #videoCanvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
 .snowContainer-wrapper {
   position: relative; /* 기준점 설정 */
   height: 100vh;
