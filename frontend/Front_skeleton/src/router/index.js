@@ -14,6 +14,7 @@ import RoomDetailView from '@/views/Room/RoomDetailView.vue'
 import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
 import DiaryListVue from '@/components/Diary/DiaryList.vue'
 import DiaryDetailVue from '@/views/Diary/DiaryDetail.vue'
+import QnA from '@/views/MyInfo/QnAView.vue'
 
 
 const router = createRouter({
@@ -89,6 +90,11 @@ const router = createRouter({
       component: RoomWaitingView,
       // meta: { requresAuth: true},  
     },
+    {
+      path: '/100QnA',
+      name: '100QnA',
+      component: QnA,
+    }
   ]
 })
 
