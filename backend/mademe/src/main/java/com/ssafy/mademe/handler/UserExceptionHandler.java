@@ -73,4 +73,10 @@ public class UserExceptionHandler {
     public List<ErrorResponse> timeOutCodeExceptionHandler(TimeOutCodeException e){
         return makeErrorResponse(e, "timeout code");
     }
+
+    @ExceptionHandler(NotEnoughPointException.class)
+    @ResponseStatus(HttpStatus.NOT_ACCEPTABLE)
+    public List<ErrorResponse> notEnoughPointExceptionHandler(NotEnoughPointException e){
+        return makeErrorResponse(e, "not enough point");
+    }
 }

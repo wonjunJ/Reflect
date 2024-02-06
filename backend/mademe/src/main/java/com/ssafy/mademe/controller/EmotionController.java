@@ -11,6 +11,7 @@ import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @Slf4j
@@ -23,9 +24,13 @@ public class EmotionController {
 
     //기간별 일기 총괄 감정의 갯수를 조회
     @GetMapping("/")
-    public EmotionCntResponse getRecentEmoCnt(@AuthenticationPrincipal User user, @RequestParam("duration") int duration){
+    public Map<String, EmotionCntResponse> getRecentEmoCnt(@AuthenticationPrincipal User user){
         //7일, 14일, 1달치 값들을 한꺼번에 보내줄까 따로 보내줄까
-        return emotionService.getEmoCnt(user, duration);
+        Map<String, EmotionCntResponse> json = new HashMap<>();
+        json.put("7days", emotionService.getEmoCnt(user, 7));
+        json.put("14days", emotionService.getEmoCnt(user, 14));
+        json.put("1month", emotionService.getEmoCnt(user, 30));
+        return json;
     }
 
     //감정 일기 분석 정보

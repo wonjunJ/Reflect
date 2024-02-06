@@ -7,7 +7,6 @@ import com.ssafy.mademe.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -43,13 +42,14 @@ public class SecurityConfig {
         return httpSecurity
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .csrf(csrf -> csrf.disable())
-                //.cors(Customizer.withDefaults())
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .authorizeHttpRequests((authorize) -> authorize
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
                                 "user/id/*", "user/nick/*", "user/send", "user/findid",
                                 "user/code", "user/findpw", "/reflect-socket/**").permitAll()
                         .requestMatchers("/user/*", "/follow/*", "/app/*", "/diary/*",
-                                "/interest/*", "/question/*", "/room/*", "/emotion/*").hasRole("USER")
+                                "/interest/*", "/question/*", "/room/*", "/emotion/*",
+                                "/pet/*").hasRole("USER")
                         .anyRequest().authenticated())
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                         .loginPage("/login")
@@ -93,16 +93,33 @@ public class SecurityConfig {
     }
 
     @Bean
-    public AuthenticationSuccessHandler successHandler() {
+    public AuthenticationSuccessHandler successHandler() { //카카오 OAuth 인증 성공시 실행
         return ((request, response, authentication) -> {
             DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
 
+            //System.out.println(defaultOAuth2User.getAttributes());
+
             String id = defaultOAuth2User.getAttributes().get("id").toString();
             String properties = defaultOAuth2User.getAttributes().get("properties").toString();
+            String[] parts = properties.split(",");
+
+            // 1. 닉네임 추출
+            String nickname = parts[0].split("=")[1];
+            System.out.println("닉네임: " + nickname);
+
+            // 2. 프로필 이미지 URL 추출
+            String profileImage = parts[1].split("=")[1];
+            System.out.println("프로필 이미지 URL: " + profileImage);
+
+            // 3. 썸네일 이미지 URL 추출
+            String thumbnailImage = parts[2].split("=")[1].replace("}", "");
+            System.out.println("썸네일 이미지 URL: " + thumbnailImage);
+
             Boolean isLogin = userRepository.existsBySiteIdAndIsOauthIsTrue(id);
             StringBuilder body = new StringBuilder();
             body.append(
-                    String.format("{\"id\":\"%s\", \"properties\":\"%s\", \"isLogin\":\"%s\"", id, properties, isLogin.toString())
+                    String.format("{\"id\":\"%s\", \"nickname\":\"%s\", \"profileImage\":\"%s\", \"thumbnailImage\":\"%s\", \"isLogin\":\"%s\"",
+                            id, nickname, profileImage, thumbnailImage, isLogin.toString())
             );
             if(isLogin){
                 User user = userRepository.findBySiteId(id);

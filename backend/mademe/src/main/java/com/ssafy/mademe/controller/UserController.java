@@ -2,15 +2,13 @@ package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
+import com.ssafy.mademe.dto.request.KakaoUserInfoRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
 import com.ssafy.mademe.exception.user.InvalidPasswordException;
-import com.ssafy.mademe.service.EmotionService;
-import com.ssafy.mademe.service.InterestService;
-import com.ssafy.mademe.service.MailService;
-import com.ssafy.mademe.service.UserService;
+import com.ssafy.mademe.service.*;
 import com.ssafy.mademe.utils.JWTUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,6 +34,7 @@ public class UserController {
     private final MailService mailService;
     private final EmotionService emotionService;
     private final InterestService interestService;
+    private final PetService petService;
     private final JWTUtil jwtUtil;
 
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
@@ -58,12 +57,10 @@ public class UserController {
         return state;
     }
 
+    //소셜 회원가입과 로그인을 동시에 진행
     @PostMapping("/social/join")
-    public Map<String, String> oauthJoin(@RequestBody User user){
-        userService.oauthJoin(user);
-        Map<String, String> state = new HashMap<>();
-        state.put("state", "success");
-        return state;
+    public Map<String, String> oauthJoinAndLogin(@RequestBody KakaoUserInfoRequest user){
+        return userService.oauthJoin(user);
     }
 
     //회원정보 조회
@@ -71,7 +68,7 @@ public class UserController {
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
         String mbtiStr = userService.getUserMbtiInfo(user);
         List<String> titleList = userService.getTitles(user); //정보가 없다면 빈 리스트가 리턴
-        List<String> petInfo = userService.getUserPetInfo(user);
+        List<String> petInfo = petService.getUserPetInfo(user);
         UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
         if(!petInfo.isEmpty()){
             uires.setCharName(petInfo.get(0)); //펫의 원래 이름

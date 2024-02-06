@@ -2,7 +2,9 @@ package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.UserMBTIMethod;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
+import com.ssafy.mademe.dto.request.KakaoUserInfoRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
+import com.ssafy.mademe.dto.response.MyPetInfoResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
 import com.ssafy.mademe.entity.MBTICode;
 import com.ssafy.mademe.entity.MyPet;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.Duration;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -49,12 +52,7 @@ public class UserService implements UserDetailsService {
             //throw new ResponseStatusException(HttpStatus.NOT_FOUND, "비밀번호가 올바르지 않습니다.");
             throw new InvalidPasswordException("비밀번호가 올바르지 않습니다.");
         }
-        String[] tokens = jwtUtil.createAndGetTokens(user.getId());
-        Map<String, String> tokenMap = new HashMap<>();
-        tokenMap.put("userId", user.getId().toString()); //STOMP 웹소켓 통신을 위한 구독을 하기 위해
-        tokenMap.put("AccessToken", tokens[0]);
-        tokenMap.put("RefreshToken", tokens[1]);
-        return tokenMap;
+        return tokensToMap(user.getId());
     }
 
     public void joinMember(User user) {
@@ -68,10 +66,17 @@ public class UserService implements UserDetailsService {
         }
     }
 
-    public void oauthJoin(User user){
+    public Map<String, String> oauthJoin(KakaoUserInfoRequest user){
         try {
-            user.setOauth(true);
-            userRepository.save(user);
+            User joinUser = new User();
+            joinUser.setOauth(true);
+            joinUser.setSiteId(user.getId());
+            joinUser.setName(user.getName());
+            joinUser.setNickName(user.getNickName()); //사용자에게 추가로 입력받는 것
+            joinUser.setEmail(user.getEmail()); //사용자에게 추가로 입력받는 것
+            joinUser.setProfileImg(user.getProfileImg());
+            User fuser = userRepository.save(joinUser);
+            return tokensToMap(fuser.getId());
         }catch (Exception e){
             throw new FailedJoinException("회원가입에 실패하였습니다.");
         }
@@ -90,16 +95,6 @@ public class UserService implements UserDetailsService {
             ls.add(ut.getId().getTCode().getTitleName());
         }
         return ls;
-    }
-
-    public List<String> getUserPetInfo(User user){
-        MyPet petInfo = myPetRepository.findFirstById_UserAndSelectedTrue(user);
-        List<String> infoLs = new ArrayList<>();
-        if(petInfo != null){
-            infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
-            infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
-        }
-        return infoLs;
     }
 
     public User modifyUserInfo(UserInfoResponse modified, User origin){ //값이 변경되지 않았을 경우에도 원래의 값을 받아야 한다.
@@ -219,6 +214,15 @@ public class UserService implements UserDetailsService {
         }
         throw new InvalidTokenException("올바른 refresh token이 아닙니다.");
         //throw new ResponseStatusException(HttpStatus.UNAUTHORIZED, "올바른 refresh token이 아닙니다.");
+    }
+
+    public Map<String, String> tokensToMap(Long id){
+        String[] tokens = jwtUtil.createAndGetTokens(id);
+        Map<String, String> tokenMap = new HashMap<>();
+        tokenMap.put("userId", id.toString()); //STOMP 웹소켓 통신을 위한 구독을 하기 위해
+        tokenMap.put("AccessToken", tokens[0]);
+        tokenMap.put("RefreshToken", tokens[1]);
+        return tokenMap;
     }
 
     @Override
