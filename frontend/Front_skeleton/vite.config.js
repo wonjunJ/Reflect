@@ -17,6 +17,12 @@ export default defineConfig({
       resolvers: [ElementPlusResolver()]
     })
   ],
+  define: {
+    'process.env': {
+      VITE_API_URL: process.env.VITE_API_URL
+    },
+    'global':{},
+  },
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))

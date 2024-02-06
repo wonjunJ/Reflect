@@ -27,3 +27,6 @@ npm run dev
 ```sh
 npm run build
 ```
+
+### front init
+

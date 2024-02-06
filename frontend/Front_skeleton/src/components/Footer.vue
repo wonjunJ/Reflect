@@ -1,5 +1,5 @@
 <template>
-  <footer class="position-absolute bottom-0">
+  <footer class="footer">
     <div class="footer-content">
       <p>&copy; this is a footer</p>
     </div>
@@ -7,7 +7,9 @@
 </template>
 
 <script>
-
+export default {
+  name: 'FooterComponent'
+}
 </script>
 
 <style scoped>
