@@ -4,6 +4,7 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
+  const API_URL = 'http://localhost:8080/'
   const router = useRouter()
   const token = ref(null)
 
@@ -45,5 +46,5 @@ export const useUserStore = defineStore('user', () => {
     router.push({name: 'index'})
   }
 
-  return { token, isLogin, login, logout }
+  return { token, isLogin, login, logout, API_URL }
 })
