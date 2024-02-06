@@ -6,12 +6,11 @@ import Footer from './components/Footer.vue'
 </script>
 
 <template>
+
   <div id="app">
+    <img id="pet" class="pet" :src="getPetImage" alt="Pet"/>
     <Navbar/>
     <RouterView/>
-    <div>
-      <img id="pet" class="pet" :src="getPetImage" alt="Pet" />
-    </div>
     <Footer/>
   </div>
 </template>
@@ -153,7 +152,7 @@ export default {
 .pet {
     width: 150px;
     height: 165px;
-    position: absolute;
+    position: fixed;
     left: 1000px; /* X 좌표 */
     top: 500px; /* Y 좌표 */
     background-size: cover;

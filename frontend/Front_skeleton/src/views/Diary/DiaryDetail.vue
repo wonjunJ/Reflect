@@ -34,14 +34,18 @@
           class="upload-demo"
           :before-upload="beforeUpload"
           >
-          <el-button type="primary" :disabled="uploading" @click="imgSelectImg">파일 업로드</el-button>
+          <el-button type="primary" @click="imgSelectImg(); ">파일 업로드</el-button>
           
           </el-upload>        
           <el-button @click="getImageResponse(); imgSelectAI();">AI 사진생성</el-button>
+          <el-button @click="uploadImage"> 사진 업로드 </el-button>
         </div>
       </div>
       
       <div class="content-detail">
+        <div v-if="getimgUrl" class="show-item">
+            <img :src="getimgUrl" alt="업로드 이미지" style="width: 300px; height: 300px;" />
+        </div>
         <div v-if="previewUrl && selectMenu===true && imgSelect===true" class="show-item">
             
             <img :src="previewUrl" alt="업로드 이미지" style="width: 300px; height: 300px;" />
@@ -65,18 +69,20 @@
 </template>
 
 <script setup>
-import {useDiaryStore} from '@/stores/diary.js'
+// import {useDiaryStore} from '@/stores/diary.js'
 import DiaryList from "@/components/Diary/DiaryList.vue";
 import axios from 'axios';
+import { useDiaryStore } from '@/stores/diary.js'
 import { ref, watch, onMounted, computed } from "vue";
 const transcribedText = ref("오늘은 참으로 활기찬 하루였다.햇살이 따스하게 내리쬐는 오후, 나는 오랜만에 마음먹고 집 근처의 공원으로 반려견 웰시코기 루키와 함께 산책을 나섰다.루키는 이미 문밖으로 나서는 순간부터 흥분을 감추지 못하고, 꼬리를 흔들며 기쁨을 표현했다.공원에 도착하자마자, 루키는 마치 오랫동안 기다려온 듯 자유롭게 뛰어다니기 시작했다.나도 그 모습을 보며 자연스레 미소가 지어졌다.")
+const getimgUrl = ref(null);
 const previewUrl = ref(null);
 const imageUrl = ref(null); 
 const videoUrl = ref('@/img/my_recording.webm');
 const selectMenu = ref(false);
 const selectVideo = ref(false);
 const imgSelect = ref(null);
-let uploading = false;
+
 console.log(videoUrl.value)
 // const diaryStore = useDiaryStore();
 // 텍스트에서 마침표 뒤에 줄바꿈을 추가하는 함수
@@ -114,12 +120,6 @@ watch(transcribedText, (newValue, oldValue) => {
     transcribedText.value = newValue.replace(/\.(\S)/g, '.\n$1');
   }
 });
-// 파일 업로드 성공 시 호출되는 메서드
-// const handleSuccess = (response) => {
-//   console.log('파일 업로드 성공:', response);
-//   // 업로드 완료 후 필요한 로직을 추가할 수 있습니다.
-//   uploading = false;
-// };
 
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
@@ -129,10 +129,35 @@ const beforeUpload = (file) => {
     previewUrl.value = e.target.result; // 미리보기 URL 설정
   };
   reader.readAsDataURL(file);
-  // uploading = true;
   return true;
 };
-
+const uploadImage = async () => {
+  if (previewUrl.value) {
+    try {
+      const base64Image = previewUrl.value;
+      const response = await axios.post('https://your-server.com/upload', {
+        image: base64Image,
+      });
+      console.log('서버 응답:', response.data);
+    } catch (error) {
+      console.error('에러 발생:', error);
+    }
+  }
+  else if (imageUrl.value) {
+    try {
+      const base64Image = imageUrl.value;
+      const response = await axios.post('https://your-server.com/upload', {
+        image: base64Image,
+      });
+      console.log('서버 응답:', response.data);
+    } catch (error) {
+      console.error('에러 발생:', error);
+    }
+  } 
+   else {
+    alert('파일을 선택해주세요.');
+  }
+}
 let generatedImage = null;
 
 const getImageResponse = async () => {

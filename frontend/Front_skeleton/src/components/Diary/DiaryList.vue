@@ -21,8 +21,8 @@
   
 <script setup>
 import { ref, computed } from 'vue';
-import {useDiaryStore} from '@/stores/diary.js'
-const store = useDiaryStore();
+// import {useDiaryStore} from '@/stores/diary.js'
+// const store = useDiaryStore();
 
 const diaryEntries = ref([
   { date: '2024-01-01', emotion: '😄', keywords: ['행복', '가족', '기쁨'] },

@@ -1,34 +1,108 @@
-import { defineStore } from 'pinia';
+import axios from 'axios'
+import { ref, computed } from 'vue'
+import { defineStore } from 'pinia'
+import { useRouter } from 'vue-router'
+
 
 export const useDiaryStore = defineStore('diary', () => {
-  const state = {
-    selectedDate: null,
-    diaryEntries: [
-        { date: '2024-01-01', title: '일기 제목 1', keywords: ['행복', '가족', '기쁨'], content: '오늘은 즐거웠다1' },
-        { date: '2024-01-02', title: '일기 제목 2', keywords: ['사랑', '친구', '즐거움'], content: '오늘은 즐거웠다2' },
-        { date: '2024-01-03', title: '일기 제목 3', keywords: ['운동', '건강', '활동'], content: '오늘은 즐거웠다3' },
-        { date: '2024-01-04', title: '일기 제목 4', keywords: ['공부', '성취', '목표'], content: '오늘은 즐거웠다4' },
-        { date: '2024-01-05', title: '일기 제목 5', keywords: ['여행', '경험', '새로움'], content: '오늘은 즐거웠다5' },
-        { date: '2024-01-06', title: '일기 제목 6', keywords: ['미술', '창의성', '아름다움'], content: '오늘은 즐거웠다6' },
-        { date: '2024-01-07', title: '일기 제목 7', keywords: ['음악', '휴식', '평화'], content: '오늘은 즐거웠다7' },
-      ],
-  };
+  const BASE_URL = 'http://127.0.0.1:8000'
+  const diary = ref([])
+  const userInfo = ref(null)
+  
+  
+  const getSavings = function() {
+    axios({
+      method: 'get',
+      url: `${BASE_URL}/api/v1/savings/`
+    })
+      .then((res) => {
+        // console.log(res)
+        savings.value = res.data
+      })
+      .then(() => {
+        getBanks()
+        console.log('getbank - savings')
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
-  const actions = {
-    selectDate(date) {
-      state.selectedDate = date;
-    },
+  const signUp = function (payload) {
+    const {
+      username, password1, password2,
+      nickname, email, birthyear, 
+      money, salary, mainbank, location,
+    } = payload
+    axios({
+      method: 'post',
+      url: `${BASE_URL}/dj-rest-auth/signup/`,
+      data: {
+        username, password1, password2,
+        nickname, email, birthyear, 
+        money, salary, mainbank, location,
+      }
+    })
+      .then((res) => {
+        // console.log(res)
+        payload = {
+          username,
+          password: password1
+        }
+        login(payload)
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
-    getDiaryContent() {
-      const selectedEntry = state.diaryEntries.find(entry => entry.date === state.selectedDate);
-      return selectedEntry ? selectedEntry.content : 'No content available for the selected date.';
-    },
-  };
+  const getUserInfo = function () {
+    axios({
+      method: 'get',
+      url: `${BASE_URL}/api/v1/userinfo/`,
+      headers: {
+        Authorization: `Token ${token.value}`
+      }
+    })
+      .then((res) => {
+        console.log(res)
+        userInfo.value = res.data
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
+
+  const updateUserInfo = function (payload) {
+    const {
+      nickname, email, birthyear, 
+      money, salary, mainbank, location,
+    } = payload
+    axios({
+      method: 'put',
+      url: `${BASE_URL}/api/v1/userinfo/`,
+      data: {
+        nickname, email, birthyear, 
+        money, salary, mainbank, location,
+      },
+      headers: {
+        Authorization: `Token ${token.value}`
+      }
+    })
+      .then((res) => {
+        console.log(res)
+        userInfo.value = res.data
+        alert('정보가 수정되었습니다!')
+      })
+      .catch((err) => {
+        console.log(err)
+      })
+  }
 
   return {
-    selectedDate: () => state.selectedDate,
-    diaryEntries: () => state.diaryEntries,
-    selectDate: actions.selectDate,
-    getDiaryContent: actions.getDiaryContent,
-  };
-});;
+    getSavings,
+    signUp,
+    getUserInfo,
+    updateUserInfo,
+  }
+}, { persist: true })
