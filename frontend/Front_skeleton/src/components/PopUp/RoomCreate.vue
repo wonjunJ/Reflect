@@ -5,62 +5,54 @@
       <div class="create-top">
         <p>방 만들기</p>  
       </div>
-
         <!-- 썸네일 사진 -->
         <div class="room-img">
-          <div class="preview-img" v-if="previewUrl">
-            <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:250px;" />
-          </div>
-          <div v-else>
-            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
-          </div>
           <div class="up-img">
             <el-upload class="upload-demo" :before-upload="beforeUpload">
-              <div class="btn-container">
+              <!-- <div class="btn-container">
                 <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
+              </div> -->
+              <div class="preview-img" v-if="previewUrl">
+                <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:15rem;" />
+              </div>
+              <div v-else>
+                <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
               </div>
             </el-upload>
           </div>
         </div>
-
         <!-- 대화타입 백문백답 -->
         <div class="type-hundred">
           <button type="button" class="btn btn-primary" @click="writeQuestion">백문백답</button>
         </div>
-
         <!-- 대화타입 자유주제 -->
         <div class="type-free">
           <button type="button" class="btn btn-primary" @click="writeHashtag">자유주제</button>
         </div>
-
-
         <!-- 방 설정 버튼 -->
         <div class="room-setting">
-          <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
-          <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
-          <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+          <div class="setting-container">
+            <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
+            <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
+            <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+          </div>
         </div>
-
           <!-- 방 제목 -->
           <div class="room-title">
               <label for="title-label">방 제목</label>
               <input type="text" v-model.trim="roomTitle" class="room-input">
           </div>
-
           <!-- 방 한줄 설명 -->
           <div class="room-describe">
               <label for="describe-label">한 줄 설명</label>
               <input type="text" v-model.trim="roomDescribe" class="room-input">
           </div>
-
-
           <!-- 자유주제/100문100답에 따라 다르게 나옴 -->
           
           <!-- 자유주제 --><!-- 해시태그  -->
           <div v-if="isFree" class="room-hashtag">
             <Tagify />
           </div>
-
           
           <!-- 백문백답 --><!-- 질문선택-->
           <div v-if="isHundred" class="select-hundred" >
@@ -75,28 +67,25 @@
           
           <!-- 인원수 설정 칸 -->
           <div class="member-limit">
-            <p>인원수</p>
-            <MemberLimitSlider />
+            <div class="limit-container">
+              <p>인원수</p>
+              <div class="slider">
+                <MemberLimitSlider />
+              </div>
+            </div>
           </div>
-
-
       <div class="create-bottom">
         <!-- 버튼 -->
         <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
         <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
       </div>
-
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref} from 'vue'
 import {useRouter} from 'vue-router'
-
-
 const router = useRouter()
-
 const { isModalOpen } = defineProps(['isModalOpen'])
 const emit = defineEmits()
 const isHundred = ref(true)
@@ -111,22 +100,16 @@ const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
 const memberNum = ref(null)
-
   
-
-
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
   const isImage = file.type.startsWith('image/'); // 이미지 파일 여부 확인
-
   if (!isImage) {
     // 이미지 파일이 아닌 경우
     alert('이미지 파일만 업로드할 수 있습니다.');
     return false; // 업로드 중지
   }
-
   const reader = new FileReader();
-
   reader.onload = (e) => {
     previewUrl.value = e.target.result; // 미리보기 URL 설정
   };
@@ -134,24 +117,19 @@ const beforeUpload = (file) => {
   // uploading = true;
   return true;
 };
-
 const replaceImg = (e) => {
   import('@/assets/defaultRoom.jpg').then((image) => {
     e.target.src = image.default;
   });
 };
-
 const writeQuestion = () => {
   isHundred.value = true
   isFree.value = false
 }
-
 const writeHashtag= () => {
   isHundred.value = false
   isFree.value = true
 }
-
-
 const goRoom = () => {
   const roomInfoData = {
     isHundred: isHundred.value,
@@ -166,23 +144,15 @@ const goRoom = () => {
     isSecret: isSecret.value,
     memberNum: memberNum.value,
   };
-
   // RoomWaitingView.vue로 이동
   // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
   router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
 }; 
-
-
-
-
 const closeModal = () => {
   previewUrl.value = null;
   questions.value = ''
   emit('closeModal')
 };
-
-
-
 const questionlist = [
   { pk: 1, id: '내 이름의 뜻은?' },
   { pk: 2, id: '내 생일은?' },
@@ -285,10 +255,7 @@ const questionlist = [
   { pk: 99, id: '바라는 인간상은?' },
   { pk: 100, id: '항상 갖고 다니는 소지품은?' },
 ];
-
-
 </script>
-
 <style scoped>
 .modal {
   position: fixed;
@@ -303,7 +270,7 @@ const questionlist = [
 }
 .create-container {
   width: 800px;
-  height: 500px;
+  height: 550px;
   padding: 10px 20px 30px 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
@@ -311,8 +278,9 @@ const questionlist = [
   background-color: #D5F0C1;
   border-radius: 20px;
 }
-
 .room-back {
+  width: 100%;
+  height: 100%;
   grid-column: 1/6;
   grid-row: 2/8;
   background-color: #AAD9BB;
@@ -324,35 +292,34 @@ const questionlist = [
   text-align: center;
   margin-bottom: 40px;
 }
-
 .create-top {
   grid-column: 1 / 3;
   grid-row: 1 / 2;
 }
-
 .create-top p {
   font-size: 2rem;
   font-weight: bold;
 }
-
 .room-img {
   grid-column: 1 / 3;
   grid-row: 2 / 5;
-  padding: 10px;
-}
-
-.preview-img {
   margin-top: 10px;
+  margin-left: 10px;
+  background-color: #80BCBD;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
 .up-img {
-  margin-top: 3px;
   width: 100%;
-  margin-left: 0.7rem;
-  max-width: 250px;
+  /* max-width: 250px; */
 }
-
-
+/* .edit-img{
+  width: 15px;
+  height: 15px;
+} */
+/* 
 .img-btn.cyan {
   position: relative;
   display: inline-block;
@@ -379,32 +346,26 @@ const questionlist = [
 .img-btn.cyan:hover {
   background-color: #afe8f5;
 }
-
 a.img-btn {
   text-decoration: none;
   color: white;
-}
-
+} */
 .type-hundred {
   grid-column: 3 / 4;
   grid-row: 2 / 5;
 }
-
 .type-free {
   grid-column: 4 / 5;
   grid-row: 2 / 5;
 }
-
 .room-setting {
   grid-column: 5 / 6;
   grid-row: 2 / 5;
 }
-
 .room-setting button {
   grid-column: 5 / 6;
   grid-row: 1fr;
 }
-
 .create-container label {
   font-family: 'Heebo', sans-serif;
   font-size: 0.75rem;
@@ -422,15 +383,18 @@ a.img-btn {
   border-color: #7fccde;
   width: 7rem;
 }
-
-
 .room-title {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  grid-column: 1 / 5;
   grid-row: 5 / 6;
+  background-color: #80BCBD;
+  margin:0 0px 10px 10px;
+  border-radius: 5px 5px 0 0;
+  display: flex;
 }
-
 .room-title label {
-  margin-top: 30px;
+  padding-top: 30px;
   margin-left: 10px;
   position: relative;
   display: inline-block;
@@ -442,6 +406,7 @@ a.img-btn {
   font-size: medium;
 }
 .room-title input {
+  flex: left;
   margin-left: 5px;
   width: 20rem;
   height: 32px;
@@ -453,6 +418,7 @@ a.img-btn {
   background-color: rgb(233, 233, 233);
 }
 .room-describe input {
+  flex: left;
   margin-left: 5px;
   width: 20rem;
   height: 32px;
@@ -463,12 +429,15 @@ a.img-btn {
   padding-left: 10px;
   background-color: rgb(233, 233, 233);
 }
-
 .room-describe {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0px 0px 10px 10px;
+  grid-column: 1 / 5;
   grid-row: 6 / 7;
+  display: flex;
 }
-
 .room-describe label {
   margin-top: 12.5px;
   margin-left: 10px;
@@ -483,11 +452,16 @@ a.img-btn {
   line-height: 110%;
 }
 .room-hashtag {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  grid-column: 1 / 5;
   grid-row: 7 / 8;
+  display: flex;
+  border-radius: 0 0 0 5px;
 }
-
-.room-hashtag label {
+/* .room-hashtag label {
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
@@ -498,46 +472,16 @@ a.img-btn {
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-}
+} */
 .select-hundred {
-  grid-column: 1 / 4;
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  border-radius: 0 0 5px 5px;
+  grid-column: 1 / 5;
   grid-row: 7 / 8;
+  display: flex;
   
 }
-
-.select-hundred select {
-  margin-left: 5px;
-}
-
-.type-hundred {
-  padding-top: 10px;
-}
-.type-hundred button {
-  height: 100%;
-  width: 100%;
-}
-
-.type-free{
-  padding-top: 10px;
-}
-.type-free button {
-  height: 100%;
-  width: 100%;
-}
-
-.room-setting {
-  padding-top: 10px;
-  width: 100%;
-  height: 100%;
-
-}
-
-.room-setting button {
-  width: 100%;
-
-
-}   
-
 .select-hundred label {
   line-height: 100%;
   margin-left: 10px;
@@ -552,27 +496,85 @@ a.img-btn {
   border-radius: 5px;
   font-size: medium;
 }
-
+.select-hundred select {
+  font-size: small;
+  flex: left;
+  margin-left: 5px;
+  height: 2rem;
+  border-radius: 5px;
+  padding-left: 5px;
+}
+.select-hundred select:hover {
+  background-color: rgb(238, 217, 198);
+}
+.type-hundred {
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-hundred button {
+  height: 100%;
+  width: 100%;
+}
+.type-free{
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-free button {
+  height: 100%;
+  width: 100%;
+}
+.room-setting {
+  margin-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.setting-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-content: stretch;
+  flex-flow: row wrap;
+  background-color: #80BCBD;
+}
+.room-setting button {
+  width: 100%;
+}   
 .member-limit {
-  grid-column: 4 / 6;
+  grid-column: 5 / 6;
   grid-row: 5 / 8;
   width: 100%;
   height: 100%;
-  background-color: aqua;
-  border-radius: 5px;
+  background-color: #80BCBD;
+  padding-right: 10px;
+  border-radius: 0 5px 5px 0;
+  display: flex;
 }
-
+.limit-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.member-limit p {
+  font-size: larger;
+  font-weight: 700;
+}
+.member-limit.slider {
+  width: 100%;
+}
 .create-bottom {
   grid-column: 2/ 5;
   grid-row: 8 / 9;
   align-items: center;
   justify-items: center;
 }
-
-
 .upload-demo {
   display: flex;
   align-items: center;
 }
-
 </style>
