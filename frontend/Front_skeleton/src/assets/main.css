@@ -1,4 +1,5 @@
 @import './base.css';
+@import '.../node_modules/@yaireo/tagify/dist/tagify.css';
 
 #app {
   max-width: 1280px;
