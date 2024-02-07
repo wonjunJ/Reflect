@@ -24,6 +24,7 @@ public class MyRoomInfoResponse {
     private Integer totalNum;
     private Integer curNum;
     private RoomType type;
+    private String thumnail;
     private String title;
     private Long qId;
     private List<String> hashTags;

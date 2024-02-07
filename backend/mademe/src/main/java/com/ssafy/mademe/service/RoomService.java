@@ -3,6 +3,7 @@ package com.ssafy.mademe.service;
 import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.MyRoomInfoResponse;
 import com.ssafy.mademe.dto.response.RoomDetailResponse;
+import com.ssafy.mademe.dto.response.RoomListResponse;
 import com.ssafy.mademe.entity.HashTag;
 import com.ssafy.mademe.entity.Room;
 import com.ssafy.mademe.entity.User;
@@ -48,6 +49,10 @@ public class RoomService {
             rst.add(tag.getId().getHashCode().getHashName());
         }
         return rst;
+    }
+
+    public Page<RoomListResponse> getTotalRoomList(User user, String filter, String searchWord, Pageable pageable){
+        return null;
     }
 
     public List<FollowingResponse> getParticipants(User user, Long roomId){

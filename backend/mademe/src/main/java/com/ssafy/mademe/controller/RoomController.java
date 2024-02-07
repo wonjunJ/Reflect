@@ -1,9 +1,6 @@
 package com.ssafy.mademe.controller;
 
-import com.ssafy.mademe.dto.response.FollowingResponse;
-import com.ssafy.mademe.dto.response.MyRoomInfoResponse;
-import com.ssafy.mademe.dto.response.PagingInfoResponse;
-import com.ssafy.mademe.dto.response.RoomDetailResponse;
+import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Room;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.RoomService;
@@ -13,10 +10,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +25,7 @@ public class RoomController {
     private final RoomService roomService;
 
     //현재 내가 속해있는 커뮤니티 방 목록을 조회한다.(퇴장X)
-    @GetMapping("/")
+    @GetMapping("/mine")
     public Map<String, Object> getMyKeepRoomList(@AuthenticationPrincipal User user, @PageableDefault(size = 3) Pageable pageable){
         Page<MyRoomInfoResponse> infos = roomService.getRoomInfos(user, null, false, pageable);
         for(MyRoomInfoResponse tmp : infos){
@@ -56,6 +50,16 @@ public class RoomController {
         return mapToRoomDetail(roomInfo, roomService.getParticipants(user, roomId),
                 roomService.getHashTagList(roomId));
     }
+
+    @GetMapping("/")
+    public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam("filter") String filter,
+                                                @RequestParam("search") String searchWord,
+                                                @PageableDefault(size = 8) Pageable pageable){
+        Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(user, filter, searchWord, pageable);
+        return null;
+    }
+
+//    @PutMapping()
 
     private RoomDetailResponse mapToRoomDetail(Room room, List<FollowingResponse> participants,
                                                List<String> hashTags){
