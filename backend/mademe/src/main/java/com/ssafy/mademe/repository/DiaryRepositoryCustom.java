@@ -15,4 +15,5 @@ public interface DiaryRepositoryCustom {
     EmotionCntResponse findDiaryEmoCntByUser(User user, LocalDateTime dateTime);
     List<MonthDiaryResponse> findMonthStatus(User user, LocalDate date);
     //SimpleDiaryResponse findSimpleDiaryInfoById(Long id);
+    List<Integer> findGraphInfo(User user, int recent);
 }

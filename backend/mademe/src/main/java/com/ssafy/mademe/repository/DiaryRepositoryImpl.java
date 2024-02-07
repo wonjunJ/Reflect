@@ -79,6 +79,24 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<Integer> findGraphInfo(User user, int recent) {
+        return jpaQueryFactory
+                .select(
+                        diary.diaryScore
+                )
+                .from(diary)
+                .where(
+                        diary.user.eq(user)
+                )
+                .orderBy(
+                        diary.createDate.desc()
+                )
+                .limit(recent)
+                .fetch();
+        //return null;
+    }
+
     private MonthDiaryResponse mapToMonthDiaryResponse(Tuple tuple){
         return MonthDiaryResponse.builder()
                 .diaryId(tuple.get(0, Long.class))

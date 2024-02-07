@@ -1,8 +1,11 @@
 package com.ssafy.mademe.controller;
 
+import com.ssafy.mademe.dto.request.ChangeOwnerRequest;
+import com.ssafy.mademe.dto.request.RoomRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Room;
 import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.exception.room.NotAuthorizedException;
 import com.ssafy.mademe.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +54,7 @@ public class RoomController {
                 roomService.getHashTagList(roomId));
     }
 
-    @GetMapping("/")
+    @GetMapping("")
     public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam("filter") String filter,
                                                 @RequestParam("search") String searchWord,
                                                 @PageableDefault(size = 8) Pageable pageable){
@@ -59,7 +62,44 @@ public class RoomController {
         return null;
     }
 
-//    @PutMapping()
+    //커뮤니티 방에 참가를 한다.
+    @PostMapping("/attend")
+    public Map<String, String> joinRoom(@AuthenticationPrincipal User user, @RequestBody Room room){ //방 아이디만 받는다.
+        roomService.joinRoom(user, room);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
+    }
+
+    //방장을 위임한다.
+    @PutMapping("/empower")
+    public Map<String, String> changeOwner(@AuthenticationPrincipal User origin, @RequestBody ChangeOwnerRequest request){
+        try {
+            roomService.changeOwner(origin, request.getRoomId(), request.getOwnerId());
+            Map<String, String> json = new HashMap<>();
+            json.put("state", "success");
+            return json;
+        }catch (Exception e){
+            throw new NotAuthorizedException("필요한 정보가 없습니다.");
+        }
+    }
+
+    //방 생성하기
+    @PostMapping("/create")
+    public RoomDetailResponse createRoom(@AuthenticationPrincipal User user, @RequestBody RoomRequest request){
+        Room room = roomService.createRoom(user, request);
+        roomService.storeHashTags(room, request.getHashTags());
+        return mapToRoomDetail(room, null, request.getHashTags());
+    }
+
+    //방 탈퇴하기
+    @DeleteMapping("/")
+    public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){
+        roomService.quitRoom(user, roomId);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
+    }
 
     private RoomDetailResponse mapToRoomDetail(Room room, List<FollowingResponse> participants,
                                                List<String> hashTags){

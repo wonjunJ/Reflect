@@ -41,6 +41,7 @@ public class SecurityConfig {
     private final OAuth2UserService oAuth2UserService;
     private final UserRepository userRepository;
     private final JWTUtil jwtUtil;
+    private final OAuth2SuccessHandler successHandler;
     private final SimpMessageSendingOperations messageTemplate;
     private RedirectStrategy redirectStrategy;
 
@@ -60,7 +61,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                         .loginPage("/login")
-                        .successHandler(successHandler())
+                        .successHandler(successHandler)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService)
                         )
@@ -137,9 +138,6 @@ public class SecurityConfig {
                         user.getId(), tokens[0], tokens[1]));
             }
             body.append("}");
-//            String body = """
-//                    {"id":"%s", "properties":"%s", "isLogin":"%s"}
-//                    """.formatted(id, properties, isLogin.toString());
 
             //messageTemplate.convertAndSend("/alarm/msg-to/" + message.getToId(), message);
             String redirectUrl = frontUri + "?data=" + URLEncoder.encode(body.toString(), StandardCharsets.UTF_8);
