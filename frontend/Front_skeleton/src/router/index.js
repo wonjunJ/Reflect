@@ -50,12 +50,12 @@ const router = createRouter({
       path: '/',
       name: 'mypage',
       component: MyPage,
-      // beforeEnter: (to, from) => {
-      //   const userStore = useUserStore()
-      //   if (!userStore.isLogin) {
-      //     return {name: 'index'}
-      //   }
-      // }
+      beforeEnter: (to, from) => {
+        const userStore = useUserStore()
+        if (!userStore.isLogin) {
+          return {name: 'index'}
+        }
+      }
     },
     {
       path: '/forgot',

@@ -176,6 +176,7 @@ const questionlist = [
   width: 20px;
   margin: 2px;
   border-radius: 20%;
+  background-color: rgb(210, 210, 210);
 }
 
 .green {

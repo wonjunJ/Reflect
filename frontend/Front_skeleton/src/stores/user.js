@@ -4,47 +4,53 @@ import { useRouter } from 'vue-router'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
-  const API_URL = 'http://localhost:8080/'
+  const API_URL = 'http://localhost:8080'
   const router = useRouter()
-  const token = ref(null)
+  const accessToken = ref(null)
+  const refreshToken = ref(null)
+  const userId = ref(null)
 
-  const isLogin = ref(false)
+  // const isLogin = ref(false)
 
-  function login() {
-    isLogin.value = true
-    router.push({name: 'mypage'})
-  }
-
-  // const isLogin = computed(() => {
-  //   if (token.value === null) {
-  //     return false
-  //   } else {
-  //     return true
-  //   }
-  // })
-
-  // function login(id, password) {
-  //   axios({
-  //     method: 'post',
-  //     url: `http://i10d207.p.ssafy.io:8080/user/login/`,
-  //     data: {
-  //       siteId: id,
-  //       pw: password
-  //     }
-  //   })
-  //     .then(res => {
-  //       console.log(res.data)
-  //       router.push({name: 'mypage'})
-  //     })
-  //     .catch(err => {
-  //       console.log(err)
-  //     })
+  // function login() {
+  //   isLogin.value = true
+  //   router.push({name: 'mypage'})
   // }
 
+  const isLogin = computed(() => {
+    if (accessToken.value) {
+      return true
+    } else {
+      return false
+    }
+  })
+
+  function login(id, password) {
+    axios({
+      method: 'post',
+      url: `${API_URL}/user/login`,
+      data: {
+        siteId: id,
+        pw: password
+      }
+    })
+      .then(res => {
+        accessToken.value = res.data.AccessToken
+        refreshToken.value = res.data.RefreshToken
+        userId.value = res.data.userId
+        router.push({name: 'mypage'})
+      })
+      .catch(err => {
+        window.alert('아이디 또는 비밀번호가 잘못되었습니다.')
+      })
+  }
+
   function logout() {
-    isLogin.value = false
+    accessToken.value = null
+    refreshToken.value = null
+    userId.value = null
     router.push({name: 'index'})
   }
 
-  return { token, isLogin, login, logout, API_URL }
-})
+  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL }
+}, { persist : {storage : sessionStorage}})
