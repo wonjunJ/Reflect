@@ -4,7 +4,7 @@
     <div class="d-flex flex-column left-item">
       <div>
         <h2>관심사</h2>
-        <WordCloud :data="wordCloudData"/>
+        <WordCloud v-if="isWordCloud" :data="wordCloudData"/>
       </div>
       <div>
         <h2>MBTI</h2>
@@ -27,8 +27,8 @@
           <form @submit.prevent="addInterest">
             <input type="text" v-model="interestForm.name">
             <select name="emotion" v-model="interestForm.emotion">
-              <option value="1">Positive</option>
-              <option value="0">Negative</option>
+              <option value="LIKE">LIKE</option>
+              <option value="UNLIKE">UNLIKE</option>
             </select>
             <button>submit</button>
           </form>
@@ -38,18 +38,18 @@
             <h3>긍정</h3>
             <div 
               v-for="(interest, index) in interestsPositive"
-              :key="interest.id"
+              :key="interest.interestId"
             >
-              <p>{{ index + 1 }}. {{ interest.name }} <button @click="deleteInterests(interest.id)">🗑</button></p>
+              <p>{{ index + 1 }}. {{ interest.interestName }} <button @click="deleteInterests(interest.interestId)">🗑</button></p>
             </div>
           </div>
           <div class="d-flex flex-column">
             <h3>부정</h3>
             <div 
               v-for="(interest, index) in interestsNegative" 
-              :key="interest.id"
+              :key="interest.interestId"
             >
-              <p>{{index + 1}}. {{ interest.name }}<button @click="deleteInterests(interest.id)">🗑</button></p>
+              <p>{{index + 1}}. {{ interest.interestName }}<button @click="deleteInterests(interest.interestId)">🗑</button></p>
             </div>
           </div>
         </div>
@@ -78,21 +78,27 @@
 
 <script setup>
 import { computed, onMounted, reactive, ref } from 'vue'
+import axios from 'axios'
+import { useUserStore } from '@/stores/user.js'
 import ChartRadar from '@/components/charts/ChartRadar.vue'
 import WordCloud from '@/components/WordCloud.vue'
 import ChartBar from '@/components/charts/ChartBar.vue'
 import DiaryDetailList from './components/DiaryDetailList.vue'
 
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
+
 // 워드 클라우드용 더미 데이터 (axios 요청 받아서 이 형태로 처리 필요)
-const wordCloudData = ref([
-  ['Word1', 30],
-  ['Word2', 20],
-  ['Word3', 10],
-  ['Word4', 7],
-  ['Word5', 5],
-  ['Word6', 3],
-  ['Word7', 2],
-])
+// const wordCloudData = ref([
+//   ['Word1', 30],
+//   ['Word2', 20],
+//   ['Word3', 10],
+//   ['Word4', 7],
+//   ['Word5', 5],
+//   ['Word6', 3],
+//   ['Word7', 2],
+// ])
+const isWordCloud = ref(false)
 
 // 레이더 차트 데이터 전달 사항 (datassets.data 부분을 받아와야함)
 const radarChartData = ref({
@@ -208,71 +214,98 @@ const interests = ref([
 
 // 긍정 관심사 걸러내기
 const interestsPositive = computed(() => {
-  const filteredInterests = interests.value.filter(interest => interest.emotion === 1)
+  const filteredInterests = interests.value.filter(interest => interest.preference === 'LIKE')
   filteredInterests.sort((a, b) => b.weight - a.weight)
   return filteredInterests
 })
 
 // 부정 관심사 걸러내기
 const interestsNegative = computed(() => {
-  const filteredInterests = interests.value.filter(interest => interest.emotion === 0)
+  const filteredInterests = interests.value.filter(interest => interest.preference === 'UNLIKE')
   filteredInterests.sort((a, b) => b.weight - a.weight)
   return filteredInterests
+})
+
+const wordCloudData = computed(() => {
+  let result = []
+  interests.value.forEach(element => {
+    result.push([element.interestName, element.cnt])
+  })
+  return result
 })
 
 // 새로운 관심사 항목 만들기용 입력 데이터
 const interestForm = ref({
   name: '',
-  emotion: '1',
-  id: 12
+  emotion: 'LIKE',
 })
 
 // 새로운 관심사 항목 만들기
 const addInterest = function () {
   if (interestForm.value.name) {
-    let weight = 0
-    if (interestForm.value.emotion === '1') {
-      if (interestsPositive.value.length > 3) {
-        weight = interestsPositive.value[3].weight - 1
-      } else if (interestsPositive.value.length !== 0) {
-        weight = interestsPositive.value[interestsPositive.value.length-1] -1
-      } else {
-        weight = 10
+    axios({
+      method: 'post',
+      url: `${API_URL}/interest/`,
+      headers: {
+        Authorization: `Bearer ${userStore.accessToken}`
+      },
+      data : {
+        name: interestForm.value.name,
+        preference : interestForm.value.emotion
       }
-    } else {
-      if (interestsNegative.value.length > 3) {
-        weight = interestsNegative.value[3].weight - 1
-      } else if (interestsNegative.value.length !== 0) {
-        weight = interestsNegative.value[interestsNegative.value.length-1] -1
-      } else {
-        weight = 10
-      }
-    }
-    interests.value.push({
-      id: interestForm.value.id,
-      name: interestForm.value.name,
-      emotion: Number(interestForm.value.emotion),
-      weight: weight
     })
-    // axios 요청으로 백에 새로운 관심사 저장하고 적힌 값 초기화
-    interestForm.value.id += 1
-    interestForm.value.name = ''
-    interestForm.value.emotion = '1'
+      .then(res => {
+        interests.value.push({...res.data})
+        interestForm.value.name = ''
+        interestForm.value.emotion = 'LIKE'
+      })
+      .catch(err => {
+        console.log(err)
+      })
   } else {
     window.alert('관심사를 입력해주세요')
   }
 }
 
 const deleteInterests = function (num) {
-  const idx = interests.value.findIndex(item => item.id === num)
-  if (idx !== -1) {
-    interests.value.splice(idx, 1)
-  }
-  // 그 관심사 삭제하는 요청 back으로 보내기
+  axios({
+    method: 'delete',
+    url: `${API_URL}/interest/`,
+    headers : {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data : {
+      id : num
+    }
+  })
+    .then(res => {
+      const idx = interests.value.findIndex(item => item.interestId === num)
+      if (idx !== -1) {
+        interests.value.splice(idx, 1)
+      }
+    })
+    .catch(err => {
+      console.log(err)
+    })
 }
 
+// api 저기말고 다른데서 받아와야 함 지금 더미임
 onMounted(() => {
   selectMbti(1)
+  axios({
+    method: 'get',
+    url: `${API_URL}/user/simple`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      interests.value = res.data.interests
+      isWordCloud.value = true
+    })
+    .catch(err => {
+      console.log(err)
+    })
 })
 </script>
 
