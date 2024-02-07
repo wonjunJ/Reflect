@@ -1,11 +1,18 @@
 <template>
+  <div v-if="displayMessage" class="message-container" :style="bubbleStyle">
+        <div id="displayText" class="speech-bubble">{{ displayText }}</div>
+  </div>
   <div ref="snowContainer" class="snow-background">
     <div class="greeting-box">
       <p>{{ talk }}</p>
       <button @click="startListening(); startRecording()">일기 쓰기</button>
       <button @click="stopListening(); stopRecording(); toggleVideoStream();">일기 종료</button>
       <br>
-      <video ref="videoElement" autoplay muted></video>
+      <div id="videoContainer" >
+        <video ref="videoElement"  width="640" height="480" autoplay muted @play="onPlay"></video>
+        <canvas id="videoCanvas" width="720" height="560"></canvas>
+      </div>
+      
       <!-- 비디오 스트림 켜기/끄기 버튼 -->
       <button @click="toggleVideoStream">{{ isVideoStreamOn ? '비디오 켜기' : '비디오 끄기' }}</button>
     </div>
@@ -23,11 +30,56 @@
 </template>
 
 <script>
+import { usePositionStore } from '@/stores/pet.js';
 import { onMounted, ref } from 'vue';
 import OpenAI from 'openai';
 import AWS from 'aws-sdk';
+const detectionOptions = {
+    withLandmarks: true,
+    withDescriptors: true,
+    minConfidence: 0.7,
+    MODEL_URLS: {
+      Mobilenetv1Model:
+        "https://raw.githubusercontent.com/ml5js/ml5-data-and-models/main/models/faceapi/ssd_mobilenetv1_model-weights_manifest.json",
+      FaceExpressionModel:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_expression_model-weights_manifest.json",
+      TinyFaceLandmarkModel:
+        // "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json",
+      FaceLandmark68TinyNet:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+      FaceRecognitionModel:
+        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_recognition_model-weights_manifest.json",
+    },
+};
 
 export default {
+  created() {
+    const petStore = usePositionStore();
+
+    // 스토어의 position 상태를 반응형으로 불러오기
+    this.$watch(
+      () => petStore.position,
+      (newPosition) => {
+        this.position = { ...newPosition };
+      },
+      { deep: true } // 객체 내부의 변화도 감지하기 위해 deep 옵션 사용
+    );
+  },
+  // props: {
+  //   petPosition: Object, // 상위 컴포넌트에서 전달받는 펫의 위치 데이터
+  // },
+  computed: {
+    bubbleStyle() {
+      return {
+        left: `${this.position.x - 40}px`,
+        top: `${this.position.y - 70}px`, // 펫의 위에 위치하도록 조정
+        position: 'fixed', // 필요에 따라 추가
+        
+        // 기타 스타일 설정
+      };
+    },
+  },
   setup() {
     const snowContainer = ref(null);
     
@@ -43,20 +95,29 @@ export default {
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
-    if (this.videoElement) {
-      this.setupVideoRecorder();
-    } else {
-      console.error('비디오 요소를 찾을 수 없습니다.');
-    }
+    // this.setupVideoRecorder();
+    this.loadModels();
+    // if (this.videoElement) {
+    //   this.setupVideoRecorder();
+    // } else {
+    //   console.error('비디오 요소를 찾을 수 없습니다.');
+    // }
   },
   data() {
     return {
+      position: { x: 850, y: 380 },
+      messageTimeout: null,
+      messageCooldown: null,
+      displayText: ref(''),
+      displayMessage: false,
+      textDisplayed: false,
+      videoElement: null,
+      detectionOptions,
       recognition: null,
       transcribedText: '',
       interimTranscript: '',
       talk: "안녕! 오늘의 일기를 쓸래?",
       isModalVisible: false,
-      videoElement: null,
       videoMediaRecorder: null,
       isVideoRecording: false,
       isVideoStreamOn: false,
@@ -67,6 +128,25 @@ export default {
     };
   },
   methods: {
+    async loadModels() {
+    await Promise.all([
+    faceapi.nets.ssdMobilenetv1.loadFromUri(detectionOptions.MODEL_URLS.Mobilenetv1Model),
+        faceapi.nets.tinyFaceDetector.loadFromUri(
+          detectionOptions.MODEL_URLS.TinyFaceLandmarkModel
+        ),
+        faceapi.nets.faceLandmark68Net.loadFromUri(
+          detectionOptions.MODEL_URLS.FaceLandmark68TinyNet
+        ),
+        faceapi.nets.faceRecognitionNet.loadFromUri(
+          detectionOptions.MODEL_URLS.FaceRecognitionModel
+        ),
+        faceapi.nets.faceExpressionNet.loadFromUri(
+          detectionOptions.MODEL_URLS.FaceExpressionModel
+        ),
+    ]);
+    this.setupVideoRecorder();
+  },
+
     async setupVideoRecorder() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
@@ -86,6 +166,117 @@ export default {
         console.error('비디오 접근 에러:', error);
       }
     },
+    async onPlay() {
+  const video = this.videoElement;
+  const canvas = document.getElementById('videoCanvas');
+
+  // 비디오 요소의 실제 크기를 사용하여 displaySize 설정
+  const displaySize = { width: video.videoWidth, height: video.videoHeight };
+  faceapi.matchDimensions(canvas, displaySize);
+
+  // 이전에 감지된 표정을 저장할 변수
+  let previousExpression = "";
+
+  setInterval(async () => {
+    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+    const resizedDetections = faceapi.resizeResults(detections, displaySize);
+    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+    // faceapi.draw.drawDetections(canvas, resizedDetections);
+    // faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+    // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+
+    // 각 얼굴의 표정에 대한 정보를 가져오고 가장 높은 확률의 표정을 출력합니다.
+    resizedDetections.forEach((face) => {
+      const expressions = face.expressions;
+      const dominantExpression = this.getDominantExpression(expressions);
+
+      // 이전에 감지된 표정과 다를 경우에만 출력
+      if (dominantExpression !== previousExpression) {
+        console.log(`Dominant Expression: ${dominantExpression}`);
+        previousExpression = dominantExpression;
+        if(this.displayMessage===false){
+          this.displayTextBasedOnExpression(dominantExpression);
+        }
+       
+      }
+      
+    });
+  }, 333);
+},
+
+// 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
+    getDominantExpression(expressions) {
+      let dominantExpression = "";
+      let maxProbability = 0;
+
+      Object.keys(expressions).forEach((expression) => {
+        const probability = expressions[expression];
+        if (probability > maxProbability) {
+          maxProbability = probability;
+          dominantExpression = expression;
+        }
+      });
+
+      return dominantExpression;
+    },
+    // Display different texts based on dominantExpression
+    displayTextBasedOnExpression(dominantExpression) {
+      if (this.displayMessage || this.messageCooldown) {
+        return;
+      }
+      switch (dominantExpression) {
+        case 'happy':
+          this.displayText = '오늘은 어떤 좋은 일 있었니?';
+          this.displayMessage = true;
+          console.log(this.displayText)
+          break;
+        case 'sad':
+          this.displayText = '오늘 안 좋은 일이 있었니?';
+          this.displayMessage = true;
+          console.log(this.displayText)
+          break;
+        case 'angry':
+          this.displayText = '오늘 안 좋은 일이 있었니?';
+          this.displayMessage = true;
+          console.log(this.displayText)
+          break;
+        case 'surprised':
+          this.displayText = '오늘 많이 피곤 했나요?';
+          this.displayMessage = true;
+          console.log(this.displayText)
+          break;
+        default:
+          this.displayText = ''
+          this.displayMessage = false;
+          console.log('noText')
+          break
+    }
+    if (this.displayMessage) {
+        // 5초 후 메시지 숨기기
+        this.messageTimeout = setTimeout(() => {
+          this.displayMessage = false;
+          this.displayText = '';
+          console.log('Hide message');
+
+          // 메시지 숨김 후 1분 쿨다운
+          this.messageCooldown = setTimeout(() => {
+            this.messageCooldown = null;
+            console.log('Cooldown ended');
+          }, 6000);  // 1분 쿨다운
+        }, 10000);  // 5초 후 메시지 숨김
+      }
+    },
+    
+    // 메모리 누수 방지를 위해 컴포넌트 제거 시 타이머 제거
+    beforeDestroy() {
+      if (this.messageTimeout) {
+        clearTimeout(this.messageTimeout);
+      }
+      if (this.messageCooldown) {
+        clearTimeout(this.messageCooldown);
+      }
+    },
+
     toggleVideoStream() {
       if (!this.isVideoStreamOn) {
         // 비디오 스트림을 끕니다.
@@ -136,6 +327,7 @@ export default {
 
         // 업로드된 파일의 URL을 저장합니다.
         this.fileUrl = uploadResult.Location;
+        console.log(this.fileUrl)
       } catch (error) {
         console.error('S3 업로드 오류:', error);
       }
@@ -336,6 +528,45 @@ export default {
 };
 </script>
 <style scoped>
+#videoContainer {
+  position: relative;
+}
+
+#video, #videoCanvas {
+  position: absolute;
+  top: 0px;
+  left: 0px;
+}
+.message-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100px; /* 필요에 따라 조정 */
+  z-index: 1000;
+}
+
+.speech-bubble {
+  position: relative;
+  background: #f0f0f0;
+  border-radius: .4em;
+  padding: 10px;
+  max-width: 300px; /* 필요에 따라 조정 */
+  text-align: center;
+}
+
+.speech-bubble:after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border: 15px solid transparent;
+  border-top-color: #f0f0f0;
+  border-bottom: 0;
+  margin-left: -15px;
+  margin-bottom: -15px;
+}
 .snow-background {
   background-image: url('@/img/winter2.png');
   background-size: cover;
