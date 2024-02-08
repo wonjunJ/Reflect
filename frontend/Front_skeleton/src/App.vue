@@ -25,7 +25,7 @@ import Footer from './components/Footer.vue';
 import WalkImage from './img/corgiWalk.gif';
 import HitImage from './img/corgiClick.gif';
 import IdleImage from './img/corgi.gif';
-import AttackImage from './img/corgiSitDown.gif'
+import AttackImage from './img/corgiEnd.gif'
 import { usePositionStore } from '@/stores/pet.js';
 export default {
   data() {
@@ -41,7 +41,7 @@ export default {
       isCatchUp: false,
       isClick: false,
       isIdle: true,
-      attack: { current: 0, max: 140 },
+      attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
     };
@@ -150,7 +150,7 @@ export default {
     },
     attackState() {
       if (this.attack.current === 0) {
-        this.pet.style.width = '200px';        
+        this.pet.style.width = '150px';        
         this.attack.current++;
       } else if (this.attack.current < this.attack.max) {
         this.attack.current++;
