@@ -17,7 +17,6 @@
               </div> -->
               <div class="preview-img" v-if="previewUrl">
                 <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:15rem;" />
-                {{ previewUrl }}
               </div>
               <div v-else>
                 <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
@@ -27,7 +26,9 @@
         </div>
         <!-- 대화타입 백문백답 -->
         <div class="type-hundred">
-          <button type="button" class="btn btn-primary" @click="writeQuestion">백문백답</button>
+          <button type="button" class="btn btn-primary" @click="writeQuestion">
+            백문백답
+          </button>
         </div>
         <!-- 대화타입 자유주제 -->
         <div class="type-free">
@@ -36,9 +37,18 @@
         <!-- 방 설정 버튼 -->
         <div class="room-setting">
           <div class="setting-container">
-            <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
-            <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
-            <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+            <button type="button" class="btn btn-primary" @click="Secret">
+              비밀의 방
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
+            <button type="button" class="btn btn-primary" @click="Mask">
+              가면쓰기
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
+            <button type="button" class="btn btn-primary" @click="Anonymous">
+              익명모드
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
           </div>
         </div>
           <!-- 방 제목 -->
@@ -63,7 +73,7 @@
               <label for="questions" class="qestions-label">질문  </label>
               <select class="question-select" id="questions" required="required">
                 <option value="" selected disabled hidden>질문을 선택해주세요.</option>
-                <option v-for="question in questionlist" :key="question.pk" :value="question.id">
+                <option v-for="question in questionlist" :key="question.pk" :value="question.id" @click=findId(question.pk)>
                   {{ question.id }}
                 </option>
               </select>
@@ -80,7 +90,7 @@
           </div>
       <div class="create-bottom">
         <!-- 버튼 -->
-        <button type="button" class="make-room-btn" @click="goRoom">방 만들기</button>
+        <button type="button" class="make-room-btn" @click="createRoom">방 만들기</button>
       </div>
     </div>
   </div>
@@ -89,7 +99,12 @@
 import { ref} from 'vue'
 import {useRouter} from 'vue-router'
 import { useRoomStore } from '@/stores/room';
+import { useUserStore } from '@/stores/user';
+import axios from 'axios'
+import { watch } from 'vue';
 
+
+const userStore = useUserStore()
 const roomStore = useRoomStore()
 const router = useRouter()
 const { isModalOpen } = defineProps(['isModalOpen'])
@@ -98,6 +113,7 @@ const isHundred = ref(true)
 const isFree = ref(false)
 const questions = ref(null)
 const previewUrl = ref(null);
+const imgData = ref(null)
 let uploading = false;
 const roomTitle = ref(null)
 const roomDescribe = ref(null)
@@ -106,6 +122,7 @@ const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
 const memberNum = ref(null)
+const type = ref('BACKMOON')
   
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
@@ -128,47 +145,52 @@ const replaceImg = (e) => {
     e.target.src = image.default;
   });
 };
+
+
+function extractBase64Data(previewUrlRef) {
+  // previewUrlRef.value가 null이 아니고, 문자열일 때만 처리
+  if (previewUrlRef.value && typeof previewUrlRef.value === 'string') {
+    const base64Data = previewUrlRef.value.replace(/^data:image\/[a-z]+;base64,/, '');
+    return base64Data;
+  }
+  return null; // previewUrlRef.value가 null이거나 유효하지 않은 경우 null 반환
+}
+
+
+watch(previewUrl, (newValue, oldValue) => {
+    imgData.value = extractBase64Data(previewUrl);
+    console.log(imgData.value); // 새로운 값이 설정될 때마다 로그를 찍어보세요
+});
+
 const writeQuestion = () => {
   isHundred.value = true
   isFree.value = false
+  type.value = 'BACKMOON'
 }
 const writeHashtag= () => {
   isHundred.value = false
   isFree.value = true
+  type.value = 'FREE'
 }
-const goRoom = () => {
-  const roomInfoData = {
-    isHundred: isHundred.value,
-    isFree: isFree.value,
-    questions: questions.value,
-    previewUrl: previewUrl.value,
-    roomTitle: roomTitle.value,
-    roomDescribe: roomDescribe.value,
-    hashtag: hashtag.value,
-    isAnonymous: isAnonymous.value,
-    isMask: isMask.value,
-    isSecret: isSecret.value,
-    memberNum: memberNum.value,
-  };
+// const goRoom = () => {
+//   const roomInfoData = {
+//     isHundred: isHundred.value,
+//     isFree: isFree.value,
+//     questions: questions.value,
+//     previewUrl: previewUrl.value,
+//     roomTitle: roomTitle.value,
+//     roomDescribe: roomDescribe.value,
+//     hashtag: hashtag.value,
+//     isAnonymous: isAnonymous.value,
+//     isMask: isMask.value,
+//     isSecret: isSecret.value,
+//     memberNum: memberNum.value,
+//   };
+// }
+
   // RoomWaitingView.vue로 이동
-  // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
-  router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
-}; 
 
-
-const createRoom = () => {
-  axios({
-    method: 'post',
-    url:`${roomStore.API_URL}/room/create`
-  })
-}
-
-const closeModal = () => {
-  previewUrl.value = null;
-  questions.value = ''
-  emit('closeModal')
-};
-const questionlist = [
+  const questionlist = [
   { pk: 1, id: '내 이름의 뜻은?' },
   { pk: 2, id: '내 생일은?' },
   { pk: 3, id: '내 키는?' },
@@ -270,6 +292,46 @@ const questionlist = [
   { pk: 99, id: '바라는 인간상은?' },
   { pk: 100, id: '항상 갖고 다니는 소지품은?' },
 ];
+
+const questionId = ref(null)
+const findId = (id) => {
+  questionId.value = id
+  console.log(questionId)
+}
+
+
+
+const createRoom = () => {
+  axios({
+    method: 'post',
+    url:`${roomStore.API_URL}/room/create`,
+    data: {
+      type: type.value,
+      question_id: questionId.value,
+      thumbnail: imgData.value,
+      title: roomTitle.value,
+      intro: roomDescribe.value,
+      hash_name: hashtag.value,
+      anonymous: isAnonymous.value,
+      mask: isMask.value,
+      secret: isSecret.value,
+      total_num: memberNum.value,
+    },
+    headers: {
+          Authorization : `Token ${userStore.accessToken}`
+    }
+  })
+    .then((res) => {
+      router.push({name:'waiting'})
+    })
+}
+
+const closeModal = () => {
+  previewUrl.value = null;
+  questions.value = ''
+  emit('closeModal')
+};
+
 </script>
 <style scoped>
 .modal {
@@ -307,6 +369,13 @@ const questionlist = [
   text-align: center;
   margin-bottom: 40px;
 }
+
+.check {
+  margin-left: 10px;
+  width: 25px;
+  height: 25px;
+}
+
 .create-top {
   grid-column: 1 / 7;
   grid-row: 1 / 2;
@@ -557,8 +626,33 @@ a.img-btn {
   background-color: #80BCBD;
 }
 .room-setting button {
+  background-color: #207172;
+  border: 0;
+  color: #D5F0C1;
   width: 100%;
-}   
+  &:hover {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+  &:active {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+  &:visited {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+}
+  
 .member-limit {
   grid-column: 5 / 6;
   grid-row: 5 / 8;
