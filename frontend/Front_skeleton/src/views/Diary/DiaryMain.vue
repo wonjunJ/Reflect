@@ -31,7 +31,8 @@
 
 <script>
 import { usePositionStore } from '@/stores/pet.js';
-import { onMounted, ref } from 'vue';
+import { ElLoading } from 'element-plus'
+import { onMounted, ref, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user.js'
 import axios from 'axios'
 import OpenAI from 'openai';
@@ -59,7 +60,7 @@ const detectionOptions = {
 export default {
   created() {
     const petStore = usePositionStore();
-
+    
     // 스토어의 position 상태를 반응형으로 불러오기
     this.$watch(
       () => petStore.position,
@@ -86,19 +87,20 @@ export default {
   setup() {
     const userInfo = ref({})
     const snowContainer = ref(null);
-    const API_URL = ref('')
-
+    
+    const API_URL = ref('http://localhost:8080')
+    
     onMounted(() => {
       const Snow = new SnowCanvas();
       Snow.createSnowFlakes(1000);
 
       const canvas = Snow.getCanvas(); // return HTMLCanvasElement
       snowContainer.value.appendChild(canvas);
-      const userStore = useUserStore()
-      API_URL.value = userStore.API_URL
+      
+      
     });
     
-    return { snowContainer, userInfo, API_URL };
+    return { snowContainer, userInfo, API_URL, };
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
@@ -215,7 +217,7 @@ export default {
         method: 'post',
         url: `${API_URL}/diary/video`,
         headers: {
-          Authorization: `Bearer ${userStore.accessToken}`
+          Authorization: `Bearer ${this.accessToken}`
         },
         data: {
           videoUrl: this.fileUrl // 업로드된 파일의 URL을 전송합니다.
@@ -360,11 +362,11 @@ export default {
       try {
         this.isModalVisible = false;
         this.videoElement.srcObject = null;
-        //this.sendToChatGPT(this.transcribedText);
+        this.sendToChatGPT(this.transcribedText);
         this.isVideoStreamOn = false;
         this.videoMediaRecorder.stop();
         this.isVideoRecording = false;
-        this.$router.push({ name: 'DiaryDetail' });
+        
       } catch (err) {
         console.log('오류발생', err)
       }
@@ -416,6 +418,8 @@ export default {
       }
     },
     async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
+        const vm = this;
+        const loadingInstance = ElLoading.service({ fullscreen: true, text: '불러오는 중...' });
         try {
         const openai = new OpenAI({
             apiKey: import.meta.env.VITE_API_URL,
@@ -424,7 +428,7 @@ export default {
 
         async function main() {
         try {
-            const assistantId = "asst_oodV12lRGyeVQ5Qk0Jd9AxI6";
+            const assistantId = "asst_aFJZlObiinQ8gKlbOgVnnZ8i";
             const assistantFilePath = "./assistant.json";
             const assistant = await openai.beta.assistants.retrieve(assistantId);
             console.log(
@@ -511,23 +515,32 @@ export default {
             .pop();
           console.log(messages)
           if (lastMessageForRun) {
+            const userStore = useUserStore();
+            console.log(userStore.accessToken)
             console.log(`${lastMessageForRun.content[0].text.value} \n`);
+            console.log(JSON.parse(lastMessageForRun.content[0].text.value));
             axios({
               method: 'post',
-              url: `${API_URL}/diary/gpt`,
+              url: `${userStore.API_URL}/diary/gpt`,
               headers: {
                 Authorization: `Bearer ${userStore.accessToken}`
               },
               data: {
-                gptAnswer: lastMessageForRun.content[0].text.value
+                data: JSON.parse(lastMessageForRun.content[0].text.value)
               }
             })
+            
             .then(res => {
               console.log('gptAnswer')
             })
             .catch(err => {
+              console.log(userStore.accessToken)
               console.log(err)
             })
+            nextTick(() => {
+              loadingInstance.close();
+              vm.$router.push({ name: 'DiaryDetail' });
+            });
           } else if (
             !["failed", "cancelled", "expired"].includes(runStatus.status)
           ) {
@@ -536,6 +549,7 @@ export default {
           
         } catch (error) {
             console.error(error);
+            loadingInstance.close();
         }
         }
         main();
@@ -568,6 +582,18 @@ export default {
 };
 </script>
 <style scoped>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000; /* 다른 요소 위에 표시되도록 z-index 설정 */
+}
 #videoContainer {
   position: relative;
 }

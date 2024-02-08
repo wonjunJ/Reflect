@@ -5,7 +5,7 @@ import { useRouter } from 'vue-router'
 
 
 export const useDiaryStore = defineStore('diary', () => {
-  const BASE_URL = 'http://127.0.0.1:8000'
+  const BASE_URL = 'https://i10d207.p.ssafy.io:8443/api'
   const diary = ref([])
   const userInfo = ref(null)
   
