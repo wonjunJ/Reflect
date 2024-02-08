@@ -79,13 +79,13 @@ const router = createRouter({
       // meta: { requresAuth: true},
     },
     {
-      path: '/roomdetail/:roomTitle',
+      path: '/roomdetail/:id',
       name: 'roomdetail',
       component: RoomDetailView,
       // meta: { requresAuth: true},
     },
     {
-      path: '/waiting',
+      path: '/waiting/:id',
       name: 'waiting',
       component: RoomWaitingView,
       // meta: { requresAuth: true},  

@@ -4,6 +4,9 @@
       <div class="room-back"></div>
       <div class="create-top">
         <p>방 만들기</p>  
+        <svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        </svg>
       </div>
         <!-- 썸네일 사진 -->
         <div class="room-img">
@@ -14,6 +17,7 @@
               </div> -->
               <div class="preview-img" v-if="previewUrl">
                 <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:15rem;" />
+                {{ previewUrl }}
               </div>
               <div v-else>
                 <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
@@ -76,8 +80,7 @@
           </div>
       <div class="create-bottom">
         <!-- 버튼 -->
-        <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
-        <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
+        <button type="button" class="make-room-btn" @click="goRoom">방 만들기</button>
       </div>
     </div>
   </div>
@@ -85,6 +88,9 @@
 <script setup>
 import { ref} from 'vue'
 import {useRouter} from 'vue-router'
+import { useRoomStore } from '@/stores/room';
+
+const roomStore = useRoomStore()
 const router = useRouter()
 const { isModalOpen } = defineProps(['isModalOpen'])
 const emit = defineEmits()
@@ -148,6 +154,15 @@ const goRoom = () => {
   // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
   router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
 }; 
+
+
+const createRoom = () => {
+  axios({
+    method: 'post',
+    url:`${roomStore.API_URL}/room/create`
+  })
+}
+
 const closeModal = () => {
   previewUrl.value = null;
   questions.value = ''
@@ -293,8 +308,10 @@ const questionlist = [
   margin-bottom: 40px;
 }
 .create-top {
-  grid-column: 1 / 3;
+  grid-column: 1 / 7;
   grid-row: 1 / 2;
+  display: flex;
+  justify-content: space-between;
 }
 .create-top p {
   font-size: 2rem;
@@ -570,6 +587,7 @@ a.img-btn {
 .create-bottom {
   grid-column: 2/ 5;
   grid-row: 8 / 9;
+  display: flex;
   align-items: center;
   justify-items: center;
 }
