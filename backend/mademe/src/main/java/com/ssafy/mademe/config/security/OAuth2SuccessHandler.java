@@ -31,7 +31,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication)
             throws IOException, ServletException {
         DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-        String frontUri = request.getParameter("redirect_uri");
+        //String frontUri = request.getParameter("redirect_uri");
+        String frontUri = "http://localhost:5173/social"; //프론트 주소에 맞게 바꾸기
         System.out.println(frontUri);
 
         String id = defaultOAuth2User.getAttributes().get("id").toString();
@@ -63,11 +64,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                     user.getId(), tokens[0], tokens[1]));
         }
         body.append("}");
-//            String body = """
-//                    {"id":"%s", "properties":"%s", "isLogin":"%s"}
-//                    """.formatted(id, properties, isLogin.toString());
 
         //messageTemplate.convertAndSend("/alarm/msg-to/" + message.getToId(), message);
+
         String redirectUrl = frontUri + "?data=" + URLEncoder.encode(body.toString(), StandardCharsets.UTF_8);
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }

@@ -54,10 +54,11 @@ public class RoomController {
                 roomService.getHashTagList(roomId));
     }
 
+    //방 전체 목록 조회(검색까지)
     @GetMapping("")
-    public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam("filter") String filter,
-                                                @RequestParam("search") String searchWord,
-                                                @PageableDefault(size = 8) Pageable pageable){
+    public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam(value = "filter", required = false) String filter,
+                                                @RequestParam(value = "search", required = false) String searchWord,
+                                                @PageableDefault(size = 10) Pageable pageable){
         Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(user, filter, searchWord, pageable);
         return null;
     }

@@ -27,6 +27,9 @@ public class Room {
     @Enumerated(EnumType.STRING)
     private RoomType type;
 
+    @Enumerated(EnumType.STRING)
+    private RoomMode mode;
+
     //User테이블 쪽으로 단방향 관계만
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")

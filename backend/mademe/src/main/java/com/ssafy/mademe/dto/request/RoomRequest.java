@@ -1,5 +1,6 @@
 package com.ssafy.mademe.dto.request;
 
+import com.ssafy.mademe.entity.RoomMode;
 import com.ssafy.mademe.entity.RoomType;
 import lombok.*;
 
@@ -13,6 +14,7 @@ import java.util.List;
 public class RoomRequest {
     private int totalNum;
     private RoomType type;
+    private RoomMode mode;
     private String title;
     private String intro;
     private String thumbnail;
