@@ -52,6 +52,10 @@ public class EmotionService {
         return json;
     }
 
+    public List<Integer> getEmoGraphInfo(User user, int recent){
+        return diaryRepository.findGraphInfo(user, recent);
+    }
+
     private DiaryLogResponse mapToDiaryLog(EmotionLog emotionLog){
         return DiaryLogResponse.builder()
                 .id(emotionLog.getId())

@@ -1,11 +1,11 @@
 package com.ssafy.mademe.controller;
 
-import com.ssafy.mademe.dto.response.FollowingResponse;
-import com.ssafy.mademe.dto.response.MyRoomInfoResponse;
-import com.ssafy.mademe.dto.response.PagingInfoResponse;
-import com.ssafy.mademe.dto.response.RoomDetailResponse;
+import com.ssafy.mademe.dto.request.ChangeOwnerRequest;
+import com.ssafy.mademe.dto.request.RoomRequest;
+import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Room;
 import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.exception.room.NotAuthorizedException;
 import com.ssafy.mademe.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -13,10 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,7 +28,7 @@ public class RoomController {
     private final RoomService roomService;
 
     //현재 내가 속해있는 커뮤니티 방 목록을 조회한다.(퇴장X)
-    @GetMapping("/")
+    @GetMapping("/mine")
     public Map<String, Object> getMyKeepRoomList(@AuthenticationPrincipal User user, @PageableDefault(size = 3) Pageable pageable){
         Page<MyRoomInfoResponse> infos = roomService.getRoomInfos(user, null, false, pageable);
         for(MyRoomInfoResponse tmp : infos){
@@ -55,6 +52,53 @@ public class RoomController {
         Room roomInfo = roomService.getRoomDetailInfo(roomId);
         return mapToRoomDetail(roomInfo, roomService.getParticipants(user, roomId),
                 roomService.getHashTagList(roomId));
+    }
+
+    @GetMapping("")
+    public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam("filter") String filter,
+                                                @RequestParam("search") String searchWord,
+                                                @PageableDefault(size = 8) Pageable pageable){
+        Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(user, filter, searchWord, pageable);
+        return null;
+    }
+
+    //커뮤니티 방에 참가를 한다.
+    @PostMapping("/attend")
+    public Map<String, String> joinRoom(@AuthenticationPrincipal User user, @RequestBody Room room){ //방 아이디만 받는다.
+        roomService.joinRoom(user, room);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
+    }
+
+    //방장을 위임한다.
+    @PutMapping("/empower")
+    public Map<String, String> changeOwner(@AuthenticationPrincipal User origin, @RequestBody ChangeOwnerRequest request){
+        try {
+            roomService.changeOwner(origin, request.getRoomId(), request.getOwnerId());
+            Map<String, String> json = new HashMap<>();
+            json.put("state", "success");
+            return json;
+        }catch (Exception e){
+            throw new NotAuthorizedException("필요한 정보가 없습니다.");
+        }
+    }
+
+    //방 생성하기
+    @PostMapping("/create")
+    public RoomDetailResponse createRoom(@AuthenticationPrincipal User user, @RequestBody RoomRequest request){
+        Room room = roomService.createRoom(user, request);
+        roomService.storeHashTags(room, request.getHashTags());
+        return mapToRoomDetail(room, null, request.getHashTags());
+    }
+
+    //방 탈퇴하기
+    @DeleteMapping("/")
+    public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){
+        roomService.quitRoom(user, roomId);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
     }
 
     private RoomDetailResponse mapToRoomDetail(Room room, List<FollowingResponse> participants,

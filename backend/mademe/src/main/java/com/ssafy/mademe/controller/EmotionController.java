@@ -12,6 +12,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @Slf4j
@@ -36,7 +37,15 @@ public class EmotionController {
     //감정 일기 분석 정보
     @GetMapping("/{code}")
     public Map<String, Object> getEmoLogInfo(@AuthenticationPrincipal User user, @PathVariable("code") Long code,
-                                             @PageableDefault(size = 5) Pageable pageable){
+                                             @PageableDefault(size = 5) Pageable pageable){ //?page=00 담아서 보내주기
         return emotionService.getEmoLogInfos(user, code, pageable);
+    }
+
+    @GetMapping("/graph")
+    public Map<String, Object> getEmoGraphInfo(@AuthenticationPrincipal User user, @RequestParam("recent") int recent){
+        List<Integer> scoreList = emotionService.getEmoGraphInfo(user, recent);
+        Map<String, Object> json = new HashMap<>();
+        json.put("data", scoreList);
+        return json;
     }
 }

@@ -84,6 +84,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
 
 
+
     @Override
     public List<Diary> findDiaryDetailByDate(User user, LocalDateTime startOfDay, LocalDateTime endOfDay) {
 
@@ -121,6 +122,25 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
         result.addAll(diariesAfterDate);
 
         return result;
+    }
+
+    @Override
+    public List<Integer> findGraphInfo(User user, int recent) {
+        return jpaQueryFactory
+                .select(
+                        diary.diaryScore
+                )
+                .from(diary)
+                .where(
+                        diary.user.eq(user)
+                )
+                .orderBy(
+                        diary.createDate.desc()
+                )
+                .limit(recent)
+                .fetch();
+        //return null;
+
     }
 
     private MonthDiaryResponse mapToMonthDiaryResponse(Tuple tuple){

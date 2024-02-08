@@ -5,9 +5,11 @@ import com.ssafy.mademe.repository.UserRepository;
 import com.ssafy.mademe.service.OAuth2UserService;
 import com.ssafy.mademe.utils.JWTUtil;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.MediaType;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -15,14 +17,17 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.AuthenticationEntryPoint;
+import org.springframework.security.web.RedirectStrategy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.security.web.context.SecurityContextPersistenceFilter;
 
 import java.io.PrintWriter;
+import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 
@@ -36,6 +41,9 @@ public class SecurityConfig {
     private final OAuth2UserService oAuth2UserService;
     private final UserRepository userRepository;
     private final JWTUtil jwtUtil;
+    private final OAuth2SuccessHandler successHandler;
+    private final SimpMessageSendingOperations messageTemplate;
+    private RedirectStrategy redirectStrategy;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception{
@@ -53,7 +61,7 @@ public class SecurityConfig {
                         .anyRequest().authenticated())
                 .oauth2Login(httpSecurityOAuth2LoginConfigurer -> httpSecurityOAuth2LoginConfigurer
                         .loginPage("/login")
-                        .successHandler(successHandler())
+                        .successHandler(successHandler)
                         .userInfoEndpoint(userInfo -> userInfo
                                 .userService(oAuth2UserService)
                         )
@@ -96,6 +104,8 @@ public class SecurityConfig {
     public AuthenticationSuccessHandler successHandler() { //카카오 OAuth 인증 성공시 실행
         return ((request, response, authentication) -> {
             DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
+            String frontUri = request.getParameter("redirect_uri");
+            System.out.println(frontUri);
 
             //System.out.println(defaultOAuth2User.getAttributes());
 
@@ -128,17 +138,18 @@ public class SecurityConfig {
                         user.getId(), tokens[0], tokens[1]));
             }
             body.append("}");
-//            String body = """
-//                    {"id":"%s", "properties":"%s", "isLogin":"%s"}
-//                    """.formatted(id, properties, isLogin.toString());
 
-            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
-            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+            //messageTemplate.convertAndSend("/alarm/msg-to/" + message.getToId(), message);
+            String redirectUrl = frontUri + "?data=" + URLEncoder.encode(body.toString(), StandardCharsets.UTF_8);
+            redirectStrategy.sendRedirect(request, response, redirectUrl);
 
-            PrintWriter writer = response.getWriter();
-            writer.println(body);
-            //Front로 데이터를 전송
-            writer.flush();
+//            response.setContentType(MediaType.APPLICATION_JSON_VALUE);
+//            response.setCharacterEncoding(StandardCharsets.UTF_8.name());
+//
+//            PrintWriter writer = response.getWriter();
+//            writer.println(body);
+//            //Front로 데이터를 전송
+//            writer.flush();
         });
     }
 }

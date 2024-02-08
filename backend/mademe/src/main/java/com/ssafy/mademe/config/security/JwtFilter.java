@@ -44,6 +44,7 @@ public class JwtFilter extends OncePerRequestFilter {
         }
 
         String token = authorization.split(" ")[1];
+        System.out.println(token);
 
         if(token.isEmpty()){
             log.warn("bearer 뒤에 값이 없습니다.");
@@ -73,7 +74,9 @@ public class JwtFilter extends OncePerRequestFilter {
 
             authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+            System.out.println("where.....");
         }
+        System.out.println("here???....");
         filterChain.doFilter(request, response);
     }
 
