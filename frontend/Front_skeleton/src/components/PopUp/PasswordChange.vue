@@ -16,7 +16,7 @@
           <el-input v-model="state.form.password2" :rules="state.rules.password2" autocomplete="off" show-password></el-input>
         </el-form-item>
         <el-form-item>
-          <el-button type="primary" :disabled="!isFormValid">비밀번호 변경</el-button>
+          <el-button type="primary" :disabled="!isFormValid" @click="changePassword">비밀번호 변경</el-button>
         </el-form-item>
       </el-form>
     </div>
@@ -25,6 +25,11 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 const props = defineProps({
   isModal: Boolean
 })
@@ -118,6 +123,34 @@ const isFormValid = computed(() => {
   }
   return isValid
 })
+
+const changePassword = function () {
+  axios({
+    method: 'put',
+    url: `${API_URL}/user/changepw`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      current_pw: state.form.originalPassword,
+      new_pw: state.form.password,
+    }
+  })
+    .then(res => {
+      window.alert('비밀번호가 변경되었습니다.')
+      state.form.originalPassword = ''
+      state.form.password = ''
+      state.form.password2 = ''
+      emit('closeModal')
+    })
+    .catch(err => {
+      if (err.response.status === 400) {
+        window.alert('비밀번호가 잘못되었습니다.')
+      } else {
+        window.alert('비밀번호 변경에 실패하였습니다.')
+      }
+    })
+}
 </script>
 
 <style scoped>
