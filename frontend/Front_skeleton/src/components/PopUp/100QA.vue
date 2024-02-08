@@ -7,11 +7,12 @@
       </div>
       <div>
         <p>Q. {{ question.question }}</p>
-        <form @submit.prevent="onSubmit">
+        <form @submit.prevent="submitAnswer">
           <label for="ans">A.</label>
           <input type="text" id="ans" v-model="ans">
-          <button class="btn btn-success" :disabled="answer===ans">{{ answer.length > 0 ? '수정' : '작성' }}</button>
+          <button class="btn btn-success" :disabled="answer===ans.trim()">{{ answer.length > 0 ? '수정' : '작성' }}</button>
         </form>
+        <button class="btn btn-danger" v-if="answer" @click="deleteAnswer">삭제</button>
       </div>
     </div>
   </div>
@@ -19,13 +20,18 @@
   
 <script setup>
 import { ref, watch } from 'vue'
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 const props = defineProps({
   isModal: Boolean,
   question: Object,
   answer: String,
 })
 
-const emit = defineEmits(['closeModal', 'addAnswer'])
+const emit = defineEmits(['closeModal', 'addAnswer', 'editAnswer', 'deleteAnswer'])
 
 const ans = ref('')
 
@@ -47,10 +53,82 @@ watch([() => props.isModal, () => props.answer], ([newIsModal, newAnswer], [oldI
   immediate: true, // This ensures the watcher is triggered immediately upon component mount
 })
 
-const onSubmit = function () {
-  emit('addAnswer', props.question.id, ans.value)
-  // axios 요청
-  emit('closeModal')
+const submitAnswer = function () {
+  if (props.answer.length > 0) {
+    putAnswer()
+  } else {
+    postAnswer()
+  }
+}
+
+const postAnswer = function () {
+  if (ans.value.trim().length) {
+    axios({
+      method: 'post',
+      url: `${API_URL}/question/`,
+      headers: {
+        Authorization : `Bearer ${userStore.accessToken}`
+      },
+      data: {
+        questionId: props.question.id,
+        answer: ans.value.trim()
+      }
+    })
+      .then(res => {
+        emit('addAnswer', res.data)
+        emit('closeModal')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  } else {
+    window.alert('내용을 입력해야합니다.')
+  }
+}
+
+const putAnswer = function () {
+  if (ans.value.trim().length) {
+    axios({
+      method: 'put',
+      url: `${API_URL}/question/`,
+      headers: {
+        Authorization : `Bearer ${userStore.accessToken}`
+      },
+      data: {
+        questionId: props.question.id,
+        answer: ans.value.trim()
+      }
+    })
+      .then(res => {
+        emit('editAnswer', props.question.id, ans.value.trim())
+        emit('closeModal')
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  } else {
+    window.alert('내용을 입력해야합니다.')
+  }
+}
+
+const deleteAnswer = function () {
+  axios({
+    method: 'delete',
+    url: `${API_URL}/question/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      questionId: props.question.id
+    }
+  })
+    .then(res => {
+      emit('deleteAnswer', props.question.id)
+      emit('closeModal')
+    })
+    .catch(err => {
+      console.log(err)
+    })
 }
 </script>
   

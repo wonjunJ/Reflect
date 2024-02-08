@@ -23,7 +23,7 @@
         <el-button @click="sendEmail" :disabled="!isEmailValid">이메일 인증 요청</el-button>
           <el-form-item v-if="state.isEmailsend" prop="emailCode">
             <el-input v-model="state.emailCode" autocomplete="off"></el-input>
-            <el-button @click="validateEmail" :disabled="isEmailCheck">이메일 인증</el-button>
+            <el-button @click="validateEmail" :disabled="state.isEmailCheck">이메일 인증</el-button>
           </el-form-item>
         <div v-if="state.emailValidationMessage" :class="state.isEmailCheck ? 'green': 'red'">{{ state.emailValidationMessage }}</div>
       </el-form-item>
@@ -62,6 +62,12 @@
 <script setup>
 import { ref, reactive, computed, watch } from 'vue'
 import axios from 'axios'
+import { useUserStore } from '@/stores/user.js'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 
 // form 관련 설정
 // 아이디, 중복확인, 비밀번호, 비밀번호확인, 닉네임, 닉네임 중복확인, 이메일, 이름
@@ -204,20 +210,18 @@ const idCheck = function () {
   state.isIdCheck = false // 일단 초기화
   axios({
     method: 'get',
-    url: `http://i10d207.p.ssafy.io:443/api/user/id/${state.form.id}/`
+    url: `${API_URL}/user/id/${state.form.id}`
   })
     .then(res => {
-      console.log(res.data)
       state.isIdCheck = true
       state.idValidationMessage = '사용 가능한 아이디입니다.'
     })
     .catch(err => {
-      console.log(err.response)
-      // if (err.response.status === 409) {
-      //   state.idValidationMessage = '이미 사용 중인 아이디입니다.'
-      // } else {
-      //   state.idValidationMessage = '아이디 유효성 검사 중 오류가 발생했습니다.'
-      // }
+      if (err.response.status === 406) {
+        state.idValidationMessage = '이미 사용 중인 아이디입니다.'
+      } else {
+        state.idValidationMessage = '아이디 유효성 검사 중 오류가 발생했습니다.'
+      }
     })
 }
 
@@ -227,20 +231,18 @@ const nicknameCheck = function () {
   state.isNicknameCheck = false // 일단 초기화
   axios({
     method: 'get',
-    url: `http://i10d207.p.ssafy.io:443/api/user/nick/${state.form.nickname}`
+    url: `${API_URL}/user/nick/${state.form.nickname}`
   })
     .then(res => {
-      console.log(res)
       state.isNicknameCheck = true
       state.nicknameValidationMessage = '사용 가능한 닉네임입니다.'
     })
     .catch(err => {
-      console.log(err)
-      // if (err.response.status === 409) {
-      //   state.nicknameValidationMessage = '이미 사용 중인 닉네임입니다.'
-      // } else {
-      //   state.nicknameValidationMessage = '닉네임 유효성 검사 중 오류가 발생했습니다.'
-      // }
+      if (err.response.status === 406) {
+        state.nicknameValidationMessage = '이미 사용 중인 닉네임입니다.'
+      } else {
+        state.nicknameValidationMessage = '닉네임 유효성 검사 중 오류가 발생했습니다.'
+      }
     })
 }
 
@@ -252,7 +254,7 @@ const sendEmail = function () {
 
   axios({
     method: 'post',
-    url: `https://i10d207.p.ssafy.io:443/api/user/send/`,
+    url: `${API_URL}/user/send`,
     data : {
       email: state.form.email
     }
@@ -271,7 +273,11 @@ const sendEmail = function () {
       }, 1000)
     })
     .catch((err) => {
-      state.emailValidationMessage = '인증번호 전송 중 오류가 발생했습니다.'
+      if (err.response.status === 406) {
+        state.emailValidationMessage = '이미 가입된 계정입니다.'
+      } else {
+        state.emailValidationMessage = '인증번호 전송 중 오류가 발생했습니다.'
+      }
     })
 }
 
@@ -279,19 +285,17 @@ const validateEmail = function () {
   clearInterval(emailValidationTimer)
   axios({
     method : 'post',
-    url: `https://i10d207.p.ssafy.io:443/api/user/code/`,
+    url: `${API_URL}/user/code`,
     data : {
       email: state.form.email,
       code : state.emailCode
     }
   })
     .then((res) => {
-      console.log(res)
-      isEmailCheck = true
+      state.isEmailCheck = true
       state.emailValidationMessage = '이메일 인증이 완료되었습니다.'
     })
     .catch((err) => {
-      console.log(err)
       state.emailValidationMessage = '인증번호가 잘못되었습니다.'
     })
 }
@@ -302,21 +306,23 @@ const isEmailValid = computed(() => {
 
 const signup = function () {
   axios({
-    method: post,
-    url: `https://i10d207.p.ssafy.io:443/api/user/join/`,
-    body : {
+    method: 'post',
+    url: `${API_URL}/user/join`,
+    data : {
       siteId: state.form.id,
       pw: state.form.password,
+      nickName: state.form.nickname,
       email: state.form.email,
       name: state.form.name,
       // 나이, 성별, 생년월일
     }
   })
     .then(res => {
-      console.log(res)
+      window.alert('회원가입이 완료되었습니다. \n로그인 페이지로 이동합니다.')
+      router.push({name: 'login'})
     })
     .catch(err => {
-      console.log(err)
+      window.alert('회원가입 중 오류가 발생했습니다.')
     })
 }
 

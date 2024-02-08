@@ -12,7 +12,7 @@
             <h5>프로필 사진</h5>
             <button class="btn btn-primary">수정</button>
           </div>
-          <img v-if="userInfo.profileimg" :src="userInfo.profileimg" alt="Profile image" style="width : 300px;">
+          <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image" style="width : 300px;">
           <img v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 300px;">
           <!-- 캐릭터 수정 -->
           <div class="d-flex justify-content-between">
@@ -26,7 +26,7 @@
             </el-form-item>
             <!-- 다른 항목 더 넣기 -->
             <el-form-item>
-              <el-button type="primary" :disabled="!isFormValid">저장</el-button>
+              <button class="btn btn-primary" :disabled="!isFormValid">저장</button>
             </el-form-item>
           </el-form>
         </div>

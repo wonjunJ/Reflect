@@ -5,7 +5,7 @@
 </template>
   
 <script setup>
-import { onMounted, ref } from 'vue'
+import { onMounted, ref, watchEffect } from 'vue'
 import wordcloud from 'wordcloud'
 const props = defineProps({
   data: Object
@@ -13,8 +13,8 @@ const props = defineProps({
   
 const wordCloudCanvas = ref(null)
   
-onMounted(() => {
-  if (wordCloudCanvas.value) {
+const generateWordCloud = () => {
+  if (wordCloudCanvas.value && props.data) {
     const wordList = props.data
   
     wordcloud(wordCloudCanvas.value, {
@@ -37,7 +37,10 @@ onMounted(() => {
       rotateRatio: 0,
     })
   }
-})
+}
+
+onMounted(generateWordCloud)
+watchEffect(generateWordCloud)
 </script>
   
 <style scoped>
