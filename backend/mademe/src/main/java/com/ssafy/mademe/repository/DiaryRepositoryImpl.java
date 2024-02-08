@@ -8,12 +8,15 @@ import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.EmotionCode;
+import com.ssafy.mademe.entity.QDiary;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.Month;
+import java.time.ZonedDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -79,6 +82,48 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+
+
+
+    @Override
+    public List<Diary> findDiaryDetailByDate(User user, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+
+        // 해당 날짜 이전에 작성된 3개의 일기 조회
+        List<Diary> diariesBeforeDate = jpaQueryFactory
+                .selectFrom(diary)
+                .where(diary.user.eq(user)
+                        .and(diary.createDate.before(startOfDay)))
+                .orderBy(diary.createDate.desc())
+                .limit(3)
+                .fetch();
+
+        // 해당 날짜에 작성된 일기 조회
+        List<Diary> diariesOnDate = jpaQueryFactory
+                .selectFrom(diary)
+                .where(diary.user.eq(user)
+                        .and(diary.createDate.goe(startOfDay))
+                        .and(diary.createDate.loe(endOfDay)))
+                .orderBy(diary.createDate.asc())
+                .fetch();
+
+        // 해당 날짜 이후에 작성된 3개의 일기 조회
+        List<Diary> diariesAfterDate = jpaQueryFactory
+                .selectFrom(diary)
+                .where(diary.user.eq(user)
+                        .and(diary.createDate.after(endOfDay)))
+                .orderBy(diary.createDate.asc())
+                .limit(3)
+                .fetch();
+
+        // 결과 병합
+        List<Diary> result = new ArrayList<>();
+        result.addAll(diariesBeforeDate);
+        result.addAll(diariesOnDate);
+        result.addAll(diariesAfterDate);
+
+        return result;
+    }
+
     @Override
     public List<Integer> findGraphInfo(User user, int recent) {
         return jpaQueryFactory
@@ -95,6 +140,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .limit(recent)
                 .fetch();
         //return null;
+
     }
 
     private MonthDiaryResponse mapToMonthDiaryResponse(Tuple tuple){
