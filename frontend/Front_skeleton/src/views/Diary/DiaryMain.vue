@@ -32,8 +32,11 @@
 <script>
 import { usePositionStore } from '@/stores/pet.js';
 import { onMounted, ref } from 'vue';
+import { useUserStore } from '@/stores/user.js'
+import axios from 'axios'
 import OpenAI from 'openai';
 import AWS from 'aws-sdk';
+
 const detectionOptions = {
     withLandmarks: true,
     withDescriptors: true,
@@ -81,17 +84,21 @@ export default {
     },
   },
   setup() {
+    const userInfo = ref({})
     const snowContainer = ref(null);
-    
+    const API_URL = ref('')
+
     onMounted(() => {
       const Snow = new SnowCanvas();
       Snow.createSnowFlakes(1000);
 
       const canvas = Snow.getCanvas(); // return HTMLCanvasElement
       snowContainer.value.appendChild(canvas);
+      const userStore = useUserStore()
+      API_URL.value = userStore.API_URL
     });
     
-    return { snowContainer };
+    return { snowContainer, userInfo, API_URL };
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
@@ -129,8 +136,8 @@ export default {
   },
   methods: {
     async loadModels() {
-    await Promise.all([
-    faceapi.nets.ssdMobilenetv1.loadFromUri(detectionOptions.MODEL_URLS.Mobilenetv1Model),
+      await Promise.all([
+        faceapi.nets.ssdMobilenetv1.loadFromUri(detectionOptions.MODEL_URLS.Mobilenetv1Model),
         faceapi.nets.tinyFaceDetector.loadFromUri(
           detectionOptions.MODEL_URLS.TinyFaceLandmarkModel
         ),
@@ -143,9 +150,9 @@ export default {
         faceapi.nets.faceExpressionNet.loadFromUri(
           detectionOptions.MODEL_URLS.FaceExpressionModel
         ),
-    ]);
+      ]);
     this.setupVideoRecorder();
-  },
+    },
 
     async setupVideoRecorder() {
       try {
@@ -167,43 +174,60 @@ export default {
       }
     },
     async onPlay() {
-  const video = this.videoElement;
-  const canvas = document.getElementById('videoCanvas');
+      const video = this.videoElement;
+      const canvas = document.getElementById('videoCanvas');
 
-  // 비디오 요소의 실제 크기를 사용하여 displaySize 설정
-  const displaySize = { width: video.videoWidth, height: video.videoHeight };
-  faceapi.matchDimensions(canvas, displaySize);
+      // 비디오 요소의 실제 크기를 사용하여 displaySize 설정
+      const displaySize = { width: video.videoWidth, height: video.videoHeight };
+      faceapi.matchDimensions(canvas, displaySize);
 
-  // 이전에 감지된 표정을 저장할 변수
-  let previousExpression = "";
+      // 이전에 감지된 표정을 저장할 변수
+      let previousExpression = "";
 
-  setInterval(async () => {
-    const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
-    const resizedDetections = faceapi.resizeResults(detections, displaySize);
-    canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
-    // faceapi.draw.drawDetections(canvas, resizedDetections);
-    // faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
-    // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions()).withFaceLandmarks().withFaceExpressions();
+        const resizedDetections = faceapi.resizeResults(detections, displaySize);
+        canvas.getContext('2d').clearRect(0, 0, canvas.width, canvas.height);
+        // faceapi.draw.drawDetections(canvas, resizedDetections);
+        // faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+        // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
-    // 각 얼굴의 표정에 대한 정보를 가져오고 가장 높은 확률의 표정을 출력합니다.
-    resizedDetections.forEach((face) => {
-      const expressions = face.expressions;
-      const dominantExpression = this.getDominantExpression(expressions);
+        // 각 얼굴의 표정에 대한 정보를 가져오고 가장 높은 확률의 표정을 출력합니다.
+      resizedDetections.forEach((face) => {
+        const expressions = face.expressions;
+        const dominantExpression = this.getDominantExpression(expressions);
 
-      // 이전에 감지된 표정과 다를 경우에만 출력
-      if (dominantExpression !== previousExpression) {
-        console.log(`Dominant Expression: ${dominantExpression}`);
-        previousExpression = dominantExpression;
-        if(this.displayMessage===false){
-          this.displayTextBasedOnExpression(dominantExpression);
+        // 이전에 감지된 표정과 다를 경우에만 출력
+        if (dominantExpression !== previousExpression) {
+          console.log(`Dominant Expression: ${dominantExpression}`);
+          previousExpression = dominantExpression;
+          if(this.displayMessage===false){
+            this.displayTextBasedOnExpression(dominantExpression);
+          }
+        
         }
-       
-      }
       
-    });
-  }, 333);
-},
-
+      });
+    }, 333);
+  },
+    postAnswer() {
+      axios({
+        method: 'post',
+        url: `${API_URL}/diary/video`,
+        headers: {
+          Authorization: `Bearer ${userStore.accessToken}`
+        },
+        data: {
+          videoUrl: this.fileUrl // 업로드된 파일의 URL을 전송합니다.
+        }
+      })
+      .then(res => {
+        console.log('complete', res)
+      })
+      .catch(err => {
+        console.log(err)
+      })
+    },
 // 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
     getDominantExpression(expressions) {
       let dominantExpression = "";
@@ -488,6 +512,22 @@ export default {
           console.log(messages)
           if (lastMessageForRun) {
             console.log(`${lastMessageForRun.content[0].text.value} \n`);
+            axios({
+              method: 'post',
+              url: `${API_URL}/diary/gpt`,
+              headers: {
+                Authorization: `Bearer ${userStore.accessToken}`
+              },
+              data: {
+                gptAnswer: lastMessageForRun.content[0].text.value
+              }
+            })
+            .then(res => {
+              console.log('gptAnswer')
+            })
+            .catch(err => {
+              console.log(err)
+            })
           } else if (
             !["failed", "cancelled", "expired"].includes(runStatus.status)
           ) {

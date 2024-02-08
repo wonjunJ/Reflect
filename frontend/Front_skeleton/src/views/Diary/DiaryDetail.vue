@@ -72,7 +72,7 @@
 // import {useDiaryStore} from '@/stores/diary.js'
 import DiaryList from "@/components/Diary/DiaryList.vue";
 import axios from 'axios';
-import { useDiaryStore } from '@/stores/diary.js'
+import { useUserStore } from '@/stores/user.js'
 import { ref, watch, onMounted, computed } from "vue";
 const transcribedText = ref("오늘은 참으로 활기찬 하루였다.햇살이 따스하게 내리쬐는 오후, 나는 오랜만에 마음먹고 집 근처의 공원으로 반려견 웰시코기 루키와 함께 산책을 나섰다.루키는 이미 문밖으로 나서는 순간부터 흥분을 감추지 못하고, 꼬리를 흔들며 기쁨을 표현했다.공원에 도착하자마자, 루키는 마치 오랫동안 기다려온 듯 자유롭게 뛰어다니기 시작했다.나도 그 모습을 보며 자연스레 미소가 지어졌다.")
 const getimgUrl = ref(null);
@@ -82,7 +82,11 @@ const videoUrl = ref('@/img/my_recording.webm');
 const selectMenu = ref(false);
 const selectVideo = ref(false);
 const imgSelect = ref(null);
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 
+const userInfo = ref({})
+const userImg = ref({})
 console.log(videoUrl.value)
 // const diaryStore = useDiaryStore();
 // 텍스트에서 마침표 뒤에 줄바꿈을 추가하는 함수
@@ -109,6 +113,19 @@ const imgSelectAI = () => {
   return imgSelect.value = false;
 }
 onMounted(() => {
+  axios({
+    method: 'get',
+    url: `${API_URL}/diaryDetail/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      userInfo.value = res.data
+    })
+    .catch(err => {
+      // console.log(err)
+    })
   // 컴포넌트가 마운트되었을 때 초기 텍스트 처리
   transcribedText.value = addNewLines(transcribedText.value);
 });
@@ -134,8 +151,11 @@ const beforeUpload = (file) => {
 const uploadImage = async () => {
   if (previewUrl.value) {
     try {
-      const base64Image = previewUrl.value;
-      const response = await axios.post('https://your-server.com/upload', {
+      const Image = previewUrl.value;
+      const reader = new FileReader();
+      const base64Image = reader.readAsDataURL(Image);
+
+      const response = await axios.post(`${API_URL}/diaryDetail/img`, {
         image: base64Image,
       });
       console.log('서버 응답:', response.data);
@@ -145,8 +165,11 @@ const uploadImage = async () => {
   }
   else if (imageUrl.value) {
     try {
-      const base64Image = imageUrl.value;
-      const response = await axios.post('https://your-server.com/upload', {
+      const Image = imageUrl.value;
+      const reader = new FileReader();
+      const base64Image = reader.readAsDataURL(Image);
+
+      const response = await axios.post(`${API_URL}/diaryDetail/img`, {
         image: base64Image,
       });
       console.log('서버 응답:', response.data);
@@ -158,6 +181,29 @@ const uploadImage = async () => {
     alert('파일을 선택해주세요.');
   }
 }
+
+
+const decodeBase64ToImage= function(base64String) {
+  // Base64 문자열에서 데이터 부분을 추출합니다.
+  const base64Data = base64String.split(',')[1];
+  
+  // Base64를 디코딩하여 이진 데이터를 얻습니다.
+  const binaryString = atob(base64Data);
+  
+  // 이진 데이터를 ArrayBuffer로 변환합니다.
+  const arrayBuffer = new ArrayBuffer(binaryString.length);
+  const uint8Array = new Uint8Array(arrayBuffer);
+  for (let i = 0; i < binaryString.length; i++) {
+    uint8Array[i] = binaryString.charCodeAt(i);
+  }
+  
+  // ArrayBuffer를 Blob으로 변환합니다.
+  const blob = new Blob([uint8Array], { type: 'image/jpeg' }); // 이미지 유형에 따라 변경 가능
+  
+  return blob;
+}
+
+
 let generatedImage = null;
 
 const getImageResponse = async () => {
@@ -183,6 +229,26 @@ const getImageResponse = async () => {
 
   }
 };
+
+const putImg = function (obj) {
+  axios({
+    method: 'put',
+    url: `${API_URL}/diaryDetail/img`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      image: obj.image,
+    }
+  })
+    .then(res => {
+      //userImg.value.find 밑에꺼 참고해서 수정해야됨
+      //(item => item.questionId === res.data.questionId).answer = res.data.answer
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
 </script>
   
 <style scoped>
