@@ -26,6 +26,7 @@ public class DiaryDetailController {
 
     private final DiaryDetailService diaryDetailService;
 
+    // yyyy-mm-dd
     @GetMapping("/{date}")
     public ResponseEntity<List<DiaryDetailResponse>> getDiaryDetailByDate(
             @AuthenticationPrincipal User user,
@@ -33,11 +34,22 @@ public class DiaryDetailController {
 
         List<Diary> diaries = diaryDetailService.getDiaryDetailByDate(user, date);
         List<DiaryDetailResponse> diaryDetailResponses = diaries.stream()
-                .map(diary -> new DiaryDetailResponse(diary)) // DiaryResponse 생성자는 Diary 객체를 받아 DTO를 생성
+                .map(this::mapToDiaryDetail) // DiaryResponse 생성자는 Diary 객체를 받아 DTO를 생성
                 .collect(Collectors.toList());
 
         return ResponseEntity.ok(diaryDetailResponses);
 
+    }
+
+    public DiaryDetailResponse mapToDiaryDetail(Diary diary){
+        return DiaryDetailResponse.builder()
+                .diaryId(diary.getId())
+                .createDate(diary.getCreateDate().toLocalDate())
+                .content(diary.getContent())
+                .diaryImg(diary.getDiaryImg())
+                .diaryScore(diary.getDiaryScore())
+                .keyword(diary.getKeyword())
+                .build();
     }
 
 }
