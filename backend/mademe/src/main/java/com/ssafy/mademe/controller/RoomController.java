@@ -6,6 +6,7 @@ import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Room;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.room.NotAuthorizedException;
+import com.ssafy.mademe.repository.RoomRepository;
 import com.ssafy.mademe.service.RoomService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +27,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class RoomController {
     private final RoomService roomService;
+    private final RoomRepository roomRepository;
 
     //현재 내가 속해있는 커뮤니티 방 목록을 조회한다.(퇴장X)
     @GetMapping("/mine")
@@ -56,17 +58,28 @@ public class RoomController {
 
     //방 전체 목록 조회(검색까지)
     @GetMapping("")
-    public Map<String, Object> getTotalRoomList(@AuthenticationPrincipal User user, @RequestParam(value = "filter", required = false) String filter,
+    public Map<String, Object> getTotalRoomList(@RequestParam(value = "filter", required = false) List<String> filter,
                                                 @RequestParam(value = "search", required = false) String searchWord,
+                                                @RequestParam("from") int from, @RequestParam("to") int to,
                                                 @PageableDefault(size = 10) Pageable pageable){
-        Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(user, filter, searchWord, pageable);
-        return null;
+        Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(filter, searchWord, from, to, pageable);
+        Map<String, Object> json = new HashMap<>();
+        json.put("pagingInfo", PagingInfoResponse.builder()
+                .totalPage(roomInfos.getTotalPages()) //전체 페이지 수
+                .pageNum(roomInfos.getNumber()) //현재 페이지 번호
+                .isFirst(roomInfos.isFirst()) //이 페이지가 첫번째 페이지 인지
+                .hasNext(roomInfos.hasNext()) //다음 페이지가 존재하는지
+                .build()
+        );
+        json.put("data", roomInfos.get().collect(Collectors.toList()));
+        return json;
     }
 
     //커뮤니티 방에 참가를 한다.
     @PostMapping("/attend")
     public Map<String, String> joinRoom(@AuthenticationPrincipal User user, @RequestBody Room room){ //방 아이디만 받는다.
         roomService.joinRoom(user, room);
+        roomRepository.increaseNumById(room.getId());
         Map<String, String> json = new HashMap<>();
         json.put("state", "success");
         return json;
@@ -93,10 +106,20 @@ public class RoomController {
         return mapToRoomDetail(room, null, request.getHashTags());
     }
 
-    //방 탈퇴하기
+    //방 탈퇴하기(방 참가 상태(채팅 화면)에서 탈퇴하기를 누를때)
     @DeleteMapping("/")
-    public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){
+    public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){ //방 아이디 값만 받는다.
         roomService.quitRoom(user, roomId);
+        roomRepository.decreaseNumById(roomId.getId());
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "success");
+        return json;
+    }
+
+    //채팅만 종료(방에 참여는 유지)
+    @DeleteMapping("/finish")
+    public Map<String, String> finishChatting(@AuthenticationPrincipal User user, @RequestBody Room roomId){
+        roomRepository.decreaseNumById(roomId.getId());
         Map<String, String> json = new HashMap<>();
         json.put("state", "success");
         return json;
@@ -108,6 +131,7 @@ public class RoomController {
                 .roomId(room.getId())
                 .createDate(room.getCreateDate().toLocalDate())
                 .type(room.getType())
+                .mode(room.getMode())
                 .ownerId(room.getOwnerId().getId())
                 .title(room.getTitle())
                 .intro(room.getIntro())

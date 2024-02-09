@@ -54,8 +54,8 @@ public class RoomService {
         return rst;
     }
 
-    public Page<RoomListResponse> getTotalRoomList(User user, String filter, String searchWord, Pageable pageable){
-        return null;
+    public Page<RoomListResponse> getTotalRoomList(List<String> filter, String searchWord, int from, int to, Pageable pageable){
+        return roomRepository.findTotalRoomList(filter, searchWord, from, to, pageable);
     }
 
     public void joinRoom(User user, Room room){
@@ -63,10 +63,10 @@ public class RoomService {
         if(myRoom != null){
             if(myRoom.isExit()){
                 myRoom.setExit(false);
-            }else { //이미 이 방에 참가를 한 상태이다.
+            }else { //이미 이 방에 참가를 한 상태이다.(가입되어 있는 상태)
                 return;
             }
-        } else {
+        } else { //이 방에 처음 참가를 한다.(과거에 탈퇴를 한 이력도 없다.)
             myRoom = new MyRoom();
             myRoom.setId(new EmdRoom(user, room));
         }
@@ -88,8 +88,10 @@ public class RoomService {
         Room room = new Room();
         room.setTotalNum(request.getTotalNum());
         room.setType(request.getType());
+        room.setMode(request.getMode());
         room.setTitle(request.getTitle());
         room.setIntro(request.getIntro());
+        room.setOwnerId(user);
         room.setThumbnail(request.getThumbnail());
         Optional<QuestionCode> qid = questionCodeRepository.findById(request.getQuestionId());
         qid.ifPresent(room::setQuestion);
@@ -117,7 +119,7 @@ public class RoomService {
             throw new InvalidCodeException("잘못된 요청입니다.");
         }
         myRoom.setExit(true);
-        if(myRoomRepository.countById_Room(room) == 1){
+        if(myRoomRepository.countById_RoomAndIsExitIsFalse(room) == 1){ //현재 방에 가입되어 있는 사람의 수
             Optional<Room> tmp = roomRepository.findById(room.getId());
             if(tmp.isEmpty()){
                 throw new RoomNotFoundException("해당하는 방을 찾을 수 없습니다.");
@@ -128,7 +130,7 @@ public class RoomService {
         myRoomRepository.save(myRoom);
     }
 
-    //방의 참가자들의 정보를 얻는다.
+    //방의 참가자들의 정보를 얻는다.(가입되어 있는 사람들)
     public List<FollowingResponse> getParticipants(User user, Long roomId){
         Room rid = new Room();
         rid.setId(roomId);

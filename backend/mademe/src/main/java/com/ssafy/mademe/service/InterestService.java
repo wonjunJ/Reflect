@@ -41,7 +41,7 @@ public class InterestService {
 
     public MyMBTIDetailResponse getMineMbtiDetail(User user){
         Map<MBTICode, Long> map = mbtiLogRepository.findMbtiByUser(user);
-        List<MBTICode> keys = new ArrayList<>(map.keySet());
+        List<MBTICode> keys = new ArrayList<>(map.keySet()); //존재하는 mbtiCode의 리스트
         List<MBTICntResponse> logRst = new ArrayList<>();
         for(MBTICode key : keys){
             logRst.add(
@@ -86,7 +86,7 @@ public class InterestService {
         return json;
     }
 
-    public InterestResponse addInterest(User user, AddInterestRequest addInterestRequest){
+    public InterestResponse addInterestByUser(User user, AddInterestRequest addInterestRequest){
         Interest itr = interestRepository.findFirstByUserAndCompositeKey_PreferenceAndCompositeKey_InterestCode_HobbyName(user,
                 addInterestRequest.getPreference(), addInterestRequest.getName());
         Integer fourth = interestRepository.findFourthCount(user, addInterestRequest.getPreference());
@@ -138,7 +138,7 @@ public class InterestService {
     }
 
     //해당하는 관심사명에 대해서 InterestCode 테이블에 값이 존재하는지를 체크(없으면 값을 새로 저장하고 리턴)
-    private InterestCode checkInterestCode(String name){
+    public InterestCode checkInterestCode(String name){
         InterestCode codeId = interestCodeRepository.findFirstByHobbyName(name);
         if(codeId == null){
             codeId = new InterestCode();

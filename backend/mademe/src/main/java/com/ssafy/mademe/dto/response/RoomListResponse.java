@@ -1,6 +1,7 @@
 package com.ssafy.mademe.dto.response;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.ssafy.mademe.entity.RoomMode;
 import com.ssafy.mademe.entity.RoomType;
 import lombok.*;
 
@@ -20,9 +21,11 @@ public class RoomListResponse {
     private Integer totalNum;
     private Integer curNum;
     private RoomType type;
+    private RoomMode mode;
     private String thumnail;
     private String title;
+    private String intro;
     private Long qId;
     private List<String> hashTags;
-    private boolean status;
+    //private boolean status;
 }

@@ -46,7 +46,7 @@ public class DiaryGPTRequest {
     @NoArgsConstructor
     @AllArgsConstructor
     public static class MBTIData {
-        private MBTICode mbti;
+        private String mbti;
         private List<String> sentences;
         // getters and setters
     }

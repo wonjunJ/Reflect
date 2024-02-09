@@ -53,7 +53,7 @@ public class InterestController {
     @PostMapping("/")
     public InterestResponse addInterest(@AuthenticationPrincipal User user,
                                         @RequestBody AddInterestRequest addInterestRequest){
-        return interestService.addInterest(user, addInterestRequest);
+        return interestService.addInterestByUser(user, addInterestRequest);
     }
 
     //관심사 삭제

@@ -19,6 +19,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -74,6 +75,7 @@ public class UserController {
             uires.setCharName(petInfo.get(0)); //펫의 원래 이름
             uires.setMyCharName(petInfo.get(1)); //내가 설정한 펫의 이름
         }
+        System.out.println(LocalDateTime.now());
         return uires;
     }
 

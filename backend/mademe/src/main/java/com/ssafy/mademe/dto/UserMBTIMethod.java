@@ -9,7 +9,10 @@ public class UserMBTIMethod {
     public String getMBTIs(Map<MBTICode, Long> map){
         StringBuilder sb = new StringBuilder(); //가능한 MBTI코드들이 다 들어가있다.
         if(map.isEmpty()){
-            return "MBTI 정보가 없습니다.";
+            return "";
+        }
+        for (Map.Entry<MBTICode, Long> entrySet : map.entrySet()) {
+            System.out.println(entrySet.getKey() + " : " + entrySet.getValue());
         }
         //I, E
         if(map.containsKey(MBTICode.I) && map.containsKey(MBTICode.E)){
@@ -38,7 +41,7 @@ public class UserMBTIMethod {
             }
         } else if (map.containsKey(MBTICode.S)) {
             sb.append("S");
-        } else {
+        } else if (map.containsKey(MBTICode.N)) {
             sb.append("N");
         }
         //F, T
@@ -53,7 +56,7 @@ public class UserMBTIMethod {
             }
         } else if (map.containsKey(MBTICode.T)) {
             sb.append("T");
-        } else {
+        } else if (map.containsKey(MBTICode.F)) {
             sb.append("F");
         }
         //J, P
@@ -68,9 +71,10 @@ public class UserMBTIMethod {
             }
         } else if (map.containsKey(MBTICode.P)) {
             sb.append("P");
-        } else {
+        } else if (map.containsKey(MBTICode.J)) {
             sb.append("J");
         }
+        System.out.println(sb.toString());
         return sb.toString();
 
 //        Set<String> mbtiList = new HashSet<>();

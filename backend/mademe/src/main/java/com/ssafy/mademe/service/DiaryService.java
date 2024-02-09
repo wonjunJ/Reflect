@@ -4,11 +4,9 @@ import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
 import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.*;
+import com.ssafy.mademe.entity.embedded.EmdInterest;
 import com.ssafy.mademe.exception.diary.DiaryNotFoundException;
-import com.ssafy.mademe.repository.DiaryRepository;
-import com.ssafy.mademe.repository.EmotionCodeRepository;
-import com.ssafy.mademe.repository.MyRoomRepository;
-import com.ssafy.mademe.repository.UserRepository;
+import com.ssafy.mademe.repository.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,6 +26,8 @@ public class DiaryService {
     private final MyRoomRepository myRoomRepository;
     private final EmotionCodeRepository emotionCodeRepository;
     private final UserRepository userRepository;
+    private final InterestRepository interestRepository;
+    private final InterestService interestService;
 
     public List<MonthDiaryResponse> getMonthDiaryStatus(User user, LocalDate date){
         Month now = LocalDateTime.now().getMonth();
@@ -70,13 +70,14 @@ public class DiaryService {
             diary.addMbtiLog(mlog);
             mlog.setUser(user);
         }
+        addInterestByGPT(user, request.getDailyData().getInterestData());
         LocalDate yesterday = LocalDate.now().minusDays(1);
         LocalDateTime start = yesterday.atStartOfDay();
         LocalDateTime end = yesterday.atTime(LocalTime.MAX);
         if(diaryRepository.existsByUserAndCreateDateBetween(user, start, end)){ //어제 날짜로 쓴 일기가 있다.
             userRepository.increaseCntById(user.getId()); //일기 연속 작성 일자에 +1
         }else {
-            user.setRecordTime(0);
+            user.setRecordTime(1);
         }
         diary.setUser(user);
         diaryRepository.save(diary);
@@ -105,7 +106,10 @@ public class DiaryService {
         for(DiaryGPTRequest.MBTIData data : mbtiDatas){
             for(String sentence : data.getSentences()){
                 MBTILog mbtiLog = new MBTILog();
-                mbtiLog.setMbtiCode(data.getMbti());
+                String code = data.getMbti().equals("INtuition") ?
+                        Character.toString(data.getMbti().charAt(1)) :
+                        Character.toString(data.getMbti().charAt(0));
+                mbtiLog.setMbtiCode(MBTICode.valueOf(code));
                 mbtiLog.setSentence(sentence);
                 System.out.println(mbtiLog.getMbtiCode());
                 logs.add(mbtiLog);
@@ -113,6 +117,25 @@ public class DiaryService {
         }
         System.out.println(logs.size());
         return logs;
+    }
+
+    public void addInterestByGPT(User user, List<DiaryGPTRequest.DailyData.InterestData> interestData){
+        for(DiaryGPTRequest.DailyData.InterestData data : interestData){
+            Interest itr = interestRepository.findFirstByUserAndCompositeKey_PreferenceAndCompositeKey_InterestCode_HobbyName(user,
+                    data.getPreference(), data.getInterest());
+            if(itr != null){ //추가하려는 관심사가 이미 나한테 있으므로 그냥 값을 수정
+                interestRepository.increaseCntById(itr.getId());
+            }else {
+                //새로운 관심사를 추가
+                itr = new Interest();
+                itr.setUser(user);
+                itr.setCnt(1);
+                InterestCode codeId = interestService.checkInterestCode(data.getInterest());
+                EmdInterest emd = new EmdInterest(codeId, data.getPreference());
+                itr.setCompositeKey(emd);
+            }
+            interestRepository.save(itr);
+        }
     }
 
     private SimpleDiaryResponse mapToSimpleDiary(Diary diary){

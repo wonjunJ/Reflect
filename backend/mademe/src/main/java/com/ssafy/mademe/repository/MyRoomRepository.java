@@ -13,5 +13,5 @@ public interface MyRoomRepository extends JpaRepository<MyRoom, Long>, MyRoomRep
     Boolean existsById_UserAndInDateBetween(User user, LocalDateTime start, LocalDateTime end);
     List<MyRoom> findById_Room(Room roomId);
     MyRoom findFirstById_UserAndId_Room(User user, Room room);
-    Integer countById_Room(Room room);
+    Integer countById_RoomAndIsExitIsFalse(Room room);
 }
