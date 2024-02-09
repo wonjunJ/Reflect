@@ -42,7 +42,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 )
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
-                .fetchJoin()
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
                 .where(
                         room.totalNum.between(from, to),
@@ -63,7 +62,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 )
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
-                .fetchJoin()
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
                 .where(
                         room.totalNum.between(from, to),
@@ -77,6 +75,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
 
     private BooleanExpression conditionFiltering(List<String> filter){
         if(filter.isEmpty()){
+            System.out.println("비였다.");
             return null;
         }
         BooleanExpression expression = null;

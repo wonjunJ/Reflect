@@ -57,8 +57,8 @@ public class RoomController {
     }
 
     //방 전체 목록 조회(검색까지)
-    @GetMapping("")
-    public Map<String, Object> getTotalRoomList(@RequestParam(value = "filter", required = false) List<String> filter,
+    @GetMapping("")  //@RequestParam에 defaultValue = ""는 filter가 넘어오지 않았을시 null이 아니라 빈 리스트로 처리하기 위해
+    public Map<String, Object> getTotalRoomList(@RequestParam(value = "filter", required = false, defaultValue = "") List<String> filter,
                                                 @RequestParam(value = "search", required = false) String searchWord,
                                                 @RequestParam("from") int from, @RequestParam("to") int to,
                                                 @PageableDefault(size = 10) Pageable pageable){
