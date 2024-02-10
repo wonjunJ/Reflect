@@ -29,7 +29,7 @@ public class FollowingController {
     private final FollowingService followingService;
 
     //내가 팔로우하고 있는 회원의 리스트 정보 얻기
-    @GetMapping("/")
+    @GetMapping("")
     public Map<String, Object> getFollowingList(@PageableDefault(size = 3) Pageable pageable, @AuthenticationPrincipal User user){
         Page<FollowingResponse> pgRst = followingService.getFollowingList(user, pageable);
         Map<String, Object> json = new HashMap<>();
@@ -50,13 +50,13 @@ public class FollowingController {
         return followingService.getFollowingInfo(user, id);
     }
 
-    @PostMapping("/")
+    @PostMapping("")
     public String addFollowing(@AuthenticationPrincipal User user, @RequestBody User follow){
         followingService.addFollowing(user, follow);
         return "친구 추가 성공";
     }
 
-    @DeleteMapping("/")
+    @DeleteMapping("")
     public String delFollowing(@AuthenticationPrincipal User user, @RequestBody User follow){
         followingService.delFollowing(user, follow);
         return "친구 삭제 성공";

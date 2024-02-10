@@ -2,6 +2,7 @@ package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.response.DiaryLogResponse;
 import com.ssafy.mademe.dto.response.EmotionCntResponse;
+import com.ssafy.mademe.dto.response.GraphResponse;
 import com.ssafy.mademe.dto.response.PagingInfoResponse;
 import com.ssafy.mademe.entity.EmotionLog;
 import com.ssafy.mademe.entity.User;
@@ -52,7 +53,7 @@ public class EmotionService {
         return json;
     }
 
-    public List<Integer> getEmoGraphInfo(User user, int recent){
+    public List<GraphResponse> getEmoGraphInfo(User user, int recent){
         return diaryRepository.findGraphInfo(user, recent);
     }
 

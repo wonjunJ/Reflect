@@ -24,6 +24,8 @@ public class QUser extends EntityPathBase<User> {
 
     public final StringPath birthday = createString("birthday");
 
+    public final DateTimePath<java.time.LocalDateTime> checkDate = createDateTime("checkDate", java.time.LocalDateTime.class);
+
     public final ListPath<Diary, QDiary> diaries = this.<Diary, QDiary>createList("diaries", Diary.class, QDiary.class, PathInits.DIRECT2);
 
     public final StringPath email = createString("email");

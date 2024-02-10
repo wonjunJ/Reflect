@@ -62,6 +62,12 @@ public class UserExceptionHandler {
         return makeErrorResponse(e, "token");
     }
 
+    @ExceptionHandler(AlreadyAttendanceException.class)
+    @ResponseStatus(HttpStatus.BAD_REQUEST)
+    public List<ErrorResponse> alreadyAttendanceExceptionHandler(AlreadyAttendanceException e){
+        return makeErrorResponse(e, "checked");
+    }
+
     @ExceptionHandler(InvalidCodeException.class)
     @ResponseStatus(HttpStatus.EXPECTATION_FAILED)
     public List<ErrorResponse> invalidCodeExceptionHandler(InvalidCodeException e){

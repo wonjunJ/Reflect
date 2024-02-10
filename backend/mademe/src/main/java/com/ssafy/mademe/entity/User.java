@@ -44,6 +44,9 @@ public class User implements UserDetails {
     @Temporal(value = TemporalType.TIMESTAMP)
     private LocalDateTime joinDate;
 
+    @Temporal(value = TemporalType.TIMESTAMP)
+    private LocalDateTime checkDate; //마지막 출석 체크한 날짜
+
     private String phoneNumber;
 
     @ColumnDefault("0")

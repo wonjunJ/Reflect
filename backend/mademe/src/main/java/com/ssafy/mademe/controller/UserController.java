@@ -3,7 +3,9 @@ package com.ssafy.mademe.controller;
 import com.ssafy.mademe.dto.request.ChangePwRequest;
 import com.ssafy.mademe.dto.request.CheckCodeRequest;
 import com.ssafy.mademe.dto.request.KakaoUserInfoRequest;
+import com.ssafy.mademe.dto.request.Message;
 import com.ssafy.mademe.dto.response.*;
+import com.ssafy.mademe.entity.Alram;
 import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.user.DuplicateUserIdException;
@@ -16,6 +18,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
@@ -37,6 +40,8 @@ public class UserController {
     private final InterestService interestService;
     private final PetService petService;
     private final JWTUtil jwtUtil;
+    private final AlramService alramService;
+    private final SimpMessageSendingOperations messageTemplate;
 
     private int cookieAge = 60 * 60 * 24 * 365 * 40;
 
@@ -64,19 +69,48 @@ public class UserController {
         return userService.oauthJoin(user);
     }
 
+    //출석체크(당일 기준으로 할지, 24시간 기준으로 할지)-일단 당일 기준
+    @PostMapping("/attendance")
+    public Map<String, String> attendanceCheck(@AuthenticationPrincipal User user){
+        userService.attendanceCheck(user);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "출석체크를 완료하였습니다.");
+        return json;
+    }
+
+    //포인트 획득(포춘쿠키에서)
+    @PutMapping("/point")
+    public Map<String, String> getPoint(@AuthenticationPrincipal User user, @RequestParam("point") int point){
+        userService.getPoint(user, point);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "포인트를 획득하였습니다.");
+        return json;
+    }
+
     //회원정보 조회
     @GetMapping("/")
     public UserInfoResponse getUserInfo(@AuthenticationPrincipal User user){ //쿼리문을 3번???
         String mbtiStr = userService.getUserMbtiInfo(user);
         List<String> titleList = userService.getTitles(user); //정보가 없다면 빈 리스트가 리턴
         List<String> petInfo = petService.getUserPetInfo(user);
+        List<Message> msgList = alramService.getUnreadAlrams(user);
         UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
         if(!petInfo.isEmpty()){
             uires.setCharName(petInfo.get(0)); //펫의 원래 이름
             uires.setMyCharName(petInfo.get(1)); //내가 설정한 펫의 이름
         }
-        System.out.println(LocalDateTime.now());
+        uires.setAlrams(msgList);
+        //System.out.println(LocalDateTime.now());
         return uires;
+    }
+
+    //알람 읽음 처리하기
+    @PutMapping("/alram")
+    public Map<String, String> readAlram(@RequestBody Alram alram){
+        alramService.readAlram(alram);
+        Map<String, String> json = new HashMap<>();
+        json.put("state", "알람 읽음 처리 완료");
+        return json;
     }
 
     //회원정보 수정

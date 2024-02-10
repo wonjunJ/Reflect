@@ -4,6 +4,7 @@ import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.EmotionCntResponse;
 //import com.ssafy.mademe.entity.QDiary;
+import com.ssafy.mademe.dto.response.GraphResponse;
 import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.Diary;
@@ -125,9 +126,10 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
     }
 
     @Override
-    public List<Integer> findGraphInfo(User user, int recent) {
+    public List<GraphResponse> findGraphInfo(User user, int recent) {
         return jpaQueryFactory
                 .select(
+                        diary.createDate,
                         diary.diaryScore
                 )
                 .from(diary)
@@ -138,7 +140,10 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                         diary.createDate.desc()
                 )
                 .limit(recent)
-                .fetch();
+                .fetch()
+                .stream()
+                .map(this::mapToGraphResponse)
+                .collect(Collectors.toList());
         //return null;
 
     }
@@ -148,6 +153,13 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .diaryId(tuple.get(0, Long.class))
                 .date(Objects.requireNonNull(tuple.get(1, LocalDateTime.class)).toLocalDate())
                 .emotion(tuple.get(2, Long.class))
+                .build();
+    }
+
+    private GraphResponse mapToGraphResponse(Tuple tuple){
+        return GraphResponse.builder()
+                .date(Objects.requireNonNull(tuple.get(0, LocalDateTime.class)).toLocalDate())
+                .score(tuple.get(1, Integer.class))
                 .build();
     }
 }

@@ -25,6 +25,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.Duration;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -80,6 +82,24 @@ public class UserService implements UserDetailsService {
         }catch (Exception e){
             throw new FailedJoinException("회원가입에 실패하였습니다.");
         }
+    }
+
+    public void attendanceCheck(User user){
+        LocalDate now = LocalDate.now();
+        if(user.getCheckDate() == null || user.getCheckDate().toLocalDate().isBefore(now)){
+            int curPoint = user.getPoint();
+            user.setPoint(curPoint + 5);
+            user.setCheckDate(LocalDateTime.now());
+            userRepository.save(user);
+            return;
+        }
+        throw new AlreadyAttendanceException("이미 오늘 출석체크를 하였습니다.");
+    }
+
+    public void getPoint(User user, int point){ //point는 획득할 포인트
+        int curPoint = user.getPoint();
+        user.setPoint(curPoint + point);
+        userRepository.save(user);
     }
 
     public String getUserMbtiInfo(User user){

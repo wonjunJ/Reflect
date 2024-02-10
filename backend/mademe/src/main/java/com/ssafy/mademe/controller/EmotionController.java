@@ -1,6 +1,7 @@
 package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.response.EmotionCntResponse;
+import com.ssafy.mademe.dto.response.GraphResponse;
 import com.ssafy.mademe.entity.MBTICode;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.EmotionService;
@@ -42,10 +43,7 @@ public class EmotionController {
     }
 
     @GetMapping("/graph")
-    public Map<String, Object> getEmoGraphInfo(@AuthenticationPrincipal User user, @RequestParam("recent") int recent){
-        List<Integer> scoreList = emotionService.getEmoGraphInfo(user, recent);
-        Map<String, Object> json = new HashMap<>();
-        json.put("data", scoreList);
-        return json;
+    public List<GraphResponse> getEmoGraphInfo(@AuthenticationPrincipal User user, @RequestParam("recent") int recent){
+        return emotionService.getEmoGraphInfo(user, recent);
     }
 }

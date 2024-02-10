@@ -81,6 +81,8 @@ public class DiaryService {
         }
         diary.setUser(user);
         diaryRepository.save(diary);
+        int curPoint = user.getPoint();
+        user.setPoint(curPoint + 10);
         return userRepository.save(user);
     }
 

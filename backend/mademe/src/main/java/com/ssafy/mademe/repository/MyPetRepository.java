@@ -12,4 +12,5 @@ public interface MyPetRepository extends JpaRepository<MyPet, EmdPet> {
     List<MyPet> findById_User(User user);
     MyPet findFirstById_UserAndId_PetCode_Id(User user, Long id);
     MyPet findFirstBySelectedIsTrue();
+    Integer countById_User(User user);
 }

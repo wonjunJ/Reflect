@@ -61,7 +61,7 @@ public class RoomService {
     public void joinRoom(User user, Room room){
         MyRoom myRoom = myRoomRepository.findFirstById_UserAndId_Room(user, room);
         if(myRoom != null){
-            if(myRoom.isExit()){
+            if(myRoom.isExit()){ //과거에 참가를 했다가 탈퇴를 한 상태
                 myRoom.setExit(false);
             }else { //이미 이 방에 참가를 한 상태이다.(가입되어 있는 상태)
                 return;

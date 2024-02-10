@@ -1,18 +1,17 @@
 package com.ssafy.mademe.service;
 
+import com.ssafy.mademe.dto.request.Message;
 import com.ssafy.mademe.dto.response.MyPetInfoResponse;
-import com.ssafy.mademe.entity.MyPet;
-import com.ssafy.mademe.entity.PetCode;
-import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.entity.embedded.EmdPet;
+import com.ssafy.mademe.entity.embedded.EmdTitle;
 import com.ssafy.mademe.exception.pet.DuplicatePetException;
 import com.ssafy.mademe.exception.pet.PetNotFoundException;
 import com.ssafy.mademe.exception.user.NotEnoughPointException;
 import com.ssafy.mademe.exception.user.UserNotFoundException;
-import com.ssafy.mademe.repository.MyPetRepository;
-import com.ssafy.mademe.repository.PetCodeRepository;
-import com.ssafy.mademe.repository.UserRepository;
+import com.ssafy.mademe.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +27,9 @@ public class PetService {
     private final MyPetRepository myPetRepository;
     private final PetCodeRepository petCodeRepository;
     private final UserRepository userRepository;
+    private final TitleCodeRepository titleCodeRepository;
+    private final UserTitleRepository userTitleRepository;
+    private final SimpMessageSendingOperations messageTemplate;
 
     public List<MyPetInfoResponse> getMyPetList(User user){
         List<MyPet> petList = myPetRepository.findById_User(user);
@@ -79,6 +81,27 @@ public class PetService {
             int curPoint = user.getPoint();
             user.setPoint(curPoint-pet.getPrice());
             userRepository.save(user);
+
+            //펫시터 칭호 획득 관련 로직
+            int petCnt = myPetRepository.countById_User(user);
+            if(petCnt >= 5){ //펫시터 칭호 획득
+                Optional<TitleCode> tcode = titleCodeRepository.findById(13L);
+                EmdTitle emd = new EmdTitle(user, tcode.get());
+                UserTitle ut = new UserTitle();
+                ut.setId(emd);
+                userTitleRepository.save(ut);
+
+                //칭호 획득시에는 Alram 테이블에 저장할 필요X
+                messageTemplate.convertAndSend("/alram/msg-to/" + user.getId(),
+                        Message.builder()
+                                .type(3)
+                                .senderId(0L)
+                                .senderNick("관리자")
+                                .toId(user.getId())
+                                .msg("펫시터 칭호를 획득하였습니다.")
+                                .build()
+                );
+            }
         }
         throw new PetNotFoundException("일치하는 펫을 찾을 수 없습니다.");
     }

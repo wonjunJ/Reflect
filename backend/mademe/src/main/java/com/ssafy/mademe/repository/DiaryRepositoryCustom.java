@@ -1,6 +1,7 @@
 package com.ssafy.mademe.repository;
 
 import com.ssafy.mademe.dto.response.EmotionCntResponse;
+import com.ssafy.mademe.dto.response.GraphResponse;
 import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.Diary;
@@ -17,5 +18,5 @@ public interface DiaryRepositoryCustom {
     //SimpleDiaryResponse findSimpleDiaryInfoById(Long id);
     // 일기 디테일페이지 전후 7개 일기 조회
     List<Diary> findDiaryDetailByDate(User user, LocalDateTime startOfDay, LocalDateTime endOfDay);
-    List<Integer> findGraphInfo(User user, int recent);
+    List<GraphResponse> findGraphInfo(User user, int recent);
 }

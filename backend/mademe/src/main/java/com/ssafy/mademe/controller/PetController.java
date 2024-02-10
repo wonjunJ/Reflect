@@ -26,7 +26,7 @@ public class PetController {
         return petService.getMyPetList(user);
     }
 
-    //나의 펫 정보 수정
+    //나의 펫 정보 수정(펫 변경까지 한번에 진행)
     @PutMapping("/")
     public MyPetInfoResponse modifyPetInfo(@AuthenticationPrincipal User user, @RequestBody MyPetInfoResponse myPet){
         return petService.modifyPetInfo(user, myPet);

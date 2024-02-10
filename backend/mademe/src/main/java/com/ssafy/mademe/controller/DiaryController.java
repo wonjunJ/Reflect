@@ -29,18 +29,19 @@ public class DiaryController {
     private final RoomService roomService;
 
     //이 달의 총괄 상태
-    @GetMapping("/")
+    @GetMapping("")
     public List<MonthDiaryResponse> getMonthDiaryStatus(@AuthenticationPrincipal User user,
-                                                        @DateTimeFormat(pattern = "yyyy-MM")
+                                                        @DateTimeFormat(pattern = "yyyy-MM-dd")
                                                         @RequestParam("date")
                                                         LocalDate date){
+        System.out.println("날짜는 " + date);
         return diaryService.getMonthDiaryStatus(user,date);
     }
 
     //간단 데일리 정보 얻기
     @GetMapping("/simple")
     public Map<String, Object> getSimpleDailyInfo(@AuthenticationPrincipal User user, @RequestParam("diaryId") Long diaryId,
-                                                  Pageable pageable){
+                                                  @PageableDefault(size = 4) Pageable pageable){
         Map<String, Object> json = new HashMap<>();
         SimpleDiaryResponse dInfos = diaryService.getSimpleDiaryInfo(diaryId);
         json.put("diary", dInfos);
@@ -61,7 +62,7 @@ public class DiaryController {
     public Map<String, String> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
         DiaryGPTRequest request = data.get("data");
         //request.getDailyData().getKeywords().forEach(s -> System.out.println("data는 " + s));
-        User suser = diaryService.addDiaryGPTLog(user, request);
+        User savedUser = diaryService.addDiaryGPTLog(user, request);
         //칭호 획득 관련 처리 추가
         Map<String, String> state = new HashMap<>();
         state.put("state", "success");

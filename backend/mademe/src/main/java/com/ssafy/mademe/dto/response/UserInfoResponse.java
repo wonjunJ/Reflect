@@ -1,5 +1,6 @@
 package com.ssafy.mademe.dto.response;
 
+import com.ssafy.mademe.dto.request.Message;
 import com.ssafy.mademe.entity.Gender;
 import lombok.*;
 
@@ -22,6 +23,7 @@ public class UserInfoResponse {
     private String mbti;
     private int point;
     private List<String> titles;
+    private List<Message> alrams;
     private String charName; //원래 캐릭터의 이름
     private String myCharName; //내가 설정한 캐릭터의 이름
     private String myIntro;

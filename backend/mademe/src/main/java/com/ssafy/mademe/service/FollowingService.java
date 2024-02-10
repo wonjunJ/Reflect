@@ -1,5 +1,6 @@
 package com.ssafy.mademe.service;
 
+import com.ssafy.mademe.dto.request.Message;
 import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
@@ -14,6 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -28,6 +30,8 @@ public class FollowingService {
     private final UserService userService;
     private final InterestService interestService;
     private final RedisTemplate<Object, Object> redisTemplate;
+    private final SimpMessageSendingOperations messageTemplate;
+    private final AlramService alramService;
 
     public Page<FollowingResponse> getFollowingList(User user, Pageable pageable){
         Page<FollowingResponse> ls = followingRepository.findFollowingListByUser(user, pageable);
@@ -52,12 +56,26 @@ public class FollowingService {
 
     public void addFollowing(User user, User follow){
         try {
-            //User friend = userRepository.findBySiteId(follow.getSiteId());
             Following following = new Following();
-            //following.getId().setUserId(user);
-            following.getId().setFollowId(follow); //follow객체에 user의 long타입 id값을 가지고 있다면
-            user.addFollowing(following);
+//            following.getId().setFollowId(follow); //follow객체에 user의 long타입 id값을 가지고 있다면
+//            following.getId().setUserId(user);
+            EmdFollowing emd = new EmdFollowing(user, follow);
+            following.setId(emd);
+            //user.addFollowing(following);
             followingRepository.save(following);
+
+            //친구 추가시 상대방에게 알림
+            Message msg = alramService.manageMsg( //메시지를 Alram 테이블에 저장
+                    Message.builder()
+                            .type(3)
+                            .senderId(user.getId())
+                            .senderNick(user.getNickName())
+                            .toId(follow.getId())
+                            .msg("상대방이 나를 친구 추가 하였습니다.")
+                            .build(),
+                    user
+            );
+            messageTemplate.convertAndSend("/alram/msg-to/" + follow.getId(), msg);
         }catch (Exception e){
             throw new FailedJoinException("친구 추가 실패");
         }

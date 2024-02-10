@@ -5,6 +5,21 @@ insert into emotion_code (emotion_name) value('Anger');
 insert into emotion_code (emotion_name) value('Disgust');
 insert into emotion_code (emotion_name) value('None');
 
+insert into title_code (title_name) values
+                                        ('꾸준한 기록가'),
+                                        ('시간의 증인'),
+                                        ('일기장 마스터'),
+                                        ('취미부자'),
+                                        ('사교의 왕'),
+                                        ('집 밖은 위험해'),
+                                        ('물음표 킬러'),
+                                        ('무념무상'),
+                                        ('프로 팩폭러'),
+                                        ('니맘 내맘'),
+                                        ('무계획이 계획'),
+                                        ('플랜 마에스트로'),
+                                        ('펫시터');
+
 INSERT INTO question_code (question_name) VALUES
                                       ('내 이름의 뜻은?'),
                                       ('내 생일은?'),
