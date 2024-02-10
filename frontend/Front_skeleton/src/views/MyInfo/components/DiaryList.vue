@@ -3,17 +3,15 @@
     <h4>Diary</h4>
     <table>
       <tr>
-        <th scope="col">Title</th>
         <th scope="col">Date</th>
-        <th scope="col">Length</th>
-        <th scope="col">Feeling</th>
+        <th scope="col">Score</th>
+        <th scope="col">keyword</th>
         <th scope="col">&nbsp;</th>
       </tr>
-      <tr v-for="diary in diarys" :key="diary.id">
-        <td>{{ diary.title }}</td>
+      <tr>
         <td>{{ diary.date }}</td>
-        <td>{{ diary.length }}</td>
-        <td>{{ diary.feeling }}</td>
+        <td>{{ diary.diaryScore }}</td>
+        <td>{{ diary.keyword }}</td>
         <td><button>show</button></td>
       </tr>
     </table>
@@ -24,7 +22,7 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-  diarys: Object
+  diary: Object
 })
 </script>
 

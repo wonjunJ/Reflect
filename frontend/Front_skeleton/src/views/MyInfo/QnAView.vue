@@ -40,6 +40,13 @@ const createArray = function () {
 
 const answerList = ref(createArray())
 
+const refreshAnswerList = function () {
+  completedQuestions.value.forEach((element) => {
+    answerList.value[element.questionId-1].answer = element.answer
+    answerList.value[element.questionId-1].initAnswer = element.answer
+  })
+}
+
 const submitAnswer = function (id) {
   if (answerList.value[id-1].initAnswer) {
     putAnswer(answerList.value[id-1])
@@ -61,7 +68,10 @@ const putAnswer = function (obj) {
     }
   })
     .then(res => {
+      const id = res.data.questionId
       completedQuestions.value.find(item => item.questionId === res.data.questionId).answer = res.data.answer
+      answerList.value[id-1].answer = res.data.answer
+      answerList.value[id-1].initAnswer = res.data.answer
     })
     .catch(err => {
       console.log(err)
@@ -82,6 +92,10 @@ const postAnswer = function (obj) {
   })
     .then(res => {
       completedQuestions.value.push(res.data)
+      const id = res.data.questionId
+      completedQuestions.value.find(item => item.questionId === res.data.questionId).answer = res.data.answer
+      answerList.value[id-1].answer = res.data.answer
+      answerList.value[id-1].initAnswer = res.data.answer
     })
     .catch(err => {
       console.log(err)
@@ -104,6 +118,8 @@ const deleteAnswer = function (id) {
       if (idx !== -1) {
         completedQuestions.value.splice(idx, 1)
       }
+      answerList.value[id-1].answer = ''
+      answerList.value[id-1].initAnswer = ''
     })
     .catch(err => {
       console.log(err)
@@ -121,18 +137,22 @@ onMounted(() => {
   })
     .then(res => {
       completedQuestions.value = res.data
+      completedQuestions.value.forEach((element) => {
+        answerList.value[element.questionId-1].answer = element.answer
+        answerList.value[element.questionId-1].initAnswer = element.answer
+      })
     })
     .catch(err => {
       console.log(err)
     })
 })
 
-watch(completedQuestions, (newCompletedQuestions) => {
-  newCompletedQuestions.forEach((element) => {
-    answerList.value[element.questionId - 1].answer = element.answer
-    answerList.value[element.questionId - 1].initAnswer = element.answer
-  })
-}, {deep: true})
+// watch(completedQuestions, (newCompletedQuestions) => {
+//   newCompletedQuestions.forEach((element) => {
+//     answerList.value[element.questionId - 1].answer = element.answer
+//     answerList.value[element.questionId - 1].initAnswer = element.answer
+//   })
+// }, {deep: true})
 
 const questionlist = questionsStore.questions
 </script>

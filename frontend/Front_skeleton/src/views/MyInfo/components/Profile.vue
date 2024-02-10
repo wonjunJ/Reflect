@@ -2,12 +2,14 @@
   <div class="d-flex flex-column">
     <h2>About Me</h2>
     <div>
-      <img v-if="userInfo.profileImg" :src="'data:image/jpeg;base64,' + userInfo.profileImg" alt="Profile image">
+      <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
       <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
-      <p>username : {{ userInfo.nickName }}</p>
-      <p>email : {{ userInfo.email }}</p>
-      <p>{{ userInfo.introduction }}</p>
-      <p>{{ userInfo.charName }}</p>
+      <div>username : {{ userInfo.nickName }}</div>
+      <div>email : {{ userInfo.email }}</div>
+      <div>{{ userInfo.myIntro }}</div>
+      <div>{{ userInfo.charName }}</div>
+      <div>{{ userInfo.gender }}</div>
+      <div>{{ userInfo.birthday }}</div>
       <button @click="openProfileModal">Edit</button>
       <h3>MBTI</h3>
       <h5>{{ userInfo.mbti }}</h5>
@@ -28,7 +30,12 @@
       <p v-if="!interests.length">작성된 일기에서 추출된 관심사가 아직 없습니다.</p>
       <button class="btn" @click="router.push({name: 'interests'})">Detail</button>
     </div>
-    <ProfileEdit :is-modal="isProfileModal" :user-info="userInfo" @change-character="changeCharacter" @closeModal="closeProfileModal"/>
+    <ProfileEdit 
+      :is-modal="isProfileModal" 
+      :user-info="userInfo" 
+      @change-character="changeCharacter" 
+      @reload-profile="reloadProfile"
+      @closeModal="closeProfileModal"/>
   </div>
 </template>
 
@@ -47,7 +54,7 @@ const props = defineProps({
   userInfo: Object,
 })
 
-const emit =defineEmits(['changeCharacter'])
+const emit =defineEmits(['changeCharacter', 'reloadProfile'])
 
 const isProfileModal = ref(false)
 
@@ -61,6 +68,10 @@ const closeProfileModal = function () {
 
 const changeCharacter = (num) => {
   emit('changeCharacter', num)
+}
+
+const reloadProfile = () => {
+  emit('reloadProfile')
 }
 
 const isGraph = ref(false)
@@ -112,7 +123,7 @@ onMounted(() => {
       }
     })
     .catch(err => {
-      // console.log(err)
+      console.log(err)
     })
 })
 </script>

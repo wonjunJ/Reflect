@@ -25,7 +25,8 @@ import { ref } from 'vue'
 import UserInfo from '@/components/PopUp/UserInfo.vue'
 
 const props = defineProps({
-  follows: Object
+  follows: Object,
+  pagingInfo: Object
 })
 
 const selectedUser = ref('')

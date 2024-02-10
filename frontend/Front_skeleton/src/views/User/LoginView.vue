@@ -13,7 +13,7 @@
       <el-button type="primary" @click="login" :disabled="!isFormValid">login</el-button>
     </el-form-item>
   </el-form>
-  <button class="btn btn-warning"><a href="http://localhost:8080/oauth2/authorization/kakao">카카오로 로그인</a></button>
+  <button class="btn btn-warning"><a href="http://localhost:8080/oauth2/authorization/kakao?redirect_uri=http://localhost:5173/signup">카카오로 로그인</a></button>
   <button class="btn btn-warning" @click="socialLogin">카카오 로그인</button>
   <button @click="test">test</button>
 </template>

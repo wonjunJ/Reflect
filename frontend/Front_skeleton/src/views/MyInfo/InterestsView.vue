@@ -4,18 +4,22 @@
     <div class="d-flex flex-column left-item">
       <div>
         <h2>관심사</h2>
+        <div v-if="!isWordCloudData">추출된 관심사가 없습니다.</div>
         <WordCloud v-if="isWordCloud" :data="wordCloudData"/>
       </div>
       <div>
         <h2>MBTI</h2>
-        <h5>당신의 MBTI는 {{ mbti }}입니다.</h5>
-        <div>
+        <h5 v-if="mbti">당신의 MBTI는 {{ mbti }}입니다.</h5>
+        <h5 v-else>MBTI 정보가 없습니다.</h5>
+        <div v-if="!isRaderChart">측정된 MBTI 데이터가 없습니다.</div>
+        <div v-if="isChart">
           <ChartRadar :chart-data="radarChartData"/>
         </div>
       </div>
       <div>
         <h3>다른 사람이 본 나의 MBTI</h3>
-        <div>
+        <div v-if="!isBarChart">다른 사람이 남긴 MBTI 평가가 없습니다.</div>
+        <div v-if="isChart">
           <ChartBar :chart-data="barChartData"/>
         </div>
       </div>
@@ -40,7 +44,7 @@
               v-for="(interest, index) in interestsPositive"
               :key="interest.interestId"
             >
-              <p>{{ index + 1 }}. {{ interest.interestName }} <button @click="deleteInterests(interest.interestId)">🗑</button></p>
+              <p>{{ index + 1 }}. {{ interest.interestName }} <button @click="deleteInterests(interest.interestId, 'LIKE')">🗑</button></p>
             </div>
           </div>
           <div class="d-flex flex-column">
@@ -49,7 +53,7 @@
               v-for="(interest, index) in interestsNegative" 
               :key="interest.interestId"
             >
-              <p>{{index + 1}}. {{ interest.interestName }}<button @click="deleteInterests(interest.interestId)">🗑</button></p>
+              <p>{{index + 1}}. {{ interest.interestName }}<button @click="deleteInterests(interest.interestId, 'UNLIKE')">🗑</button></p>
             </div>
           </div>
         </div>
@@ -69,7 +73,7 @@
         </div>
         <div>
           <!-- 일기 목록 -->
-          <DiaryDetailList :diarys="filteredDiarys"/>
+          <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo"></DiaryDetailList>
         </div>
       </div>
     </div>
@@ -88,85 +92,102 @@ import DiaryDetailList from './components/DiaryDetailList.vue'
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 
-// 워드 클라우드용 더미 데이터 (axios 요청 받아서 이 형태로 처리 필요)
-// const wordCloudData = ref([
-//   ['Word1', 30],
-//   ['Word2', 20],
-//   ['Word3', 10],
-//   ['Word4', 7],
-//   ['Word5', 5],
-//   ['Word6', 3],
-//   ['Word7', 2],
-// ])
+// 차트 렌더링 결정 변수
 const isWordCloud = ref(false)
-
-// 레이더 차트 데이터 전달 사항 (datassets.data 부분을 받아와야함)
-const radarChartData = ref({
-  labels: ['I', 'N', 'T', 'P', 'E', 'S', 'F', 'J'],
-  datasets: [
-    {
-    label: 'MBTI',
-    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-    borderColor: 'rgba(255, 99, 132, 1)',
-    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-    data: [80, 75, 50, 70, 20, 25, 50, 30]
-    }
-  ]
-})
+const isChart = ref(false)
+// 차트에 데이터 들어있는지 판별하는 변수
+const isWordCloudData = ref(true)
+const isRaderChart = ref(true)
+const isBarChart = ref(true)
 
 const mbtiCodes = ref({   // 버튼 용 MBTI 속성 목록
   1:'I', 2:'N', 3:'T', 4:'P', 5:'E', 6:'S', 7:'F', 8:'J'
 })
 
 const filteredDiarys = ref([])  // props로 일기 목록에 전해줄 일기
+const pagingInfo = ref({})      // 페이지네이션 정보
 const selectedMbti = ref(1)     // 선택된 MBTI 코드
+const pageNum = ref(1)          // 선택된 페이지
 const selectMbti = function (num) {   // MBTI 선택 함수
-  selectedMbti.value = num
-  // 선택되면 해당 MBTI 일기 요청받아오기 (지금 있는건 그냥 자리 채우기)
-  filteredDiarys.value = dummyDiarys.filter(diary => diary.mbtiCode === num)
+  axios({
+    method: 'get',
+    url: `${API_URL}/interest/mbti/${mbtiCodes.value[num]}?page=${pageNum.value}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      filteredDiarys.value = res.data.data  // 일기 목록 저장
+      pagingInfo.value = res.data.pagingInfo  // 페이지네이션 정보 저장
+      selectedMbti.value = num              // 선택된 mbti 바꾸기
+    })
+    .catch(err => {
+      console.log(err)
+    })
 }
 
-// 화면에 출력되는 사용자의 MBTI
-const calculateMbti = function () {
-  const data = radarChartData.value.datasets[0].data
-  let temp = ['?', '?', '?', '?']
-  if (data[0] > 50) {
-    temp[0] = 'I'
-  } else if (data[0] < 50) {
-    temp[0] = 'E'
-  }
-  if (data[1] > 50) {
-    temp[1] = 'N'
-  } else if (data[1] < 50) {
-    temp[1] = 'S'
-  }
-  if (data[2] > 50) {
-    temp[2] = 'T'
-  } else if (data[2] < 50) {
-    temp[2] = 'F'
-  }
-  if (data[3] > 50) {
-    temp[3] = 'P'
-  } else if (data[3] < 50) {
-    temp[3] = 'J'
-  }
-  return temp.join('')
-}
-const mbti = calculateMbti()
+const mbti = ref("")    // 사용자의 mbti
+const mbtiInfo = ref([])  // 레이더 차트 mbti 정보 저장
 
-// 남이 보는 나의 MBTI 더미데이터
-const mbtiOthers = ref({
-  'INTP': 5, 'INTJ': 4, 'INFP': 1, 'INFJ': 3,
-  'ISTP': 1, 'ISTJ': 0, 'ISFP': 0, 'ISFJ': 0,
-  'ENTP': 2, 'ENTJ': 0, 'ENFP': 2, 'ENFJ': 0,
-  'ESTP': 0, 'ESTJ': 0, 'ESFP': 0, 'ESFJ': 0,
+// 받은 정보를 가공해서 레이더 차트에 전달
+const radarChartData = computed(() => {
+  let data = [0, 0, 0, 0, 0, 0, 0, 0]
+  let sum = 0
+  mbtiInfo.value.forEach(element => {
+    sum += element.percent
+    if (element.mbtiCode === "I") {
+      data[0] = element.percent
+    } else if (element.mbtiCode === "N") {
+      data[1] = element.percent
+    } else if (element.mbtiCode === "T") {
+      data[2] = element.percent
+    } else if (element.mbtiCode === "P") {
+      data[3] = element.percent
+    } else if (element.mbtiCode === "E") {
+      data[4] = element.percent
+    } else if (element.mbtiCode === "S") {
+      data[5] = element.percent
+    } else if (element.mbtiCode === "F") {
+      data[6] = element.percent
+    } else if (element.mbtiCode === "J") {
+      data[7] = element.percent
+    }
+  })
+  if (sum === 0) {
+    isRaderChart.value = false
+  }
+  return {
+    labels: ['I', 'N', 'T', 'P', 'E', 'S', 'F', 'J'],
+    datasets: [
+      {
+        label: 'MBTI',
+        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+        borderColor: 'rgba(255, 99, 132, 1)',
+        pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+        data
+      }
+    ]
+  }
 })
 
+// 남이 보는 나의 MBTI 더미데이터
+const mbtiOthers = ref([])
+
+// 남이보는 mbti 가공해서 바 차트에 전달
 const barChartData = computed(() => {
-  const filteredData = Object.keys(mbtiOthers.value)
-    .filter(key => mbtiOthers.value[key] > 0)
-    .map(key => ({ label: key, data: mbtiOthers.value[key]}))
+  const result = {}
+  let sum = 0
+  mbtiOthers.value.forEach(item => {
+    result[item.mbti] = item.cnt
+    sum += item.cnt
+  })
+  const filteredData = Object.keys(result)
+    .filter(key => result[key] > 0)
+    .map(key => ({ label: key, data: result[key]}))
   filteredData.sort((a, b) => b.data - a.data)
+  if (sum === 0) {
+    isBarChart.value = false
+  }
 
   const labels = filteredData.map(item => item.label)
   const data = filteredData.map(item => item.data)
@@ -183,54 +204,25 @@ const barChartData = computed(() => {
   }
 })
 
-// 더미데이터 
-const dummyDiarys = [
-  { id: 1, date: '2024-01-01', mbtiCode: 1, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 2, date: '2024-01-02', mbtiCode: 8, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 3, date: '2024-01-03', mbtiCode: 7, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 4, date: '2024-01-05', mbtiCode: 6, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 5, date: '2024-01-06', mbtiCode: 4, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 6, date: '2024-01-07', mbtiCode: 5, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 7, date: '2024-01-10', mbtiCode: 3, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 8, date: '2024-01-10', mbtiCode: 3, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 9, date: '2024-01-10', mbtiCode: 2, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-  { id: 10, date: '2024-01-10', mbtiCode: 1, content: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.', },
-]
+const interestsPositive = ref([])   // 긍정 관심사 목록 
+const interestsNegative = ref([])   // 부정 관심사 목록
 
-// 관심사 목록 더미데이터
-const interests = ref([
-  { id: 1, weight: 20, emotion: 1, name: '1', },
-  { id: 2, weight: 17, emotion: 0, name: '2', },
-  { id: 3, weight: 15, emotion: 0, name: '3', },
-  { id: 4, weight: 13, emotion: 1, name: '4', },
-  { id: 5, weight: 11, emotion: 0, name: '5', },
-  { id: 6, weight: 11, emotion: 1, name: '6', },
-  { id: 7, weight: 9, emotion: 0, name: '7', },
-  { id: 8, weight: 8, emotion: 1, name: '8', },
-  { id: 9, weight: 6, emotion: 1, name: '9', },
-  { id: 10, weight: 4, emotion: 0, name: '10', },
-  { id: 11, weight: 3, emotion: 1, name: '11' },
-])
-
-// 긍정 관심사 걸러내기
-const interestsPositive = computed(() => {
-  const filteredInterests = interests.value.filter(interest => interest.preference === 'LIKE')
-  filteredInterests.sort((a, b) => b.weight - a.weight)
-  return filteredInterests
+// 긍정 부정 관심사 합친거
+const interests = computed(() => {
+  return [...interestsNegative.value, ...interestsPositive.value]
 })
 
-// 부정 관심사 걸러내기
-const interestsNegative = computed(() => {
-  const filteredInterests = interests.value.filter(interest => interest.preference === 'UNLIKE')
-  filteredInterests.sort((a, b) => b.weight - a.weight)
-  return filteredInterests
-})
-
+// 관심사 목록 가공해서 워드클라우드에 전달
 const wordCloudData = computed(() => {
   let result = []
+  let sum = 0
   interests.value.forEach(element => {
+    sum += element.cnt
     result.push([element.interestName, element.cnt])
   })
+  if (sum === 0) {
+    isWordCloudData.value = false
+  }
   return result
 })
 
@@ -240,7 +232,7 @@ const interestForm = ref({
   emotion: 'LIKE',
 })
 
-// 새로운 관심사 항목 만들기
+// 새로운 관심사 항목 추가 함수
 const addInterest = function () {
   if (interestForm.value.name) {
     axios({
@@ -255,7 +247,11 @@ const addInterest = function () {
       }
     })
       .then(res => {
-        interests.value.push({...res.data})
+        if (res.data.preference === "LIKE") {
+          interestsPositive.value.push(res.data)
+        } else {
+          interestsNegative.value.push(res.data)
+        }
         interestForm.value.name = ''
         interestForm.value.emotion = 'LIKE'
       })
@@ -267,7 +263,8 @@ const addInterest = function () {
   }
 }
 
-const deleteInterests = function (num) {
+// 관심사 삭제 함수
+const deleteInterests = function (num, preference) {
   axios({
     method: 'delete',
     url: `${API_URL}/interest/`,
@@ -279,9 +276,16 @@ const deleteInterests = function (num) {
     }
   })
     .then(res => {
-      const idx = interests.value.findIndex(item => item.interestId === num)
-      if (idx !== -1) {
-        interests.value.splice(idx, 1)
+      if (preference === "LIKE") {
+        const idx = interestsPositive.value.findIndex(item => item.interestId === num)
+        if (idx !== -1) {
+          interestsPositive.value.splice(idx, 1)
+        }
+      } else {
+        const idx = interestsNegative.value.findIndex(item => item.interestId === num)
+        if (idx !== -1) {
+          interestsNegative.value.splice(idx, 1)
+        }
       }
     })
     .catch(err => {
@@ -289,19 +293,36 @@ const deleteInterests = function (num) {
     })
 }
 
-// api 저기말고 다른데서 받아와야 함 지금 더미임
 onMounted(() => {
   selectMbti(1)
   axios({
     method: 'get',
-    url: `${API_URL}/user/simple`,
+    url: `${API_URL}/interest?top=15`,
     headers: {
       Authorization: `Bearer ${userStore.accessToken}`
     }
   })
     .then(res => {
-      interests.value = res.data.interests
+      interestsPositive.value = res.data.like
+      interestsNegative.value = res.data.unlike
       isWordCloud.value = true
+    })
+    .catch(err => {
+      console.log(err)
+    })
+
+  axios({
+    method: 'get',
+    url: `${API_URL}/interest/mbti`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      mbtiOthers.value = res.data.Others
+      mbti.value = res.data.Mine.mbti
+      mbtiInfo.value = res.data.Mine.mbtiInfo
+      isChart.value = true
     })
     .catch(err => {
       console.log(err)

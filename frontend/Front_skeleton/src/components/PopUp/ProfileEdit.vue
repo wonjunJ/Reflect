@@ -10,7 +10,7 @@
           <!-- 프로필 사진 수정 -->
           <div class="d-flex justify-content-between">
             <h5>프로필 사진</h5>
-            <button class="btn btn-primary">수정</button>
+            <input type="file" @change="handleImageUpload">
           </div>
           <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image" style="width : 300px;">
           <img v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 300px;">
@@ -22,13 +22,33 @@
           <p>{{ userInfo.characterId }}</p>
           <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
             <el-form-item prop="email" label="이메일" :label-width="state.labelWidth">
-              <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+              <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off" disabled></el-input>
+            </el-form-item>
+            <el-form-item prop="intro" label="자기소개" :label-width="state.labelWidth">
+              <el-input v-model="state.form.myIntro" :rules="state.rules.intro" autocomplete="off"></el-input>
+            </el-form-item>
+            <el-form-item label="성별">
+              <el-select
+                v-model="state.form.gender"
+                placeholder="성별"
+                clearable
+              >
+                <el-option label="남성" value="male" />
+                <el-option label="여성" value="female" />
+                <el-option label="기타" value="" />
+              </el-select>
+            </el-form-item>
+            <el-form-item label="생년월일">
+              <el-date-picker
+                v-model="state.form.birthday"
+                type="date"
+                placeholder="생년월일을 선택하세요"
+                clearable
+              />
             </el-form-item>
             <!-- 다른 항목 더 넣기 -->
-            <el-form-item>
-              <button class="btn btn-primary" :disabled="!isFormValid">저장</button>
-            </el-form-item>
           </el-form>
+          <button class="btn btn-primary" :disabled="!isFormValid" @click="editProfile">저장</button>
         </div>
         <div>
           <button class="btn btn-primary" @click="openPasswordModal">비밀번호 변경</button>
@@ -46,14 +66,19 @@
 
 <script setup>
 import { reactive, ref, computed, watchEffect } from 'vue'
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
 import CharacterSetting from './CharacterSetting.vue'
 import PasswordChange from './PasswordChange.vue'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 const props = defineProps({
   isModal: Boolean,
   userInfo: Object,
 })
 
-const emit = defineEmits(['closeModal', 'changeCharacter'])
+const emit = defineEmits(['closeModal', 'changeCharacter', 'reloadProfile'])
 const closeModal = () => {
     emit('closeModal')
 }
@@ -73,6 +98,9 @@ const state = reactive({
         }, trigger: 'change'
       }
     ],
+    intro: [
+      { max: 50, message: '최대 50자까지 입력 가능합니다.', trigger: 'change' },
+    ]
   },
   labelWidth: '80px'
 })
@@ -82,6 +110,15 @@ watchEffect(() => {
     state.form = {... props.userInfo}
   }
 })
+
+const handleImageUpload = (event) => {
+  const file = event.target.files[0]
+  const reader = new FileReader()
+  reader.onload = () => {
+    state.form.profileImg = reader.result
+  }
+  reader.readAsDataURL(file)
+}
 
 // 유효성 검사
 const isFormValid = computed(() => {
@@ -112,6 +149,23 @@ const isFormValid = computed(() => {
   }
   return isValid
 })
+
+const editProfile = function () {
+  axios({
+    method: 'put',
+    url: `${API_URL}/user/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: state.form
+  })
+    .then(res => {
+      emit('reloadProfile')
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
 
 // 사용자 탈퇴
 const deleteUser = function () {

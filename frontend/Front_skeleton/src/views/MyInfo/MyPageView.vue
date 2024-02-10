@@ -2,21 +2,17 @@
   <h1>This is MyPage</h1>
   <div class="d-flex">
     <aside class="aside-container">
-      <Profile :user-info="userInfo" @change-character="changeCharacter"/>
+      <Profile :user-info="userInfo" @change-character="changeCharacter" @reload-profile="getUserInfo"/>
     </aside>
     <body class="d-flex flex-column body">
       <Calendar/>
       <QandA/>
       <div class="d-flex">
         <div>
-          <h4>Follower</h4>
-          <FollowList :follows="followers"/>
-        </div>
-        <div>
           <h4>Following</h4>
-          <FollowList :follows="followings"/>
+          <FollowList :follows="followings" :paging-info="followPagingInfo"/>
         </div>
-        <CommunityList :communitys="communitys"/>
+        <CommunityList :communitys="communitys" :paging-info="roomPagingInfo"/>
       </div>
     </body>
   </div>
@@ -38,14 +34,7 @@ const API_URL = userStore.API_URL
 // 사용자 정보 더미데이터
 const userInfo = ref({})
 
-const emit = defineEmits(['changeCharacter'])
-
-// 팔로워 목록
-const followers = ref([
-  { id: 1, profileimg: null, username: 'test01', alike: '75%', isonline: false},
-  { id: 2, profileimg: null, username: 'test02', alike: '60%', isonline: true},
-  { id: 3, profileimg: null, username: 'test03', alike: '85%', isonline: false}
-])
+const emit = defineEmits(['changeCharacter',])
 
 // 팔로잉 목록
 const followings = ref([
@@ -53,19 +42,23 @@ const followings = ref([
   { id: 5, profileimg: null, username: 'test05', alike: '52%', isonline: true},
   { id: 6, profileimg: null, username: 'test06', alike: '46%', isonline: false}
 ])
+const followPageNum = ref(1)
+const followPagingInfo = ref({})
 
 // 가입 커뮤니티 목록
 const communitys = ref([
   { id: 1, title: 1, people: 6, hashtag: ['soccer', 'movie']},
   { id: 2, title: 2, people: 4, hashtag: ['baseball']},
 ])
+const roomPageNum = ref(1)
+const roomPagingInfo = ref({})
 
 const changeCharacter = (num) => {
   userInfo.value.characterId = num
   emit('changeCharacter', num)
 }
 
-onMounted(() => {
+const getUserInfo = function () {
   axios({
     method: 'get',
     url: `${API_URL}/user/`,
@@ -77,8 +70,42 @@ onMounted(() => {
       userInfo.value = res.data
     })
     .catch(err => {
-      // console.log(err)
+      console.log(err)
     })
+}
+
+const getCommunitysInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/room/mine?page=${roomPageNum.value}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      communitys.value = res.data.data
+      roomPagingInfo.value = res.data.pagingInfo
+    })
+}
+
+const getFollowInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/follow?page=${followPageNum.value}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      followings.value = res.data.data
+      followPagingInfo.value = res.data.pagingInfo
+    })
+}
+
+onMounted(() => {
+  getUserInfo()
+  getCommunitysInfo()
+  getFollowInfo()
 })
 </script>
 
