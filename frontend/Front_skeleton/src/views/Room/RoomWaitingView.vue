@@ -68,7 +68,7 @@
                             <div class="myInfoImg">
                                 <img src="@\assets\cmh (1).jpg" alt="profileimg">
                             </div>
-                            <div class="myInfoNickname">닉네임</div>
+                            <div class="myInfoNickname">{{ myUserName }}</div>
                         </div>
                         <!--사용자 비디오  Session 연결해야 나타남-->
                         <div ref="previewContainer" class="preview-container">
@@ -108,7 +108,8 @@ export default {
             previewVideo: null,
             openviduSession: null,
             previewContainer: null,
-            roomTitle: "SessionA"
+            roomTitle: "SessionA",
+            myUserName: "Participant" + Math.floor(Math.random() * 100),
             // OpenVidu objects
         };
     },
@@ -122,7 +123,7 @@ export default {
     methods: {
 
         enterRoom() {
-            this.$router.push({ name: 'roomdetail', params: { roomTitle: this.roomTitle }, query: { isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
+            this.$router.push({ name: 'roomdetail', params: { roomTitle: this.roomTitle }, query: { myUserName: this.myUserName, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
         },
         setupOpenViduSession() {
             this.openviduSession = new OpenVidu();
@@ -204,26 +205,6 @@ export default {
         this.stopCamera();
         this.stopMicrophone();
     },
-    // 수정필요
-    // enterRoom() {
-    //   this.store.dispatch('roomModule/doEnterRoom', {
-    //     userId: this.myUserId,
-    //     roomId: this.roomId,
-    //   }).then((status) => {
-    //     if (status == 200) {
-    //       this.$router.push({ name: 'room', params: { roomId: this.roomId }, query: { video: this.videoActive, audio: this.audioActive } }).then(() => {
-    //         if (this.session) this.session.disconnect();
-    //         this.session = undefined;
-    //         this.publisher = undefined;
-    //         this.OV = undefined;
-    //         window.removeEventListener("beforeunload", this.leaveSession);
-    //       })
-    //     }
-    //     else {
-    //       this.store.commit("errorModule/SET_STATUS", status);
-    //     }
-    //   });
-    // },
 
 };
 </script>

@@ -19,8 +19,10 @@
               <div class="peopleNum">3/4</div>
             </div>
             <div class="peoples">
-              내 이름
-              <div class="person" v-for="sub in subscribers" :key="sub.stream.connection.connectionId">사람</div>
+
+              <div class="person" v-for="sub in subscribers" :key="sub.stream.connection.connectionId"> {{
+                myUserName }}
+              </div>
             </div>
           </div>
           <div class="roomSetting">
@@ -67,11 +69,17 @@ export default {
 
 
   created() {
+
+
+    // this.clientData();
     this.isCameraOn = this.$route.query.isCameraOn;
     this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
     this.roomTitle = this.$route.params.roomTitle;
     this.mySessionId = this.$route.params.roomTitle;
+    this.myUserName = this.$route.query.myUserName;
     this.joinSession();
+
+
   },
 
   components: {
@@ -91,11 +99,24 @@ export default {
       roomTitle: null,
       // Join form
       // mySessionId: "SessionA",
-      myUserName: "Participant" + Math.floor(Math.random() * 100),
+      myUserName: null,
     };
   },
 
   methods: {
+    // clientData() {
+    //   const { clientData } = this.getConnectionData();
+    //   return clientData;
+    // },
+
+    getConnectionData() {
+      const { connection } = this.streamManager.stream;
+      console.log(connection.session.sessionId);
+      this.myUserName = JSON.parse(connection.data);
+      return JSON.parse(connection.data);
+    },
+
+
     joinSession() {
 
       this.OV = new OpenVidu();
