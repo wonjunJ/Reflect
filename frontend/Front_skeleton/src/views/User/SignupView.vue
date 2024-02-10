@@ -41,7 +41,7 @@
         >
           <el-option label="남성" value="male" />
           <el-option label="여성" value="female" />
-          <el-option label="기타" value="etc" />
+          <el-option label="기타" value="" />
         </el-select>
       </el-form-item>
       <el-form-item label="생년월일">
@@ -249,19 +249,8 @@ const nicknameCheck = function () {
 let emailValidationTimer = null
 
 const sendEmail = function () {
-  state.emailValidationMessage = ""
+  state.emailValidationMessage = "이메일을 전송 중입니다. 잠시만 기다려 주세요"
   state.isEmailsend = true
-  let duration = 120
-  emailValidationTimer = setInterval(() => {
-    if (duration > 0 && !state.isEmailCheck) {
-      state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
-      duration--
-    } else {
-      clearInterval(emailValidationTimer)
-      state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
-      state.isEmailsend = false
-    }
-  }, 1000)
 
   axios({
     method: 'post',
@@ -271,17 +260,17 @@ const sendEmail = function () {
     }
   })
     .then((res) => {
-      // let duration = 120
-      // emailValidationTimer = setInterval(() => {
-      //   if (duration > 0 && !state.isEmailCheck) {
-      //     state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
-      //     duration--
-      //   } else {
-      //     clearInterval(emailValidationTimer)
-      //     state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
-      //     state.isEmailsend = false
-      //   }
-      // }, 1000)
+      let duration = 120
+      emailValidationTimer = setInterval(() => {
+        if (duration > 0 && !state.isEmailCheck) {
+          state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
+          duration--
+        } else {
+          clearInterval(emailValidationTimer)
+          state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
+          state.isEmailsend = false
+        }
+      }, 1000)
     })
     .catch((err) => {
       if (err.response.status === 406) {

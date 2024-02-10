@@ -15,6 +15,7 @@ import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
 import DiaryListVue from '@/components/Diary/DiaryList.vue'
 import DiaryDetailVue from '@/views/Diary/DiaryDetail.vue'
 import QnA from '@/views/MyInfo/QnAView.vue'
+import Social from '@/views/User/SocialView.vue'
 
 
 const router = createRouter({
@@ -94,6 +95,11 @@ const router = createRouter({
       path: '/100QnA',
       name: '100QnA',
       component: QnA,
+    },
+    {
+      path: '/social',
+      name: 'social',
+      component: Social
     }
   ]
 })

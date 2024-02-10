@@ -1,24 +1,28 @@
 <template>
   <div>
     <h4>Community</h4>
-    <table>
+    <table  v-if="communitys.length">
       <thead>
         <tr>
           <th scope="col">Title</th>
           <th scope="col">People</th>
-          <th scope="col">hashtag</th>
+          <th scope="col">Type</th>
+          <th scope="col">HashTag</th>
           <th scope="col">&nbsp;</th>
         </tr>
       </thead>
       <tbody>
         <tr v-for="community in communitys" :key="community.id">
           <td>{{ community.title }}</td>
-          <td>{{ community.people }}</td>
-          <td>{{ community.hashtag.join(', ') }}</td>
+          <td>{{ community.curNum }}/{{ community.totalNum }}</td>
+          <td>{{ community.type }}</td>
+          <td>{{ community.hashTags }}</td>
           <td><button>show</button></td>
         </tr>
       </tbody>
     </table>
+    <div v-else>커뮤니티 활동 내역이 없습니다.</div>
+    <div>{{ pagingInfo }}</div>
   </div>
 </template>
 
@@ -26,7 +30,8 @@
 import { ref } from 'vue'
 
 const props = defineProps({
-  communitys: Object
+  communitys: Object,
+  pagingInfo: Object
 })
 </script>
 
