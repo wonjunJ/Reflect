@@ -28,13 +28,14 @@
 
 <script setup>
 import { ref, reactive, computed, watch, onMounted } from 'vue'
-import { useRoute } from 'vue-router'
+import { useRoute, useRouter } from 'vue-router'
 import axios from 'axios'
 import { useUserStore } from '@/stores/user'
 
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 const route = useRoute()
+const router = useRouter()
 
 const queryParams = JSON.parse(route.query.data)
 
@@ -198,24 +199,31 @@ const socialSignup = function () {
     url: `${API_URL}/user/social/join`,
     data: {
       id: queryParams.id,
-      name: queryParams.nickName,
+      name: queryParams.nickname,
       nickName: state.form.nickname,
       email: state.form.email,
       profileImg: queryParams.profileImage,
     }
   })
     .then(res => {
-      console.log(res.data)
+      userStore.accessToken = res.data.AccessToken
+      userStore.refreshToken = res.data.RefreshToken
+      userStore.userId = res.data.userId
+      router.push({name: 'mypage'})
     })
     .catch(err => {
+      window.alert("회원가입에 실패했습니다.")
       console.log(err)
     })
 }
 
 onMounted(() => {
-  // if (queryParams.isLogin === "false") {
-  //   
-  // }
+  if (queryParams.isLogin === "true") {
+    userStore.accessToken = queryParams.AccessToken
+    userStore.refreshToken = queryParams.RefreshToken
+    userStore.userId = queryParams.userId
+    router.push({name: 'mypage'})
+  }
 })
 </script>
 
