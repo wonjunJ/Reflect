@@ -3,6 +3,7 @@ package com.ssafy.mademe.entity;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
+import org.hibernate.annotations.ColumnDefault;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -22,10 +23,14 @@ public class Room {
 
     private int totalNum;
 
+    @ColumnDefault("1")
     private int curNum;
 
     @Enumerated(EnumType.STRING)
     private RoomType type;
+
+    @Enumerated(EnumType.STRING)
+    private RoomMode mode;
 
     //User테이블 쪽으로 단방향 관계만
     @ManyToOne(fetch = FetchType.LAZY)

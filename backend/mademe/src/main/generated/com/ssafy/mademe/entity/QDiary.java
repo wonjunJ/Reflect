@@ -36,6 +36,8 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final StringPath keyword = createString("keyword");
 
+    public final ListPath<MBTILog, QMBTILog> mbtiLogs = this.<MBTILog, QMBTILog>createList("mbtiLogs", MBTILog.class, QMBTILog.class, PathInits.DIRECT2);
+
     public final QEmotionCode totalEmotion;
 
     public final DateTimePath<java.time.LocalDateTime> updateDate = createDateTime("updateDate", java.time.LocalDateTime.class);

@@ -17,7 +17,7 @@ public class AlramController {
     private final AlramService alramService;
 
     //웹소켓 메핑
-    @MessageMapping("/")
+    @MessageMapping("/alram")
     public void getMessage(Message message){
         alramService.manageMsg(message);
         messageTemplate.convertAndSend("/alarm/msg-to/" + message.getToId(), message);

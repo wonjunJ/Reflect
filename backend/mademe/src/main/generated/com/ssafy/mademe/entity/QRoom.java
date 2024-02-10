@@ -32,6 +32,8 @@ public class QRoom extends EntityPathBase<Room> {
 
     public final StringPath intro = createString("intro");
 
+    public final EnumPath<RoomMode> mode = createEnum("mode", RoomMode.class);
+
     public final QUser ownerId;
 
     public final ListPath<MyRoom, QMyRoom> participants = this.<MyRoom, QMyRoom>createList("participants", MyRoom.class, QMyRoom.class, PathInits.DIRECT2);

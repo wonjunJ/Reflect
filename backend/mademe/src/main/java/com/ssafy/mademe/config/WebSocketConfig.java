@@ -18,8 +18,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     @Override
     public void configureMessageBroker(MessageBrokerRegistry config){
         config.setApplicationDestinationPrefixes("/app"); // 초대 버튼을 눌렀을 때, prefix 로 붙는 부분
-        // 만약에 어떤 websocket controller 가 있다고 하면, /app/alarm 으로 보내야 한다.
-        config.enableSimpleBroker("/alarm", "/message"); // 이 경로로 들어오면, message broker 가
+        // 만약에 어떤 websocket controller가(데이터 처리를 할 필요가) 있다고 하면, /app/alram 으로 보내야 한다.
+        config.enableSimpleBroker("/alram", "/message"); // 이 경로로 들어오면, message broker 가
         // 해당 경로를 가로챈다.
     }
 

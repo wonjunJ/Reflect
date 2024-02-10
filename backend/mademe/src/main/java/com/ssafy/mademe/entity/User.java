@@ -38,6 +38,7 @@ public class User implements UserDetails {
     private Gender gender;
 
     @Lob
+    @Column(columnDefinition = "text")
     private String profileImg;
 
     @Temporal(value = TemporalType.TIMESTAMP)
@@ -124,6 +125,10 @@ public class User implements UserDetails {
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private List<MBTILog> mbtiLogs = new ArrayList<>();
+    public void addMbtiLog(MBTILog mbtiLog){
+        mbtiLogs.add(mbtiLog);
+        mbtiLog.setUser(this);
+    }
 
     //새로운 엔티티가 저장(추가)되기 직전에
     @PrePersist

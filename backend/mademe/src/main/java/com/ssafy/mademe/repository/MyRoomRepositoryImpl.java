@@ -8,6 +8,7 @@ import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.dto.response.MyRoomInfoResponse;
 import com.ssafy.mademe.entity.Room;
+import com.ssafy.mademe.entity.RoomMode;
 import com.ssafy.mademe.entity.RoomType;
 import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
@@ -43,6 +44,8 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                         room.totalNum,
                         room.curNum,
                         room.type,
+                        room.mode,
+                        room.thumbnail,
                         room.title,
                         room.question.id,
                         myRoom.isExit
@@ -71,6 +74,7 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                         isFalseExit(isExit)
                 );
 
+        //QueryDsl에서 페이징 처리 최적화를 하기 위해
         return PageableExecutionUtils.getPage(data, pageable, count::fetchOne);
     }
 
@@ -118,9 +122,11 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                 .totalNum(tuple.get(4, Integer.class))
                 .curNum(tuple.get(5, Integer.class))
                 .type(tuple.get(6, RoomType.class))
-                .title(tuple.get(7, String.class))
-                .qId(tuple.get(8, Long.class)) //null이 될수도 있다.
-                .isExit(Boolean.TRUE.equals(tuple.get(9, Boolean.class)))
+                .mode(tuple.get(7, RoomMode.class))
+                .thumnail(tuple.get(8, String.class))
+                .title(tuple.get(9, String.class))
+                .qId(tuple.get(10, Long.class)) //null이 될수도 있다.
+                .isExit(Boolean.TRUE.equals(tuple.get(11, Boolean.class)))
                 .build();
     }
 

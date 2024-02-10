@@ -3,6 +3,7 @@ package com.ssafy.mademe.controller;
 import com.ssafy.mademe.dto.request.AddInterestRequest;
 import com.ssafy.mademe.dto.response.DiaryLogResponse;
 import com.ssafy.mademe.dto.response.InterestLsResponse;
+import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.entity.Interest;
 import com.ssafy.mademe.entity.MBTICode;
 import com.ssafy.mademe.entity.User;
@@ -26,8 +27,9 @@ public class InterestController {
     private final InterestService interestService;
 
     //관심사 세부 정보
-    @GetMapping("/")
+    @GetMapping("")
     public InterestLsResponse getInterestDetailList(@AuthenticationPrincipal User user, @RequestParam("top") int top){
+        //int top = Integer.parseInt(tmp);
         return interestService.getDetailList(user, top);
     }
 
@@ -49,12 +51,9 @@ public class InterestController {
 
     //관심사 추가
     @PostMapping("/")
-    public Map<String, String> addInterest(@AuthenticationPrincipal User user,
-                                          @RequestBody AddInterestRequest addInterestRequest){
-        interestService.addInterest(user, addInterestRequest);
-        Map<String, String> json = new HashMap<>();
-        json.put("state", "success");
-        return json;
+    public InterestResponse addInterest(@AuthenticationPrincipal User user,
+                                        @RequestBody AddInterestRequest addInterestRequest){
+        return interestService.addInterestByUser(user, addInterestRequest);
     }
 
     //관심사 삭제

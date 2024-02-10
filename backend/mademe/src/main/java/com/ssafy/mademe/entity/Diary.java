@@ -28,9 +28,11 @@ public class Diary {
     private LocalDateTime updateDate;
 
     @Lob
+    @Column(columnDefinition = "longtext")
     private String content;
 
     @Lob
+    @Column(columnDefinition = "text")
     private String diaryImg;
 
     private int diaryScore;
@@ -43,6 +45,17 @@ public class Diary {
 
     @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
     private List<EmotionLog> emotionLogs = new ArrayList<>();
+    public void addEmotionLog(EmotionLog emotionLog){
+        emotionLogs.add(emotionLog);
+        emotionLog.setDiary(this);
+    }
+
+    @OneToMany(mappedBy = "diary", cascade = CascadeType.ALL)
+    private List<MBTILog> mbtiLogs = new ArrayList<>();
+    public void addMbtiLog(MBTILog mbtiLog){
+        mbtiLogs.add(mbtiLog);
+        mbtiLog.setDiary(this);
+    }
 
     //새로운 엔티티가 저장(추가)되기 직전에
     @PrePersist
@@ -57,8 +70,8 @@ public class Diary {
         updateDate = LocalDateTime.now();
     }
 
-    public void addEmotionLog(EmotionLog emotionLog){
-        this.getEmotionLogs().add(emotionLog);
-        emotionLog.setDiary(this);
-    }
+//    public void addEmotionLog(EmotionLog emotionLog){
+//        this.getEmotionLogs().add(emotionLog);
+//        emotionLog.setDiary(this);
+//    }
 }
