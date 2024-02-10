@@ -6,33 +6,35 @@
       </div>
       <div class="roomSection">
         <div class="cameraSection">
-          <div id="video-container" class="col-md-6">
-            <user-video :stream-manager="publisher" />
-            <user-video v-for="sub in subscribers" :key="sub.stream.connection.connectionId" :stream-manager="sub" />
-          </div>
+
+          <user-video :stream-manager="publisher" />
+          <user-video v-for="sub in subscribers" :key="sub.stream.connection.connectionId" :stream-manager="sub" />
+
 
         </div>
         <div class="roomContent">
           <div class="peopleInfo">
             <div class="peopleInfoTitle">
-              {{ isCameraOn }}
-              {{ isMicrophoneOn }}
-              {{ roomTitle }}
-              {{ mySessionId }}
               <div class="peopleTitle">방인원</div>
               <div class="peopleNum">3/4</div>
             </div>
             <div class="peoples">
-              <div class="person">사람</div>
-              <div class="person">사람</div>
-              <div class="person">사람</div>
+              내 이름
+              <div class="person" v-for="sub in subscribers" :key="sub.stream.connection.connectionId">사람</div>
             </div>
           </div>
           <div class="roomSetting">
-            <div>카메라</div>
-            <div>마이크</div>
-            <div>가면모드</div>
-            <div>목소리 변조</div>
+            <button class="settingButton" @click="toggleCamera()">
+              <font-awesome-icon :icon="['fas', 'camera']" />
+            </button>
+            <button class="settingButton">
+              <font-awesome-icon :icon="['fas', 'microphone']" />
+            </button>
+            <button class="settingButton">
+              <font-awesome-icon :icon="['fas', 'masks-theater']" />
+            </button>
+            <button class="settingButton">
+              <font-awesome-icon :icon="['fas', 'rotate-right']" /></button>
           </div>
           <div class="quitChatting">
             <input class="btn btn-large btn-danger" type="button" id="buttonLeaveSession" @click="leaveSession"
@@ -68,7 +70,7 @@ export default {
     this.isCameraOn = this.$route.query.isCameraOn;
     this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
     this.roomTitle = this.$route.params.roomTitle;
-    // this.mySessionId = this.$route.params.roomTitle;
+    this.mySessionId = this.$route.params.roomTitle;
     this.joinSession();
   },
 
@@ -88,7 +90,7 @@ export default {
       isMicrophoneOn: null,
       roomTitle: null,
       // Join form
-      mySessionId: "SessionA",
+      // mySessionId: "SessionA",
       myUserName: "Participant" + Math.floor(Math.random() * 100),
     };
   },
@@ -125,7 +127,7 @@ export default {
               videoSource: undefined, // The source of video. If undefined default webcam
               publishAudio: true, // Whether you want to start publishing with your audio unmuted or not
               publishVideo: true, // Whether you want to start publishing with your video enabled or not
-              resolution: "300x200", // The resolution of your video
+              resolution: "360x240", // The resolution of your video
               frameRate: 30, // The frame rate of your video
               insertMode: "APPEND", // How the video is inserted in the target element 'video-container'
               mirror: false, // Whether to mirror your local video or not
@@ -162,6 +164,13 @@ export default {
       window.removeEventListener("beforeunload", this.leaveSession);
     },
 
+    toggleCamera() {
+      this.isCameraOn = !this.isCameraOn;
+      if (this.publisher) {
+        this.publisher.publishVideo(this.isCameraOn);
+      }
+    },
+
     updateMainVideoStreamManager(stream) {
       if (this.mainStreamManager === stream) return;
       this.mainStreamManager = stream;
@@ -191,6 +200,7 @@ export default {
       });
       return response.data; // The token
     },
+
   },
 };
 </script>
@@ -214,11 +224,14 @@ export default {
 
 
 .cameraSection {
+  margin: 10px;
   flex: 4;
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
   align-content: stretch;
 }
+
 
 .chatTitle {
   flex-shrink: 0;
@@ -248,10 +261,22 @@ export default {
 .roomSetting {
   background-color: #F9F7C9;
   border-radius: 10px;
+  margin: 10px;
+
 }
 
 .peopleInfo {
   background-color: #F9F7C9;
   border-radius: 10px;
+  margin: 10px;
+  padding: 10px;
+}
+
+.settingButton {
+  background-color: #FFD6B0;
+  width: 40px;
+  height: 40px;
+  border-radius: 100%;
+  margin: 10px;
 }
 </style>
