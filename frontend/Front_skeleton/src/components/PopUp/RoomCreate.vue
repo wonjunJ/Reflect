@@ -4,70 +4,76 @@
       <div class="room-back"></div>
       <div class="create-top">
         <p>방 만들기</p>  
+        <svg @click="closeModal" xmlns="http://www.w3.org/2000/svg" width="25" height="25" fill="red" class="bi bi-x" viewBox="0 0 16 16">
+          <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708"/>
+        </svg>
       </div>
-
         <!-- 썸네일 사진 -->
         <div class="room-img">
-          <div class="preview-img" v-if="previewUrl">
-            <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:250px;" />
-          </div>
-          <div v-else>
-            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
-          </div>
           <div class="up-img">
             <el-upload class="upload-demo" :before-upload="beforeUpload">
-              <div class="btn-container">
+              <!-- <div class="btn-container">
                 <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
+              </div> -->
+              <div class="preview-img" v-if="previewUrl">
+                <img :src="previewUrl" alt="업로드 이미지" @error="replaceImg" style="width:15rem;" />
+              </div>
+              <div v-else>
+                <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" style="width:15rem;"/>
               </div>
             </el-upload>
           </div>
         </div>
-
         <!-- 대화타입 백문백답 -->
         <div class="type-hundred">
-          <button type="button" class="btn btn-primary" @click="writeQuestion">백문백답</button>
+          <button type="button" class="btn btn-primary" @click="writeQuestion">
+            백문백답
+          </button>
         </div>
-
         <!-- 대화타입 자유주제 -->
         <div class="type-free">
           <button type="button" class="btn btn-primary" @click="writeHashtag">자유주제</button>
         </div>
-
-
         <!-- 방 설정 버튼 -->
         <div class="room-setting">
-          <button type="button" class="btn btn-primary" @click="Secret">비밀의 방</button>
-          <button type="button" class="btn btn-primary" @click="Mask">가면쓰기</button>
-          <button type="button" class="btn btn-primary" @click="Anonymous">익명모드</button>
+          <div class="setting-container">
+            <button type="button" class="btn btn-primary" @click="Secret">
+              비밀의 방
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
+            <button type="button" class="btn btn-primary" @click="Mask">
+              가면쓰기
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
+            <button type="button" class="btn btn-primary" @click="Anonymous">
+              익명모드
+              <img src="@/assets/check.png" alt="체크" class="check">
+            </button>
+          </div>
         </div>
-
           <!-- 방 제목 -->
           <div class="room-title">
               <label for="title-label">방 제목</label>
               <input type="text" v-model.trim="roomTitle" class="room-input">
           </div>
-
           <!-- 방 한줄 설명 -->
           <div class="room-describe">
               <label for="describe-label">한 줄 설명</label>
               <input type="text" v-model.trim="roomDescribe" class="room-input">
           </div>
-
-
           <!-- 자유주제/100문100답에 따라 다르게 나옴 -->
           
           <!-- 자유주제 --><!-- 해시태그  -->
           <div v-if="isFree" class="room-hashtag">
             <Tagify />
           </div>
-
           
           <!-- 백문백답 --><!-- 질문선택-->
           <div v-if="isHundred" class="select-hundred" >
               <label for="questions" class="qestions-label">질문  </label>
               <select class="question-select" id="questions" required="required">
                 <option value="" selected disabled hidden>질문을 선택해주세요.</option>
-                <option v-for="question in questionlist" :key="question.pk" :value="question.id">
+                <option v-for="question in questionlist" :key="question.pk" :value="question.id" @click=findId(question.pk)>
                   {{ question.id }}
                 </option>
               </select>
@@ -75,33 +81,39 @@
           
           <!-- 인원수 설정 칸 -->
           <div class="member-limit">
-            <input type="number" v-model="memberNum">
+            <div class="limit-container">
+              <p>인원수</p>
+              <div class="slider">
+                <MemberLimitSlider />
+              </div>
+            </div>
           </div>
-
-
       <div class="create-bottom">
         <!-- 버튼 -->
-        <button type="button" class="btn btn-primary" @click="goRoom">방 만들기</button>
-        <button type="button" class="btn btn-secondary" @click="closeModal">닫기</button>
+        <button type="button" class="make-room-btn" @click="createRoom">방 만들기</button>
       </div>
-
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref} from 'vue'
 import {useRouter} from 'vue-router'
+import { useRoomStore } from '@/stores/room';
+import { useUserStore } from '@/stores/user';
+import axios from 'axios'
+import { watch } from 'vue';
 
 
+const userStore = useUserStore()
+const roomStore = useRoomStore()
 const router = useRouter()
-
 const { isModalOpen } = defineProps(['isModalOpen'])
 const emit = defineEmits()
 const isHundred = ref(true)
 const isFree = ref(false)
 const questions = ref(null)
 const previewUrl = ref(null);
+const imgData = ref(null)
 let uploading = false;
 const roomTitle = ref(null)
 const roomDescribe = ref(null)
@@ -110,22 +122,17 @@ const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
 const memberNum = ref(null)
-
+const type = ref('BACKMOON')
   
-
-
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
   const isImage = file.type.startsWith('image/'); // 이미지 파일 여부 확인
-
   if (!isImage) {
     // 이미지 파일이 아닌 경우
     alert('이미지 파일만 업로드할 수 있습니다.');
     return false; // 업로드 중지
   }
-
   const reader = new FileReader();
-
   reader.onload = (e) => {
     previewUrl.value = e.target.result; // 미리보기 URL 설정
   };
@@ -133,56 +140,57 @@ const beforeUpload = (file) => {
   // uploading = true;
   return true;
 };
-
 const replaceImg = (e) => {
   import('@/assets/defaultRoom.jpg').then((image) => {
     e.target.src = image.default;
   });
 };
 
+
+function extractBase64Data(previewUrlRef) {
+  // previewUrlRef.value가 null이 아니고, 문자열일 때만 처리
+  if (previewUrlRef.value && typeof previewUrlRef.value === 'string') {
+    const base64Data = previewUrlRef.value.replace(/^data:image\/[a-z]+;base64,/, '');
+    return base64Data;
+  }
+  return null; // previewUrlRef.value가 null이거나 유효하지 않은 경우 null 반환
+}
+
+
+watch(previewUrl, (newValue, oldValue) => {
+    imgData.value = extractBase64Data(previewUrl);
+    console.log(imgData.value); // 새로운 값이 설정될 때마다 로그를 찍어보세요
+});
+
 const writeQuestion = () => {
   isHundred.value = true
   isFree.value = false
+  type.value = 'BACKMOON'
 }
-
 const writeHashtag= () => {
   isHundred.value = false
   isFree.value = true
+  type.value = 'FREE'
 }
-
-
-const goRoom = () => {
-  const roomInfoData = {
-    isHundred: isHundred.value,
-    isFree: isFree.value,
-    questions: questions.value,
-    previewUrl: previewUrl.value,
-    roomTitle: roomTitle.value,
-    roomDescribe: roomDescribe.value,
-    hashtag: hashtag.value,
-    isAnonymous: isAnonymous.value,
-    isMask: isMask.value,
-    isSecret: isSecret.value,
-    memberNum: memberNum.value,
-  };
+// const goRoom = () => {
+//   const roomInfoData = {
+//     isHundred: isHundred.value,
+//     isFree: isFree.value,
+//     questions: questions.value,
+//     previewUrl: previewUrl.value,
+//     roomTitle: roomTitle.value,
+//     roomDescribe: roomDescribe.value,
+//     hashtag: hashtag.value,
+//     isAnonymous: isAnonymous.value,
+//     isMask: isMask.value,
+//     isSecret: isSecret.value,
+//     memberNum: memberNum.value,
+//   };
+// }
 
   // RoomWaitingView.vue로 이동
-  // route.push()를 사용하여 라우터를 변경하고 roomInfo를 query parameter로 전달
-  router.push({ name: 'waiting', query: { roomInfo: JSON.stringify(roomInfoData) } });
-}; 
 
-
-
-
-const closeModal = () => {
-  previewUrl.value = null;
-  questions.value = ''
-  emit('closeModal')
-};
-
-
-
-const questionlist = [
+  const questionlist = [
   { pk: 1, id: '내 이름의 뜻은?' },
   { pk: 2, id: '내 생일은?' },
   { pk: 3, id: '내 키는?' },
@@ -285,9 +293,46 @@ const questionlist = [
   { pk: 100, id: '항상 갖고 다니는 소지품은?' },
 ];
 
+const questionId = ref(null)
+const findId = (id) => {
+  questionId.value = id
+  console.log(questionId)
+}
+
+
+
+const createRoom = () => {
+  axios({
+    method: 'post',
+    url:`${roomStore.API_URL}/room/create`,
+    data: {
+      type: type.value,
+      question_id: questionId.value,
+      thumbnail: imgData.value,
+      title: roomTitle.value,
+      intro: roomDescribe.value,
+      hash_name: hashtag.value,
+      anonymous: isAnonymous.value,
+      mask: isMask.value,
+      secret: isSecret.value,
+      total_num: memberNum.value,
+    },
+    headers: {
+          Authorization : `Token ${userStore.accessToken}`
+    }
+  })
+    .then((res) => {
+      router.push({name:'waiting'})
+    })
+}
+
+const closeModal = () => {
+  previewUrl.value = null;
+  questions.value = ''
+  emit('closeModal')
+};
 
 </script>
-
 <style scoped>
 .modal {
   position: fixed;
@@ -302,15 +347,17 @@ const questionlist = [
 }
 .create-container {
   width: 800px;
-  height: 500px;
+  height: 550px;
   padding: 10px 20px 30px 20px;
   display: grid;
   grid-template-columns: repeat(5, 1fr);
   grid-template-rows: repeat(8, 1fr);
   background-color: #D5F0C1;
+  border-radius: 20px;
 }
-
 .room-back {
+  width: 100%;
+  height: 100%;
   grid-column: 1/6;
   grid-row: 2/8;
   background-color: #AAD9BB;
@@ -323,34 +370,42 @@ const questionlist = [
   margin-bottom: 40px;
 }
 
-.create-top {
-  grid-column: 1 / 3;
-  grid-row: 1 / 2;
+.check {
+  margin-left: 10px;
+  width: 25px;
+  height: 25px;
 }
 
+.create-top {
+  grid-column: 1 / 7;
+  grid-row: 1 / 2;
+  display: flex;
+  justify-content: space-between;
+}
 .create-top p {
   font-size: 2rem;
   font-weight: bold;
 }
-
 .room-img {
   grid-column: 1 / 3;
   grid-row: 2 / 5;
-  padding: 10px;
-}
-
-.preview-img {
   margin-top: 10px;
+  margin-left: 10px;
+  background-color: #80BCBD;
+  border-radius: 5px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
-
 .up-img {
-  margin-top: 3px;
   width: 100%;
-  margin-left: 0.7rem;
-  max-width: 250px;
+  /* max-width: 250px; */
 }
-
-
+/* .edit-img{
+  width: 15px;
+  height: 15px;
+} */
+/* 
 .img-btn.cyan {
   position: relative;
   display: inline-block;
@@ -377,69 +432,122 @@ const questionlist = [
 .img-btn.cyan:hover {
   background-color: #afe8f5;
 }
-
 a.img-btn {
   text-decoration: none;
   color: white;
-}
-
+} */
 .type-hundred {
   grid-column: 3 / 4;
   grid-row: 2 / 5;
 }
-
 .type-free {
   grid-column: 4 / 5;
   grid-row: 2 / 5;
 }
-
 .room-setting {
   grid-column: 5 / 6;
   grid-row: 2 / 5;
 }
-
 .room-setting button {
   grid-column: 5 / 6;
   grid-row: 1fr;
 }
-
+.create-container label {
+  font-family: 'Heebo', sans-serif;
+  font-size: 0.75rem;
+  font-weight: 500;
+  letter-spacing: 0.025rem;
+  font-style: normal;
+  color: #FFFFFF;
+  background-color: #7fccde;
+  border-radius: 5px;
+  -webkit-border-radius: 0rem;
+  -moz-border-radius: 0rem;
+  padding: 0.35rem 0.5rem;
+  border-style: none;
+  border-width: 0rem;
+  border-color: #7fccde;
+  width: 7rem;
+}
 .room-title {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  grid-column: 1 / 5;
   grid-row: 5 / 6;
-  /* line-height: 56.58px; */
+  background-color: #80BCBD;
+  margin:0 0px 10px 10px;
+  border-radius: 5px 5px 0 0;
+  display: flex;
 }
-
 .room-title label {
-  margin-top: 30px;
+  padding-top: 30px;
   margin-left: 10px;
   position: relative;
   display: inline-block;
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
 }
-
+.room-title input {
+  flex: left;
+  margin-left: 5px;
+  width: 20rem;
+  height: 32px;
+  font-size: 15px;
+  border: 0;
+  border-radius: 5px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
+}
+.room-describe input {
+  flex: left;
+  margin-left: 5px;
+  width: 20rem;
+  height: 32px;
+  font-size: 15px;
+  border: 0;
+  border-radius: 5px;
+  outline: none;
+  padding-left: 10px;
+  background-color: rgb(233, 233, 233);
+}
 .room-describe {
-  grid-column: 1 / 4;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0px 0px 10px 10px;
+  grid-column: 1 / 5;
   grid-row: 6 / 7;
+  display: flex;
+}
+.room-describe label {
+  margin-top: 12.5px;
   margin-left: 10px;
-  margin-top: 10px;
   position: relative;
   display: inline-block;
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
+  line-height: 110%;
 }
-
 .room-hashtag {
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  grid-column: 1 / 5;
+  grid-row: 7 / 8;
+  display: flex;
+  border-radius: 0 0 0 5px;
+}
+/* .room-hashtag label {
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
@@ -447,50 +555,138 @@ a.img-btn {
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-  grid-column: 1 / 4;
-  grid-row: 7 / 8;
-}
+} */
 .select-hundred {
+  background-color: #80BCBD;
+  margin: 0 0px 10px 10px;
+  border-radius: 0 0 5px 5px;
+  grid-column: 1 / 5;
+  grid-row: 7 / 8;
+  display: flex;
+  
+}
+.select-hundred label {
+  line-height: 100%;
   margin-left: 10px;
   margin-top: -10px;
   position: relative;
   display: inline-block;
+  flex: left;
   height: 50%;
   width: 7rem;
   padding: 5px;
-  border: solid 1px black;
   text-align: center;
   border-radius: 5px;
   font-size: medium;
-  grid-column: 1 / 4;
-  grid-row: 7 / 8;
 }
-
-.select-hundred label {
-  padding-right: 5px;
+.select-hundred select {
+  font-size: small;
+  flex: left;
+  margin-left: 5px;
+  height: 2rem;
+  border-radius: 5px;
+  padding-left: 5px;
 }
-
-.member-list {
-  grid-column: 4 / 6;
+.select-hundred select:hover {
+  background-color: rgb(238, 217, 198);
+}
+.type-hundred {
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-hundred button {
+  height: 100%;
+  width: 100%;
+}
+.type-free{
+  margin-top: 10px;
+  background-color: #80BCBD;
+}
+.type-free button {
+  height: 100%;
+  width: 100%;
+}
+.room-setting {
+  margin-top: 10px;
+  padding-right: 10px;
+  padding-bottom: 10px;
+  width: 100%;
+  height: 100%;
+  display: flex;
+}
+.setting-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  align-content: stretch;
+  flex-flow: row wrap;
+  background-color: #80BCBD;
+}
+.room-setting button {
+  background-color: #207172;
+  border: 0;
+  color: #D5F0C1;
+  width: 100%;
+  &:hover {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+  &:active {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+  &:visited {
+    color: white;
+    background-color: #5d893b;
+    .check{
+      filter: invert(53%) sepia(57%) saturate(3871%) hue-rotate(226deg) brightness(101%) contrast(89%);
+    }
+  }
+}
+  
+.member-limit {
+  grid-column: 5 / 6;
   grid-row: 5 / 8;
+  width: 100%;
+  height: 100%;
+  background-color: #80BCBD;
+  padding-right: 10px;
+  border-radius: 0 5px 5px 0;
+  display: flex;
 }
-
+.limit-container {
+  width: 100%;
+  height: 100%;
+  display: inline-flex;
+  flex-flow: column wrap;
+  align-items: center;
+  justify-content: space-evenly;
+}
+.member-limit p {
+  font-size: larger;
+  font-weight: 700;
+}
+.member-limit.slider {
+  width: 100%;
+}
 .create-bottom {
   grid-column: 2/ 5;
   grid-row: 8 / 9;
-  align-content: center;
-  justify-content: space-evenly;
+  display: flex;
+  align-items: center;
+  justify-items: center;
 }
-
-
-
 .upload-demo {
   display: flex;
   align-items: center;
 }
-
 </style>

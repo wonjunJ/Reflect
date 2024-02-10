@@ -13,12 +13,17 @@
       <el-button type="primary" @click="login" :disabled="!isFormValid">login</el-button>
     </el-form-item>
   </el-form>
+  <button class="btn btn-warning"><a href="http://localhost:8080/oauth2/authorization/kakao">카카오로 로그인</a></button>
+  <button class="btn btn-warning" @click="socialLogin">카카오 로그인</button>
+  <button @click="test">test</button>
 </template>
 
 <script setup>
 import { useUserStore } from '@/stores/user'
 import { useRouter, RouterLink } from 'vue-router'
+import axios from 'axios'
 const userStore = useUserStore()
+const API_URL = userStore.API_URL
 const router = useRouter()
 
 import { ref, reactive, computed } from 'vue'
@@ -84,8 +89,49 @@ const isFormValid = computed(() => {
   return isValid
 })
 
+// async function socialLogin() {
+//   axios({
+//     method: 'get',
+//     url: `${API_URL}/oauth2/authorization/kakao`,
+//     params : {
+//       redirect_url : 'http://localhost:5173',
+//     }
+//   })
+//     .then(res => {
+//       const urlParams = new URLSearchParams(window.location.search)
+//       const data = JSON.parsee(urlParams.get('data'))
+//     })
+//     .catch(err => {
+//       console.log(err)
+//     })
+// }
+
+// async function socialLogin() {
+  
+// }
+
+const socialLogin = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/oauth2/authorization/kakao`,
+    params : {
+      redirect_url : 'http://localhost:5173',
+    }
+  })
+    .then(res => {
+      console.log(res.data)
+      const urlParams = new URLSearchParams(window.location.search)
+      const data = JSON.parsee(urlParams.get('data'))
+    })
+    .catch(err => {
+      console.log(err)
+    })
+}
+
+
+
 function login() {
-    userStore.login(state.form.id, state.form.password)
+  userStore.login(state.form.id, state.form.password)
 }
 </script>
 

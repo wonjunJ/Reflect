@@ -28,8 +28,12 @@
 
 <script setup>
 import { computed, ref, watch } from 'vue'
+import { useUserStore } from '@/stores/user'
 import DiaryList from './DiaryList.vue'
 import CommunityList from './CommunityList.vue'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 
 // 선택된 날짜
 const selectedDate = ref(new Date())
@@ -81,8 +85,10 @@ const isDiary = computed(() => {
 // 달이 바뀌면 일기 데이터 다시 불러와야하니까 watch로 지켜보기
 watch(() => selectedDate.value.getMonth(), (newMonth, oldMonth) => {
   if (newMonth !== oldMonth) {
-    console.log('month changed')
-    // axios 요청 뒤에 넣기
+    const date = selectedDate.value.toISOString().split('T')[0].split('-')
+    const year = date[0]
+    const month = date[1]
+    // axios 요청 뒤에 넣기 /2024-02 식으로
   }
   getDateText()
 })

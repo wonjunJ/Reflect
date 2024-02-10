@@ -23,22 +23,20 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
+import { useUserStore } from '@/stores/user.js'
+import axios from 'axios'
 import Profile from './components/Profile.vue'
 import Calendar from './components/Calendar.vue'
 import QandA from './components/QandA.vue'
 import FollowList from './components/FollowList.vue'
 import CommunityList from './components/CommunityList.vue'
 
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
+
 // 사용자 정보 더미데이터
-const userInfo = ref({
-  username: 'test',
-  profileimg: null,
-  email: 'asdf@asdf.com',
-  introduction: 'Hello, my name is Elder Price and I will like to share with you the most amazing book',
-  mbti: 'INTP',
-  characterId: 1,
-})
+const userInfo = ref({})
 
 const emit = defineEmits(['changeCharacter'])
 
@@ -66,6 +64,22 @@ const changeCharacter = (num) => {
   userInfo.value.characterId = num
   emit('changeCharacter', num)
 }
+
+onMounted(() => {
+  axios({
+    method: 'get',
+    url: `${API_URL}/user/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      userInfo.value = res.data
+    })
+    .catch(err => {
+      // console.log(err)
+    })
+})
 </script>
 
 <style scoped>

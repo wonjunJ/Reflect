@@ -14,6 +14,7 @@ import RoomDetailView from '@/views/Room/RoomDetailView.vue'
 import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
 import DiaryListVue from '@/components/Diary/DiaryList.vue'
 import DiaryDetailVue from '@/views/Diary/DiaryDetail.vue'
+import QnA from '@/views/MyInfo/QnAView.vue'
 
 
 const router = createRouter({
@@ -49,12 +50,12 @@ const router = createRouter({
       path: '/',
       name: 'mypage',
       component: MyPage,
-      // beforeEnter: (to, from) => {
-      //   const userStore = useUserStore()
-      //   if (!userStore.isLogin) {
-      //     return {name: 'index'}
-      //   }
-      // }
+      beforeEnter: (to, from) => {
+        const userStore = useUserStore()
+        if (!userStore.isLogin) {
+          return {name: 'index'}
+        }
+      }
     },
     {
       path: '/forgot',
@@ -78,17 +79,22 @@ const router = createRouter({
       // meta: { requresAuth: true},
     },
     {
-      path: '/roomdetail/:roomTitle',
+      path: '/roomdetail/:id',
       name: 'roomdetail',
       component: RoomDetailView,
       // meta: { requresAuth: true},
     },
     {
-      path: '/waiting',
+      path: '/waiting/:id',
       name: 'waiting',
       component: RoomWaitingView,
       // meta: { requresAuth: true},  
     },
+    {
+      path: '/100QnA',
+      name: '100QnA',
+      component: QnA,
+    }
   ]
 })
 

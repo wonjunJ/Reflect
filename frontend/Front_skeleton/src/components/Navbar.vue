@@ -20,7 +20,7 @@
         </li>
         &nbsp;
         <li class="nav-item">
-          <img src="#" alt="포춘쿠키아이콘" @click="onpenCookieModal">
+          <img class="fortune-icon" src="@/assets/fortune-icon.jpg" alt="포춘쿠키아이콘" @click="onpenCookieModal">
         </li>
         <li v-if="!userStore.isLogin" class="nav-item">
             <RouterLink :to="{name: 'signup'}">signup</RouterLink>
@@ -60,4 +60,9 @@ const closeModal = () => {
 </script>
 
 <style scoped>
+.fortune-icon{
+  width: 45px;
+  height: 45px;
+  border-radius: 50%;
+}
 </style>
