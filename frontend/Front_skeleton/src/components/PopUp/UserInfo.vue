@@ -11,8 +11,8 @@
           <p>{{ userData.nickName }}</p>
           <div>
             <h5>Interests</h5>
-            <p v-for="(interest, index) of userData.interests" :key="interest.id">
-              {{ index + 1 }}. {{ interest.name }}
+            <p v-for="(interest, index) of userData.interests" :key="interest.interestId">
+              {{ index + 1 }}. <span :style="{ 'color' : interest.preference === 'LIKE' ? 'green': 'red'}">{{ interest.interestName }}</span>
             </p>
           </div>
           <button class="btn btn-primary" @click="submitFollow">{{ userData._follow ? 'Unfollow' : 'Follow' }}</button>
