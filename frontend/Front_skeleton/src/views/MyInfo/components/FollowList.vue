@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="test">
     <table>
       <thead>
         <tr>
@@ -16,19 +16,22 @@
         </tr>
       </tbody>
     </table>
+    <v-pagination v-model="page" :length="pagingInfo.totalPage"></v-pagination>
     <UserInfo :is-modal="isModal" :username="selectedUser" @close-modal="closeModal"/>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import UserInfo from '@/components/PopUp/UserInfo.vue'
 
+const emit = defineEmits(['changePage'])
 const props = defineProps({
   follows: Object,
   pagingInfo: Object
 })
 
+const page = ref(1)
 const selectedUser = ref('')
 const isModal = ref(false)
 
@@ -40,10 +43,14 @@ const closeModal = function () {
   selectedUser.value = ''
   isModal.value = false
 }
+
+watch(page, (newVal, oldVal) => {
+  emit('changePage', newVal)
+})
 </script>
 
 <style scoped>
-table {
+.table {
   width: 100%;
   border-collapse: collapse;
   margin: 0;

@@ -22,16 +22,23 @@
       </tbody>
     </table>
     <div v-else>커뮤니티 활동 내역이 없습니다.</div>
-    <div>{{ pagingInfo }}</div>
+    <v-pagination v-model="page" :length="pagingInfo.totalPage"></v-pagination>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 
+const emit = defineEmits(['changePage'])
 const props = defineProps({
   communitys: Object,
   pagingInfo: Object
+})
+
+const page = ref(1)
+
+watch(page, (newVal, oldVal) => {
+  emit('changePage', newVal)
 })
 </script>
 

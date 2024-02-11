@@ -16,10 +16,11 @@
     </el-calendar>
     <!-- 선택된 날에 활동 내역이 있는지 없는지 판별, 있으면 props로 데이터 전달-->
     <div v-if="isDiary" class="d-flex">
-      <DiaryList v-if="getDateDiary(selectedDate.toISOString().split('T')[0])" :diary="diaryDetail"/>
-      <CommunityList v-if="getDateDiary(selectedDate.toISOString().split('T')[0])" :communitys="communitys" :pagingInfo="pagingInfo"/>
+      <DiaryList v-if="getDateDiary(modifyDate(selectedDate))" :diary="diaryDetail"/>
+      <CommunityList v-if="getDateDiary(modifyDate(selectedDate))" :communitys="communitys" :pagingInfo="pagingInfo" @change-page="changePage"/>
     </div>
     <div v-if="!isDiary">
+      <p>{{ selectedDate }}</p>
       <p>이 날 활동 내역이 없습니다.</p>
     </div>
   </div>
@@ -37,6 +38,18 @@ const API_URL = userStore.API_URL
 
 // 선택된 날짜
 const selectedDate = ref(new Date())
+const modifyDate = function (date) {
+  const year = date.getFullYear().toString()
+  let month = (date.getMonth() + 1).toString()
+  let day = date.getDate().toString()
+  if (month.length === 1) {
+    month = "0" + month
+  }
+  if (day.length === 1) {
+    day = "0" + day
+  }
+  return `${year}-${month}-${day}`
+}
 
 // 샘플 데이터
 const sampleData = ref([
@@ -49,6 +62,9 @@ const diaryDetail = ref({})
 const communitys = ref([])
 const pageNum = ref(1)
 const pagingInfo = ref({})
+const changePage = function (num) {
+  pageNum.value = num
+}
 
 const getDateDiary = function (date) {
   return monthlyDiarys.value.find(diary => diary.date === date)
@@ -56,8 +72,8 @@ const getDateDiary = function (date) {
 
 // 선택된 날짜에 작성된 일기가 있는지 판별
 const isDiary = computed(() => {
-  if (monthlyDiarys.value.find(diary => diary.date === selectedDate.value.toISOString().split('T')[0])) {
-    const diaryId = monthlyDiarys.value.find(diary => diary.date === selectedDate.value.toISOString().split('T')[0]).diaryId
+  if (monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value))) {
+    const diaryId = monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value)).diaryId
     axios({
       method: 'get',
       url: `${API_URL}/diary/simple?diaryId=${diaryId}&page=${pageNum.value}`,
@@ -68,13 +84,13 @@ const isDiary = computed(() => {
       .then(res => {
         diaryDetail.value = res.data.diary
         communitys.value = res.data.community
-        pagingInfo.value = res.data.PagingInfo
+        pagingInfo.value = res.data.communityPagingInfo
       })
       .catch(err => {
         console.log(err)
       })
   }
-  return monthlyDiarys.value.find(diary => diary.date === selectedDate.value.toISOString().split('T')[0]) !== undefined
+  return monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value)) !== undefined
 })
 
 const getMonthlyDiary = function (year, month) {
@@ -95,13 +111,11 @@ const getMonthlyDiary = function (year, month) {
 
 // 달이 바뀌면 일기 데이터 다시 불러와야하니까 watch로 지켜보기
 watch(() => selectedDate.value.getMonth(), (newMonth, oldMonth) => {
-  if (newMonth !== oldMonth) {
-    const date = selectedDate.value.toISOString().split('T')[0].split('-')
-    const year = date[0]
-    const month = date[1]
-    // axios 요청 뒤에 넣기 /2024-02 식으로
-    getMonthlyDiary(year, month)
-  }
+  const date = modifyDate(selectedDate.value).split('T')[0].split('-')
+  const year = date[0]
+  const month = date[1]
+  // axios 요청 뒤에 넣기 /2024-02 식으로
+  getMonthlyDiary(year, month)
 })
 
 onMounted(() => {
@@ -119,4 +133,5 @@ onMounted(() => {
 .is-selected {
 color: #1989fa;
 }
+
 </style>

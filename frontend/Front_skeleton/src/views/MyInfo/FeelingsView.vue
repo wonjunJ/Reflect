@@ -67,7 +67,7 @@
         </div>
         <div>
           <!-- 일기 목록 컴포넌트 따로 만들고 MBTI 일기랑 같이쓸까함 -->
-          <DiaryDetailList :diarys="filteredDiarys" :paging-info="pagingInfo"/>
+          <DiaryDetailList :diarys="filteredDiarys" :paging-info="pagingInfo" @change-page="changePage"/>
         </div>
       </div>
     </div>
@@ -180,6 +180,11 @@ const lineChartData = computed(() => {
   
 const filteredDiarys = ref([])
 const pagingInfo = ref({})
+
+const changePage = function (num) {
+  pageNum.value = num
+  selectedEmotion(selectedEmotion.value)
+}
   
 // 일기 목록 감정 선택
 const selectEmotion = function (num) {

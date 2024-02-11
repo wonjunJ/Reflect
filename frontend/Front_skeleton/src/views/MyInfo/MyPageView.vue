@@ -10,9 +10,9 @@
       <div class="d-flex">
         <div>
           <h4>Following</h4>
-          <FollowList :follows="followings" :paging-info="followPagingInfo"/>
+          <FollowList :follows="followings" :paging-info="followPagingInfo" @change-page="changeFollowPage"/>
         </div>
-        <CommunityList :communitys="communitys" :paging-info="roomPagingInfo"/>
+        <CommunityList :communitys="communitys" :paging-info="roomPagingInfo" @change-page="changeCommunityPage"/>
       </div>
     </body>
   </div>
@@ -44,6 +44,10 @@ const followings = ref([
 ])
 const followPageNum = ref(1)
 const followPagingInfo = ref({})
+const changeFollowPage = function (num) {
+  followPageNum.value = num
+  getFollowInfo()
+}
 
 // 가입 커뮤니티 목록
 const communitys = ref([
@@ -52,6 +56,10 @@ const communitys = ref([
 ])
 const roomPageNum = ref(1)
 const roomPagingInfo = ref({})
+const changeCommunityPage = function (num) {
+  roomPageNum.value = num
+  getCommunitysInfo()
+}
 
 const changeCharacter = (num) => {
   userInfo.value.characterId = num

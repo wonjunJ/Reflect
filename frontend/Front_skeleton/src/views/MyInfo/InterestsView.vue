@@ -73,7 +73,7 @@
         </div>
         <div>
           <!-- 일기 목록 -->
-          <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo"></DiaryDetailList>
+          <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo" @change-page="changePage"></DiaryDetailList>
         </div>
       </div>
     </div>
@@ -108,6 +108,11 @@ const filteredDiarys = ref([])  // props로 일기 목록에 전해줄 일기
 const pagingInfo = ref({})      // 페이지네이션 정보
 const selectedMbti = ref(1)     // 선택된 MBTI 코드
 const pageNum = ref(1)          // 선택된 페이지
+const changePage = function (num) {
+  pageNum.value = num
+  selectMbti(selectedMbti.value)
+}
+
 const selectMbti = function (num) {   // MBTI 선택 함수
   axios({
     method: 'get',
