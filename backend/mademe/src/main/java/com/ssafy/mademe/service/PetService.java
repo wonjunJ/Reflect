@@ -84,7 +84,7 @@ public class PetService {
 
             //펫시터 칭호 획득 관련 로직
             int petCnt = myPetRepository.countById_User(user);
-            if(petCnt >= 5){ //펫시터 칭호 획득
+            if(petCnt == 5){ //펫시터 칭호 획득
                 Optional<TitleCode> tcode = titleCodeRepository.findById(13L);
                 EmdTitle emd = new EmdTitle(user, tcode.get());
                 UserTitle ut = new UserTitle();
@@ -94,8 +94,8 @@ public class PetService {
                 //칭호 획득시에는 Alram 테이블에 저장할 필요X
                 messageTemplate.convertAndSend("/alram/msg-to/" + user.getId(),
                         Message.builder()
-                                .type(3)
-                                .senderId(0L)
+                                .type(1)
+                                .senderId(user.getId())
                                 .senderNick("관리자")
                                 .toId(user.getId())
                                 .msg("펫시터 칭호를 획득하였습니다.")

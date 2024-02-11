@@ -10,7 +10,7 @@ import org.hibernate.annotations.ColumnDefault;
 @Getter
 @Setter
 @Table(uniqueConstraints = {
-        @UniqueConstraint(columnNames = {"hobby_code_id", "preference"})
+        @UniqueConstraint(columnNames = {"user_id", "hobby_code_id", "preference"})
 })
 public class Interest {
     @Id

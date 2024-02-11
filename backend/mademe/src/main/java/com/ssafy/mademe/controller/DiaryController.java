@@ -46,6 +46,9 @@ public class DiaryController {
         SimpleDiaryResponse dInfos = diaryService.getSimpleDiaryInfo(diaryId);
         json.put("diary", dInfos);
         Page<MyRoomInfoResponse> data = roomService.getRoomInfos(user, dInfos.getDate(), null, pageable);
+        for(MyRoomInfoResponse tmp : data){
+            tmp.setHashTags(roomService.getHashTagList(tmp.getRoomId()));
+        }
         json.put("community", data.get().collect(Collectors.toList()));
         json.put("communityPagingInfo", PagingInfoResponse.builder()
                 .totalPage(data.getTotalPages()) //전체 페이지 수

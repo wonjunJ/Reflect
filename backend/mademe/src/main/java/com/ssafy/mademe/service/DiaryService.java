@@ -1,13 +1,16 @@
 package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
+import com.ssafy.mademe.dto.request.Message;
 import com.ssafy.mademe.dto.response.MonthDiaryResponse;
 import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.entity.embedded.EmdInterest;
+import com.ssafy.mademe.entity.embedded.EmdTitle;
 import com.ssafy.mademe.exception.diary.DiaryNotFoundException;
 import com.ssafy.mademe.repository.*;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,6 +31,9 @@ public class DiaryService {
     private final UserRepository userRepository;
     private final InterestRepository interestRepository;
     private final InterestService interestService;
+    private final TitleCodeRepository titleCodeRepository;
+    private final UserTitleRepository userTitleRepository;
+    private final SimpMessageSendingOperations messageTemplate;
 
     public List<MonthDiaryResponse> getMonthDiaryStatus(User user, LocalDate date){
         Month now = LocalDateTime.now().getMonth();
@@ -81,9 +87,41 @@ public class DiaryService {
         }
         diary.setUser(user);
         diaryRepository.save(diary);
+
+        //포인트 획득
         int curPoint = user.getPoint();
         user.setPoint(curPoint + 10);
+        getDiaryTitle(user);
         return userRepository.save(user);
+    }
+
+    //일기 관련 칭호 획득
+    public void getDiaryTitle(User user){
+        Optional<TitleCode> tcode;
+        if(user.getRecordTime() == 10){
+            tcode = titleCodeRepository.findById(1L);
+        } else if (user.getRecordTime() == 30) {
+            tcode = titleCodeRepository.findById(2L);
+        } else if (user.getRecordTime() == 100) {
+            tcode = titleCodeRepository.findById(3L);
+        } else { //칭호 획득 실패
+            return;
+        }
+        EmdTitle emd = new EmdTitle(user, tcode.get());
+        UserTitle ut = new UserTitle();
+        ut.setId(emd);
+        userTitleRepository.save(ut);
+
+        //칭호 획득시에는 Alram 테이블에 저장할 필요X(칭호를 한번 획득한 이후에는 알람을 보낼지 말지 정해야 할듯)
+        messageTemplate.convertAndSend("/alram/msg-to/" + user.getId(),
+                Message.builder()
+                        .type(1)
+                        .senderId(user.getId())
+                        .senderNick("관리자")
+                        .toId(user.getId())
+                        .msg(tcode.get().getTitleName() + " 칭호를 획득하였습니다.")
+                        .build()
+        );
     }
 
     public List<EmotionLog> addEmotionLog(DiaryGPTRequest diaryGPTRequest){
@@ -92,6 +130,7 @@ public class DiaryService {
         List<DiaryGPTRequest.EmotionData> emotionDatas = diaryGPTRequest.getEmotionData();
         for(DiaryGPTRequest.EmotionData data : emotionDatas){
             EmotionCode code = emotionCodeRepository.findFirstByEmotionName(data.getEmotion());
+            if(code == null) continue;
             for(String sentence : data.getSentences()){
                 EmotionLog emotionLog = new EmotionLog();
                 emotionLog.setEmotionCode(code);
@@ -117,6 +156,7 @@ public class DiaryService {
                 logs.add(mbtiLog);
             }
         }
+
         System.out.println(logs.size());
         return logs;
     }
@@ -137,6 +177,33 @@ public class DiaryService {
                 itr.setCompositeKey(emd);
             }
             interestRepository.save(itr);
+        }
+        getInterestTitle(user);
+    }
+
+    //관심사 관련 칭호 획득
+    public void getInterestTitle(User user){
+        int cnt = interestRepository.countByUserAndCompositeKey_Preference(user, Preference.LIKE);
+        if(cnt >= 5){ //취미 부자 칭호를 획득하는 조건
+            Optional<TitleCode> tcode = titleCodeRepository.findById(4L);
+            EmdTitle emd = new EmdTitle(user, tcode.get());
+            if(userTitleRepository.existsById(emd)){ //이미 이 칭호를 획득한 상태
+                return;
+            }
+            UserTitle ut = new UserTitle();
+            ut.setId(emd);
+            userTitleRepository.save(ut);
+
+            //칭호 획득시에는 Alram 테이블에 저장할 필요X
+            messageTemplate.convertAndSend("/alram/msg-to/" + user.getId(),
+                    Message.builder()
+                            .type(1)
+                            .senderId(user.getId())
+                            .senderNick("관리자")
+                            .toId(user.getId())
+                            .msg(tcode.get().getTitleName() + " 칭호를 획득하였습니다.")
+                            .build()
+            );
         }
     }
 
