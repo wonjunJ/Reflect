@@ -1,7 +1,6 @@
 <template>
-  <div>{{ queryParams }}</div>
-  <p>{{ queryParams.id }}</p>
-  <el-form :model="state.form" :rules="state.rules" ref="signupForm" :label-position="state.form.align">
+  <div>
+    <el-form :model="state.form" :rules="state.rules" ref="signupForm" :label-position="state.form.align">
       <el-form-item prop="nickname" label="닉네임" :label-width="state.formLabelWidth">
         <el-input v-model="state.form.nickname" :rules="state.rules.nickname" autocomplete="off"></el-input>
         <el-button @click="nicknameCheck" :disabled="state.isNicknameCheck">닉네임 중복 확인</el-button>
@@ -23,7 +22,7 @@
         <el-button type="primary" :disabled="!isFormValid" @click="socialSignup">signup</el-button>
       </el-form-item>
     </el-form>
-    <img :src="queryParams.profileImage" alt="" v-show="false" id="profileImg">
+  </div>
 </template>
 
 <script setup>

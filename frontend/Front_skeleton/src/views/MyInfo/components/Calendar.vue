@@ -20,7 +20,6 @@
       <CommunityList v-if="getDateDiary(modifyDate(selectedDate))" :communitys="communitys" :pagingInfo="pagingInfo" @change-page="changePage"/>
     </div>
     <div v-if="!isDiary">
-      <p>{{ selectedDate }}</p>
       <p>이 날 활동 내역이 없습니다.</p>
     </div>
   </div>

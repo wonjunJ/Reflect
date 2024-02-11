@@ -37,11 +37,7 @@ const userInfo = ref({})
 const emit = defineEmits(['changeCharacter',])
 
 // 팔로잉 목록
-const followings = ref([
-  { id: 4, profileimg: null, username: 'test04', alike: '73%', isonline: true},
-  { id: 5, profileimg: null, username: 'test05', alike: '52%', isonline: true},
-  { id: 6, profileimg: null, username: 'test06', alike: '46%', isonline: false}
-])
+const followings = ref([])
 const followPageNum = ref(1)
 const followPagingInfo = ref({})
 const changeFollowPage = function (num) {
@@ -50,10 +46,7 @@ const changeFollowPage = function (num) {
 }
 
 // 가입 커뮤니티 목록
-const communitys = ref([
-  { id: 1, title: 1, people: 6, hashtag: ['soccer', 'movie']},
-  { id: 2, title: 2, people: 4, hashtag: ['baseball']},
-])
+const communitys = ref([])
 const roomPageNum = ref(1)
 const roomPagingInfo = ref({})
 const changeCommunityPage = function (num) {

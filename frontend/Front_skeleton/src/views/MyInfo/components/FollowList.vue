@@ -4,20 +4,22 @@
       <thead>
         <tr>
           <th scope="col">Name</th>
-          <th scope="col">Alike</th>
+          <th scope="col">mbti</th>
+          <th scope="col">interests</th>
           <th scope="col">Online</th>
         </tr>
       </thead>
       <tbody>
-        <tr v-for="follow in follows" :key="follow.id">
-          <td @click="openModal(follow.username)">{{ follow.username }} <img :src="follow.profileimg" alt="img"></td>
-          <td>{{ follow.alike }}</td>
-          <td :style="{ 'color' : follow.isonline ? 'green': 'red'}">{{ follow.isonline ? "online" : "offline" }}</td>
+        <tr v-for="follow in follows" :key="follow.userId">
+          <td @click="openModal(follow.userId)">{{ follow.nickName }}</td>
+          <td>{{ follow.mbti }}</td>
+          <td>{{ follow.interests }}</td>
+          <td :style="{ 'color' : follow._online ? 'green': 'red'}">{{ follow._online ? "online" : "offline" }}</td>
         </tr>
       </tbody>
     </table>
     <v-pagination v-model="page" :length="pagingInfo.totalPage"></v-pagination>
-    <UserInfo :is-modal="isModal" :username="selectedUser" @close-modal="closeModal"/>
+    <UserInfo v-if="isModal" :is-modal="isModal" :user-id="selectedUserId" @close-modal="closeModal"/>
   </div>
 </template>
 
@@ -32,15 +34,14 @@ const props = defineProps({
 })
 
 const page = ref(1)
-const selectedUser = ref('')
+const selectedUserId = ref(0)
 const isModal = ref(false)
 
-const openModal = function (name) {
-  selectedUser.value = name
+const openModal = function (id) {
+  selectedUserId.value = props.follows.find(item => item.userId === id).userId
   isModal.value = true
 }
 const closeModal = function () {
-  selectedUser.value = ''
   isModal.value = false
 }
 

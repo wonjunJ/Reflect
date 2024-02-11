@@ -16,7 +16,7 @@
           <td>{{ community.title }}</td>
           <td>{{ community.curNum }}/{{ community.totalNum }}</td>
           <td>{{ community.type }}</td>
-          <td>{{ community.hashTags }}</td>
+          <td>{{ community.hashTags.join(", ") }}</td>
           <td><button>show</button></td>
         </tr>
       </tbody>
