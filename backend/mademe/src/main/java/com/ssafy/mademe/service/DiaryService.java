@@ -20,6 +20,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -33,6 +34,7 @@ public class DiaryService {
     private final InterestService interestService;
     private final TitleCodeRepository titleCodeRepository;
     private final UserTitleRepository userTitleRepository;
+    private final MBTILogRepository mbtiLogRepository;
     private final SimpMessageSendingOperations messageTemplate;
 
     public List<MonthDiaryResponse> getMonthDiaryStatus(User user, LocalDate date){
@@ -92,6 +94,7 @@ public class DiaryService {
         int curPoint = user.getPoint();
         user.setPoint(curPoint + 10);
         getDiaryTitle(user);
+        getMbtiTitle(user);
         return userRepository.save(user);
     }
 
@@ -159,6 +162,58 @@ public class DiaryService {
 
         System.out.println(logs.size());
         return logs;
+    }
+
+    //MBTI 관련 칭호 획득
+    public void getMbtiTitle(User user){
+        Map<MBTICode, Long> map = mbtiLogRepository.findMbtiByUser(user);
+        List<MBTICode> keys = new ArrayList<>(map.keySet()); //존재하는 mbtiCode의 리스트
+        boolean flag = false;
+        for(MBTICode key : keys){
+            if(key == MBTICode.E){
+                flag = checkMbtiTitle(user, map.get(key), 5L);
+            } else if (key == MBTICode.I) {
+                flag = checkMbtiTitle(user, map.get(key), 6L);
+            } else if (key == MBTICode.N) {
+                flag = checkMbtiTitle(user, map.get(key), 7L);
+            } else if (key == MBTICode.S) {
+                flag = checkMbtiTitle(user, map.get(key), 8L);
+            } else if (key == MBTICode.T) {
+                flag = checkMbtiTitle(user, map.get(key), 9L);
+            } else if (key == MBTICode.F) {
+                flag = checkMbtiTitle(user, map.get(key), 10L);
+            } else if (key == MBTICode.P) {
+                flag = checkMbtiTitle(user, map.get(key), 11L);
+            } else if (key == MBTICode.J) {
+                flag = checkMbtiTitle(user, map.get(key), 12L);
+            }
+        }
+        if(flag){ //MBTI관련 칭호를 하나라도 획득을 했다.
+            messageTemplate.convertAndSend("/alram/msg-to/" + user.getId(),
+                    Message.builder()
+                            .type(1)
+                            .senderId(user.getId())
+                            .senderNick("관리자")
+                            .toId(user.getId())
+                            .msg("MBTI관련 칭호를 획득하였습니다.")
+                            .build()
+            );
+        }
+    }
+
+    public boolean checkMbtiTitle(User user, Long cnt, Long id){
+        if(cnt >= 10){
+            Optional<TitleCode> tcode = titleCodeRepository.findById(id);
+            EmdTitle emd = new EmdTitle(user, tcode.get());
+            if(userTitleRepository.existsById(emd)){ //이미 이 칭호를 획득한 상태
+                return false;
+            }
+            UserTitle ut = new UserTitle();
+            ut.setId(emd);
+            userTitleRepository.save(ut);
+            return true; //칭호를 새로 획득했을 경우에만 true
+        }
+        return false;
     }
 
     public void addInterestByGPT(User user, List<DiaryGPTRequest.DailyData.InterestData> interestData){
