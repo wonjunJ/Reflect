@@ -37,8 +37,9 @@ import RoomEnter from '@/components/PopUp/RoomEnter.vue';
 import { onMounted } from 'vue';
 const props = defineProps({
   type: String,
-  isWaitingFilter: Boolean,
-  limit: Number
+  waiting: String,
+  from: Number,
+  to: Number
 });
 
 
@@ -49,12 +50,12 @@ const roomStore = useRoomStore()
 onMounted(() =>{
     // roomStore.num1 = props.limit[0]
     // roomStore.num2 = props.limit[1]
-    const filter = {
-        type: props.type,
-        status: props.isWaitingFilter,
-        total_num: props.limit
-    }
-    roomStore.getFilteredRooms(filter)
+    const from = props.from
+    const to = props.to
+    const type = props.type
+    const waiting = props.waiting
+    const filter = {type, waiting}
+    roomStore.getFilteredRooms(filter, from, to, pageable)
 })
 const rooms = roomStore.filteredRooms
 

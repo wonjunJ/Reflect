@@ -38,19 +38,19 @@ export const useRoomStore = defineStore('room', () => {
 
   // 방 생성
   const createRoom = (payload) => {
-    const {type,question_id,thumbnail,title,intro,hash_name,anonymous,mask,secret,total_num} = payload
+    const {type,question_id,thumbnail,title,intro,hash_name,mode,total_num} = payload
     axios({
       method: 'post',
       url: `${API_URL}/room/create`,
       headers : {
         Authorization: `Token ${userStore.token}`
       },
-      data: {type,question_id,thumbnail,title,intro,hash_name,anonymous,mask,secret,total_num}
+      data: {type,question_id,thumbnail,title,intro,hash_name,mode,total_num}
     })
     .then((res) => {
         console.log(res.data)
         console.log('방 생성 완료')
-        // router.push({name:'waiting'})
+        router.push({name:'waiting'})
       })
     .catch((err) => {
       console.log(err)
@@ -82,14 +82,19 @@ export const useRoomStore = defineStore('room', () => {
 
   // 필터링된 방의 목록을 가져옴
   // 100문100답, 자유주제, 인원수, 모집중 기준으로 필터링
-  const getFilteredRooms = (filter) => {
+  const getFilteredRooms = (filter, from, to, pageable) => {
     axios({
       method:'get',
       url:`${API_URL}/room`,
       headers: {
         Authorization: `Token ${userStore.token}`
       },
-      params: filter
+      params: {
+        filter: filter.join(','), // "FREE,BACKMOON,Waiting"와 같은 형태로 변환
+        from: from,
+        to: to,
+        pageable: pageable
+      }
     })
       .then((res) => {
         console.log(res.data)
@@ -120,13 +125,16 @@ export const useRoomStore = defineStore('room', () => {
 
   // 검색 조회
   const getSearchRooms = (search) => {
+    const from = 2
+    const to = 8
+    const pageable = 0
     axios({
       method: 'get',
       url: `${API_URL}/room`,
       headers : {
         Authorization: `Token ${userStore.accessToken}`
       },
-      params: search
+      params: {searchWord:search, from:from, to:to, pageable:pageable}
     })
     .then((res) => {
         console.log(res.data)

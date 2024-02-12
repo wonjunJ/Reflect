@@ -96,7 +96,7 @@
   </div>
 </template>
 <script setup>
-import { ref} from 'vue'
+import { ref, watchEffect } from 'vue'
 import {useRouter} from 'vue-router'
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
@@ -123,6 +123,7 @@ const isMask = ref(false)
 const isSecret = ref(false)
 const memberNum = ref(null)
 const type = ref('BACKMOON')
+const mode = ref([])
 
 
 const handleValueUpdate = (newValue) => {
@@ -136,22 +137,25 @@ const handleHashtagsUpdate = (newHashtags) => {
 }
 
 
-
 const Mask = () => {
   isMask.value =!isMask.value
-  console.log(isMask.value)
 }
 
 const Secret = () => {
   isSecret.value =!isSecret.value
-  console.log(isSecret.value)
 }
 
 const Anonymous = () => {
   isAnonymous.value =!isAnonymous.value
-  console.log(isAnonymous.value)
 }
 
+watchEffect(() => {
+  mode.value = []; // 매번 mode 배열을 초기화
+  if (isMask.value) mode.value.push('MASK');
+  if (isSecret.value) mode.value.push('SECRET');
+  if (isAnonymous.value) mode.value.push('ANONIMOUS');
+  console.log(mode.value)
+});
 
 
   
@@ -342,9 +346,7 @@ const createRoom = () => {
       title: roomTitle.value,
       intro: roomDescribe.value,
       hash_name: hashtags.value,
-      anonymous: isAnonymous.value,
-      mask: isMask.value,
-      secret: isSecret.value,
+      mode: mode.value,
       total_num: memberNum.value,
     }
     roomStore.createRoom(payload)

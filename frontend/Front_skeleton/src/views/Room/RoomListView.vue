@@ -117,7 +117,7 @@
                 <div>
                   <h6>인원수</h6>
                   <div class="member-limit">
-                    <el-slider v-model="limit" show-stops :min="2" :max="8" />
+                    <el-slider v-model="range" range show-stops :min="2" :max="8" />
                   </div>
                 </div>
                   <button class="btn" @click="submitFilter">적용</button>               
@@ -152,7 +152,7 @@
 
       <!-- 필터링된 리스트 불러오기 -->
       <div v-if="isFiltered">
-        <FilteredRoomList :type="type" :isWaitingFilter="isWaitingFilter" :limit="limit"/>
+        <FilteredRoomList :type="type" :waiting="waiting" :from="from" :to="to"/>
       </div>
 
       <!-- 검색한 리스트 불러오기 -->
@@ -178,7 +178,7 @@ import { ref, onMounted } from 'vue';
 import AllRoomList from '@/components/Room/AllRoomList.vue'
 import FilteredRoomList from '@/components/Room/FilteredRoomList.vue'
 import MyRoomList from '@/components/Room/MyRoomList.vue'
-import SearchedRoomList from '@/components/Room/SearchedRoomCollection'
+import SearchedRoomList from '@/components/Room/SearchedRoomList.vue'
 import RoomCreate from '@/components/PopUp/RoomCreate.vue'
 import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import QuickJoin from '@/components/PopUp/QuickJoin.vue'
@@ -201,7 +201,10 @@ const isQuickFreeModalOpen = ref(false)
 const isHundredFilter = ref(false)
 const isFreeFilter = ref(false)
 const isWaitingFilter = ref(false)
-const limit = ref(2)
+const waiting = ref(null)
+const range = ref([2,8])
+const from = ref(2)
+const to = ref(8)
 const searchKey = ref(null)
 const type = ref(null)
 
@@ -235,7 +238,9 @@ const submitFilter = () => {
   isWaiting.value = false
   isFiltered.value = true
   isMyRoom.value = false
-  isSearched.value = false 
+  isSearched.value = false
+  from.value = range.value[0]
+  to.value = range.value[1] 
   if (isHundredFilter && !isFreeFilter) {
     type.value = 'BACKMOON'
   }
@@ -244,6 +249,12 @@ const submitFilter = () => {
   }
   else {
     type.value = null
+  }
+  if(isWaitingFilter) {
+    waiting.value = 'Waiting'
+  }
+  else {
+    waiting.value = null
   }
 
 }

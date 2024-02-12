@@ -8,7 +8,7 @@
     어떤 한 페이지 그룹의 마지막 페이지 번호 = 페이지 그룹 * 한 화면에 보여질 페이지 개수 
     (단, 페이지 그룹 * 한 화면에 보여질 페이지 개수의 값이 전체 페이지보다 크다면 전체 페이지가 마지막 페이지 번호가 됩니다)
     -->
-        <nav aria-label="Page navigation example">
+        <nav aria-label="Page navigation">
         <ul class="pagination">
             <li class="page-item" :class="{'disabled' : isBtnPrev}">
             <a class="page-link" @click.prevent="pageArrow('prev')" aria-label="Previous">

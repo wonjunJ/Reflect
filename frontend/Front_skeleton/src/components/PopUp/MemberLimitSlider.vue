@@ -10,6 +10,7 @@ data() {
     currentValue: 2,
   };
 },
+emits: ['updateValue'],
 watch: {
     currentValue(newValue) {
       // 'update-value' 이벤트를 발생시키고, 현재 값을 이벤트와 함께 전달합니다.
