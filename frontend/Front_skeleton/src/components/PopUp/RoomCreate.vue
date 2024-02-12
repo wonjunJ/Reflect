@@ -65,7 +65,7 @@
           
           <!-- 자유주제 --><!-- 해시태그  -->
           <div v-if="isFree" class="room-hashtag">
-            <Tagify />
+            <Tagify @updateHashtags="handleHashtagsUpdate"/>
           </div>
           
           <!-- 백문백답 --><!-- 질문선택-->
@@ -84,7 +84,7 @@
             <div class="limit-container">
               <p>인원수</p>
               <div class="slider">
-                <MemberLimitSlider />
+                <MemberLimitSlider @update-value="handleValueUpdate"/>
               </div>
             </div>
           </div>
@@ -117,12 +117,43 @@ const imgData = ref(null)
 let uploading = false;
 const roomTitle = ref(null)
 const roomDescribe = ref(null)
-const hashtag = ref(null)
+const hashtags = ref([])
 const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
 const memberNum = ref(null)
 const type = ref('BACKMOON')
+
+
+const handleValueUpdate = (newValue) => {
+  memberNum.value = newValue; // memberNum은 인원 수를 저장하는 ref 변수입니다.
+  console.log('Updated member limit from child:', memberNum.value);
+};
+
+const handleHashtagsUpdate = (newHashtags) => {
+  hashtags.value = newHashtags
+  console.log('Updated hashtags from child:', hashtags.value);
+}
+
+
+
+const Mask = () => {
+  isMask.value =!isMask.value
+  console.log(isMask.value)
+}
+
+const Secret = () => {
+  isSecret.value =!isSecret.value
+  console.log(isSecret.value)
+}
+
+const Anonymous = () => {
+  isAnonymous.value =!isAnonymous.value
+  console.log(isAnonymous.value)
+}
+
+
+
   
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
@@ -166,11 +197,13 @@ const writeQuestion = () => {
   isHundred.value = true
   isFree.value = false
   type.value = 'BACKMOON'
+  console.log('방 타입:', type.value); //
 }
 const writeHashtag= () => {
   isHundred.value = false
   isFree.value = true
   type.value = 'FREE'
+  console.log('방 타입:', type.value); //
 }
 // const goRoom = () => {
 //   const roomInfoData = {
@@ -302,28 +335,19 @@ const findId = (id) => {
 
 
 const createRoom = () => {
-  axios({
-    method: 'post',
-    url:`${roomStore.API_URL}/room/create`,
-    data: {
+  const payload ={
       type: type.value,
       question_id: questionId.value,
       thumbnail: imgData.value,
       title: roomTitle.value,
       intro: roomDescribe.value,
-      hash_name: hashtag.value,
+      hash_name: hashtags.value,
       anonymous: isAnonymous.value,
       mask: isMask.value,
       secret: isSecret.value,
       total_num: memberNum.value,
-    },
-    headers: {
-          Authorization : `Token ${userStore.accessToken}`
     }
-  })
-    .then((res) => {
-      router.push({name:'waiting'})
-    })
+    roomStore.createRoom(payload)
 }
 
 const closeModal = () => {

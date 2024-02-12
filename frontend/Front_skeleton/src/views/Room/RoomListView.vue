@@ -67,16 +67,16 @@
             <ul class="nav nav-underline">
                 <!-- 전체 방 목록 -->
                 <li class="nav-item">
-                    <a class="nav-link all-rooms" aria-current="page" @click="allRooms">전체  <span class="nav-link-badge" :value="allRoomNum">0</span></a>
+                    <a class="nav-link all-rooms" aria-current="page" @click="allRooms">전체 </a>
                 </li>
                 <!-- 아직 덜 찬 방 목록 -->
                 <li class="nav-item waiting-rooms">
-                    <a class="nav-link" @click="filteredRooms">사람 구하는중  <span class="nav-link-badge" :value="waitingRoomNum">0</span></a>
+                    <a class="nav-link" @click="waitingRooms">사람 구하는중 </a>
                     
                 </li>
                 <!-- 내가 참여중인 방 목록 -->
                 <li class="nav-item my-rooms">
-                    <a class="nav-link" @click="filteredRooms">My Rooms  <span class="nav-link-badge" :value="myRoomNum">0</span></a>
+                    <a class="nav-link" @click="myRooms">My Rooms ></a>
                     
                 </li>
             </ul>
@@ -87,7 +87,7 @@
           <!-- 검색창 -->
           <div class="room-search">
             <form class="d-flex" role="search">
-              <input class="searchbox" type="search" placeholder="Search" aria-label="Search">
+              <input v-model="searchKey" class="searchbox" type="text" placeholder="Search" aria-label="Search" @keyup.enter="search()">
             </form>
           </div>
 
@@ -99,25 +99,25 @@
                 <div class="mb-3">
                   <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="hundredFilter">
-                    <label class="form-check-label" for="hundredFilter">백문백답</label>
+                    <label class="form-check-label" for="hundredFilter" @click="isHundredFilter = !isHundredFilter">백문백답</label>
                   </div>
                 </div>
                 <div class="mb-3">
                   <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="freeFilter">
-                    <label class="form-check-label" for="freeFilter">자유주제</label>
+                    <label class="form-check-label" for="freeFilter" @click="isFreeFilter = !isFreeFilter">자유주제</label>
                   </div>
                 </div>
                 <div class="mb-3">
                   <div class="form-check">
                     <input type="checkbox" class="form-check-input" id="waitingFilter">
-                    <label class="form-check-label" for="waitingFilter">모집중</label>
+                    <label class="form-check-label" for="waitingFilter" @click="isWaitingFilter = !isWaitingFilter">모집중</label>
                   </div>
                 </div>
                 <div>
                   <h6>인원수</h6>
                   <div class="member-limit">
-                    <el-slider v-model="limit" range show-stops :min="2" :max="8" />
+                    <el-slider v-model="limit" show-stops :min="2" :max="8" />
                   </div>
                 </div>
                   <button class="btn" @click="submitFilter">적용</button>               
@@ -145,14 +145,22 @@
       </div>
       
       <!-- 내가 가입한 방 리스트 -->
-      <div v-if="isFiltered"> 
+      <div v-if="isMyRoom"> 
 
-        <FilteredRoomList />  
+        <MyRoomList />  
       </div>
 
-      <div>
-        <!-- 필터링된 리스트 불러오기 -->
+      <!-- 필터링된 리스트 불러오기 -->
+      <div v-if="isFiltered">
+        <FilteredRoomList :type="type" :isWaitingFilter="isWaitingFilter" :limit="limit"/>
       </div>
+
+      <!-- 검색한 리스트 불러오기 -->
+      <div v-if="isSearched">
+        <SearchedRoomList :searchKey="searchKey"/>
+      </div>
+      
+
     </div>
 
     <hr>
@@ -169,6 +177,8 @@
 import { ref, onMounted } from 'vue';
 import AllRoomList from '@/components/Room/AllRoomList.vue'
 import FilteredRoomList from '@/components/Room/FilteredRoomList.vue'
+import MyRoomList from '@/components/Room/MyRoomList.vue'
+import SearchedRoomList from '@/components/Room/SearchedRoomCollection'
 import RoomCreate from '@/components/PopUp/RoomCreate.vue'
 import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import QuickJoin from '@/components/PopUp/QuickJoin.vue'
@@ -181,45 +191,94 @@ const roomStore = useRoomStore()
 const isAll = ref(true)
 const isWaiting = ref(false)
 const isFiltered = ref(false)
+const isMyRoom = ref(false)
+const isSearched = ref(false)
 const isModalOpen = ref(false)
 const isHundredModalOpen = ref(false)
 const isFreeModalOpen = ref(false)
 const isQuickHundredModalOpen = ref(false)
 const isQuickFreeModalOpen = ref(false)
-const limit = ref([2,8])
-const allRoomNum = ref(0) // 전체 방 개수
-const waitingRoomNum = ref(0) // 모집중인 방 개수
-const myRoomNum = ref(0) //내 방 개수
+const isHundredFilter = ref(false)
+const isFreeFilter = ref(false)
+const isWaitingFilter = ref(false)
+const limit = ref(2)
+const searchKey = ref(null)
+const type = ref(null)
+
 
 onMounted(() => {
   roomStore.getRooms()
 })
 
+const search = () => {
+  // const searchKey = document.getElementsByClassName('searchbox')
+  console.log('검색 시작')
+  // console.log(searchKey.value)
+  isSearched.value = true
+  isAll.value = false
+  isWaiting.value = false
+  isFiltered.value = false
+  isMyRoom.value = false
+}
 
 const submitFilter = () => {
-  // 필터 선택한 정보 보내주고 불러오기
+  // const num = limit.value[1]-limit.value[0]
+  // for ( var i = 0; i <= num; i++ ) {
+  //   const filter = {
+  //     isHundredFilter: isHundredFilter.value,
+  //     isFreeFilter: isFreeFilter.value,
+  //     isWaitingFilter: isWaitingFilter.value,
+  //     limit: limit.value[0] + i
+  //   }
+  // }
+  isAll.value = false
+  isWaiting.value = false
+  isFiltered.value = true
+  isMyRoom.value = false
+  isSearched.value = false 
+  if (isHundredFilter && !isFreeFilter) {
+    type.value = 'BACKMOON'
+  }
+  else if (!isHundredFilter && isFreeFilter) {
+    type.value = 'FREE'
+  }
+  else {
+    type.value = null
+  }
+
 }
 
 const allRooms = () => {
-  
   isAll.value = true
   isWaiting.value = false
   isFiltered.value = false
+  isMyRoom.value = false
+  isSearched.value = false 
 }
 
 const waitingRooms = () => {
   isAll.value = false
   isWaiting.value = true
   isFiltered.value = false
+  isMyRoom.value = false
+  isSearched.value = false 
   
 }
-
-const filteredRooms = () => {
+const myRooms = () => {
   isAll.value = false
   isWaiting.value = false
-  isFiltered.value = true
-  
+  isFiltered.value = false
+  isMyRoom.value = true
+  isSearched.value = false //
 }
+
+// const filteredRooms = () => {
+//   isAll.value = false
+//   isWaiting.value = false
+//   isFiltered.value = true
+//   isMyRoom.value = false
+//   isSearched.value = false 
+// }
 
 
 const openCreateRoomModal = () => {
