@@ -1,79 +1,86 @@
 <template>
   <h1>Interest</h1>
-  <div class="d-flex">
-    <div class="d-flex flex-column left-item">
-      <div>
-        <h2>관심사</h2>
-        <div v-if="!isWordCloudData">추출된 관심사가 없습니다.</div>
-        <WordCloud v-if="isWordCloud" :data="wordCloudData"/>
-      </div>
-      <div>
-        <h2>MBTI</h2>
-        <h5 v-if="mbti">당신의 MBTI는 {{ mbti }}입니다.</h5>
-        <h5 v-else>MBTI 정보가 없습니다.</h5>
-        <div v-if="!isRaderChart">측정된 MBTI 데이터가 없습니다.</div>
-        <div v-if="isChart">
-          <ChartRadar :chart-data="radarChartData"/>
+  <div>
+    <div class="d-flex justify-content-center">
+      <div class="d-flex flex-column left-item">
+        <div class="text-center">
+          <h2>관심사</h2>
+          <div v-if="!isWordCloudData">추출된 관심사가 없습니다.</div>
+          <WordCloud v-if="isWordCloud" :data="wordCloudData"/>
         </div>
-      </div>
-      <div>
-        <h3>다른 사람이 본 나의 MBTI</h3>
-        <div v-if="!isBarChart">다른 사람이 남긴 MBTI 평가가 없습니다.</div>
-        <div v-if="isChart">
-          <ChartBar :chart-data="barChartData"/>
-        </div>
-      </div>
-    </div>
-    <div class="d-flex flex-column right-item">
-      <div>
-        <h2>관심사 목록</h2>
-        <div class="border">
-          <form @submit.prevent="addInterest">
-            <input type="text" v-model="interestForm.name">
-            <select name="emotion" v-model="interestForm.emotion">
-              <option value="LIKE">LIKE</option>
-              <option value="UNLIKE">UNLIKE</option>
-            </select>
-            <button>submit</button>
-          </form>
-        </div>
-        <div class="d-flex">
-          <div class="d-flex flex-column">
-            <h3>긍정</h3>
-            <div 
-              v-for="(interest, index) in interestsPositive"
-              :key="interest.interestId"
-            >
-              <p>{{ index + 1 }}. {{ interest.interestName }} <button @click="deleteInterests(interest.interestId, 'LIKE')">🗑</button></p>
-            </div>
+        <div class="d-flex flex-column align-center">
+          <h2>MBTI</h2>
+          <h5 v-if="mbti">당신의 MBTI는 {{ mbti }}입니다.</h5>
+          <h5 v-else>MBTI 정보가 없습니다.</h5>
+          <div v-if="!isRaderChart">측정된 MBTI 데이터가 없습니다.</div>
+          <div v-if="isChart">
+            <ChartRadar :chart-data="radarChartData"/>
           </div>
-          <div class="d-flex flex-column">
-            <h3>부정</h3>
-            <div 
-              v-for="(interest, index) in interestsNegative" 
-              :key="interest.interestId"
-            >
-              <p>{{index + 1}}. {{ interest.interestName }}<button @click="deleteInterests(interest.interestId, 'UNLIKE')">🗑</button></p>
-            </div>
+        </div>
+        <div class="d-flex flex-column align-center">
+          <h3>다른 사람이 본 나의 MBTI</h3>
+          <div v-if="!isBarChart">다른 사람이 남긴 MBTI 평가가 없습니다.</div>
+          <div v-if="isChart">
+            <ChartBar :chart-data="barChartData"/>
           </div>
         </div>
       </div>
-      <div>
-        <h2>MBTI Detail</h2>
-        <div class="d-flex">
-          <button 
-            class="btn btn-primary"
-            v-for="(label, code) in mbtiCodes"
-            :key="code"
-            :disabled="selectedMbti === Number(code)"
-            @click="selectMbti(Number(code))"
-          >
-            {{ label }}
-          </button>
+      <div class="d-flex flex-column right-item">
+        <div class="p-3">
+          <div class="text-center">
+            <h2>관심사 목록</h2>
+            <div class="m-3">
+              <h4>관심사 추가하기</h4>
+              <form @submit.prevent="addInterest">
+                <input class="border" type="text" v-model="interestForm.name">
+                <select name="emotion" v-model="interestForm.emotion">
+                  <option value="LIKE">LIKE</option>
+                  <option value="UNLIKE">UNLIKE</option>
+                </select>
+                <button>submit</button>
+              </form>
+            </div>
+          </div>
+          <div>
+            <div class="m-3 d-flex justify-content-evenly">
+              <div class="d-flex flex-column align-center">
+                <h3>긍정</h3>
+                <div 
+                  v-for="(interest, index) in interestsPositive"
+                  :key="interest.interestId"
+                >
+                  <div class="interest d-flex justify-content-between"><span>{{ index + 1 }}. {{ interest.interestName }}</span> <button @click="deleteInterests(interest.interestId, 'LIKE')">🗑</button></div>
+                </div>
+              </div>
+              <div class="d-flex flex-column align-center">
+                <h3>부정</h3>
+                <div 
+                  v-for="(interest, index) in interestsNegative" 
+                  :key="interest.interestId"
+                >
+                  <div class="interest d-flex justify-content-between"><span>{{index + 1}}. {{ interest.interestName }}</span> <button @click="deleteInterests(interest.interestId, 'UNLIKE')">🗑</button></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div>
-          <!-- 일기 목록 -->
-          <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo" @change-page="changePage"></DiaryDetailList>
+        <div class="p-3 d-flex flex-column align-center">
+          <h2>MBTI Detail</h2>
+          <div class="m-1 d-flex">
+            <button 
+              class="btn btn-primary"
+              v-for="(label, code) in mbtiCodes"
+              :key="code"
+              :disabled="selectedMbti === Number(code)"
+              @click="selectMbti(Number(code))"
+            >
+              {{ label }}
+            </button>
+          </div>
+          <div>
+            <!-- 일기 목록 -->
+            <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo" @change-page="changePage"></DiaryDetailList>
+          </div>
         </div>
       </div>
     </div>
@@ -81,7 +88,7 @@
 </template>
 
 <script setup>
-import { computed, onMounted, reactive, ref } from 'vue'
+import { computed, onMounted, reactive, ref, watch } from 'vue'
 import axios from 'axios'
 import { useUserStore } from '@/stores/user.js'
 import ChartRadar from '@/components/charts/ChartRadar.vue'
@@ -114,6 +121,7 @@ const changePage = function (num) {
 }
 
 const selectMbti = function (num) {   // MBTI 선택 함수
+  pageNum.value = 1
   axios({
     method: 'get',
     url: `${API_URL}/interest/mbti/${mbtiCodes.value[num]}?page=${pageNum.value}`,
@@ -339,9 +347,20 @@ onMounted(() => {
 .left-item {
   background-color: #F9F7C9;
   padding: 20px;
+  width: 30%;
 }
 
 .right-item {
   background-color: #AAD9BB;
+  width: 30%;
+}
+
+.interest {
+  background-color: #f9f7c9;
+  margin: 2px;
+  padding: 3px;
+  padding-left: 20px;
+  padding-right: 20px;
+  border-radius: 30px;
 }
 </style>

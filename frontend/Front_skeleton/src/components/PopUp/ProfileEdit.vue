@@ -160,6 +160,7 @@ const editProfile = function () {
     data: state.form
   })
     .then(res => {
+      window.alert('변경 사항이 저장 되었습니다.')
       emit('reloadProfile')
     })
     .catch(err => {

@@ -1,16 +1,16 @@
 <template>
   <div v-if="isModal" class="modal" @click.self="closeModal">
     <div class="modal-content" @click.stop>
-      <div class="d-flex justify-content-between">
+      <div class="d-flex justify-content-between my-2">
         <h3>문제 {{ question.id }}번</h3>
         <button class="btn btn-danger" @click="closeModal">X</button>
       </div>
-      <div>
-        <p>Q. {{ question.question }}</p>
-        <form @submit.prevent="submitAnswer">
-          <label for="ans">A.</label>
+      <div class="d-flex">
+        <p class="mx-2">Q. {{ question.question }}</p>
+        <form @submit.prevent="submitAnswer" class="flex-grow-1">
+          <label for="ans" class="mx-2">A.</label>
           <input type="text" id="ans" v-model="ans">
-          <button class="btn btn-success" :disabled="answer===ans.trim()">{{ answer.length > 0 ? '수정' : '작성' }}</button>
+          <button class="btn btn-success mx-2" :disabled="answer===ans.trim()">{{ answer.length > 0 ? '수정' : '작성' }}</button>
         </form>
         <button class="btn btn-danger" v-if="answer" @click="deleteAnswer">삭제</button>
       </div>
@@ -146,5 +146,9 @@ align-items: center;
 }
 .modal-content {
 width : 800px;
+}
+
+input[type="text"] {
+  width: 75%;
 }
 </style>

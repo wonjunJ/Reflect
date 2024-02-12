@@ -1,23 +1,25 @@
 <template>
-  <div class="d-flex">
-    <h2>100문 100답</h2>
-    <button @click="router.push({name: '100QnA'})">Detail</button>
-  </div>
-  <div v-for="row in rows" :key="row" class="d-flex flex-row">
-    <div v-for="column in columns" :key="row*20 + column">
-      <div :class="{ 'box': true, 'green': isCompleted(row * 20 + column + 1)}"
-        @click="openModal(row*20 + column + 1)"
-      ></div>
+  <div>
+    <div class="d-flex justify-content-between mb-3">
+      <h2>100문 100답</h2>
+      <button class="btn btn-sm btn-primary" @click="router.push({name: '100QnA'})">Detail</button>
     </div>
+    <div v-for="row in rows" :key="row" class="d-flex flex-row">
+      <div v-for="column in columns" :key="row*20 + column">
+        <div :class="{ 'box': true, 'green': isCompleted(row * 20 + column + 1)}"
+          @click="openModal(row*20 + column + 1)"
+        ></div>
+      </div>
+    </div>
+    <QnA 
+      :is-modal="isModal" 
+      :question="questionlist[selectedNumber - 1]" 
+      :answer="isCompleted(selectedNumber) ? selectedAnswer.answer : ''"
+      @add-answer="addAnswer"
+      @edit-answer="editAnswer"
+      @delete-answer="deleteAnswer"
+      @close-modal="closeModal"/>
   </div>
-  <QnA 
-    :is-modal="isModal" 
-    :question="questionlist[selectedNumber - 1]" 
-    :answer="isCompleted(selectedNumber) ? selectedAnswer.answer : ''"
-    @add-answer="addAnswer"
-    @edit-answer="editAnswer"
-    @delete-answer="deleteAnswer"
-    @close-modal="closeModal"/>
 </template>
 
 <script setup>
@@ -101,6 +103,11 @@ onMounted(() => {
   margin: 2px;
   border-radius: 20%;
   background-color: rgb(210, 210, 210);
+  cursor: pointer;
+}
+
+.box:hover {
+  transform: scale(1.1);
 }
 
 .green {

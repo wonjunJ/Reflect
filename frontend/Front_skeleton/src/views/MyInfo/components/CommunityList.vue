@@ -1,6 +1,5 @@
 <template>
   <div>
-    <h4>Community</h4>
     <table  v-if="communitys.length">
       <thead>
         <tr>

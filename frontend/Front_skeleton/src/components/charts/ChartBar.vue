@@ -13,7 +13,7 @@ const props = defineProps({
 })
 
 const chartOptions = ref({
-  responsive: true,
+  responsive: false,
   maintainAspectRatio: false
 })
 </script>

@@ -1,18 +1,30 @@
 <template>
   <div>
-    <h1>100문 100답 페이지</h1>
-    <h3>진행률 : {{ completedQuestions.length }} / 100</h3>
-    <div class="progress" role="progressbar" aria-label="Basic example" :aria-valuenow="completedQuestions.length" aria-valuemin="0" aria-valuemax="100">
-      <div class="progress-bar" :style="{width: (completedQuestions.length)+ '%'}"></div>
+    <h1>100문 100답</h1>
+    <div class="p-4 sticky">
+      <div class="text-center">
+        <h3>진행률 : {{ completedQuestions.length }} / 100</h3>
+      </div>
+      <div class="progress" role="progressbar" aria-label="Basic example" :aria-valuenow="completedQuestions.length" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" :style="{width: (completedQuestions.length)+ '%'}"></div>
+      </div>
     </div>
-    <div v-for="(answer, index) of answerList" :key="answer.id">
-      <p>{{ answer.id }}. {{ questionlist[index].question }}</p>
-      <form @submit.prevent="submitAnswer(answer.id)">
-        <input type="text" v-model="answer.answer">
-        <button class="btn btn-success" :disabled="(answer.answer.trim() === answer.initAnswer) || (answer.answer.trim().length === 0)">{{answer.initAnswer ? '수정' : '작성'}}</button>
-        <span v-if="answer.initAnswer && answer.answer.length===0" style="color: red;">내용이 없으면 저장할 수 없습니다.</span>
-      </form>
-      <button v-if="answer.initAnswer" class="btn btn-danger" @click="deleteAnswer(answer.id)">삭제</button>
+    <div class="d-flex flex-column align-center">
+      <div class="d-flex my-3 justify-content-between question" v-for="(answer, index) of answerList" :key="answer.id">
+        <div class="d-flex flex-column flex-grow-1">
+          <div class="d-flex justify-content-between">
+            <div class="mx-2">{{ answer.id }}. {{ questionlist[index].question }}</div>
+            <form class="flex-grow-1" @submit.prevent="submitAnswer(answer.id)">
+              <input type="text" v-model="answer.answer">
+              <button class="btn btn-success mx-2" :disabled="(answer.answer.trim() === answer.initAnswer) || (answer.answer.trim().length === 0)">{{answer.initAnswer ? '수정' : '작성'}}</button>
+            </form>
+          </div>
+          <p v-if="answer.initAnswer && answer.answer.length===0" style="color: red;">내용이 없으면 저장할 수 없습니다.</p>
+        </div>
+        <div>
+          <button v-if="answer.initAnswer" class="btn btn-danger mx-2" @click="deleteAnswer(answer.id)">삭제</button>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -157,6 +169,21 @@ onMounted(() => {
 const questionlist = questionsStore.questions
 </script>
 
-<style>
+<style scoped>
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #80bcbd;
+}
 
+.question {
+  width: 80%;
+}
+
+input[type="text"] {
+  width: 80%;
+  border: 1px solid #aad9bb;
+  background-color: #d5f0c1;
+}
 </style>

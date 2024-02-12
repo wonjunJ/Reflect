@@ -1,17 +1,17 @@
 <template>
+  <h1>Feeling</h1>
   <div>
-    <h1>Feeling</h1>
-    <div class="d-flex">
-      <div class="d-flex flex-column">
-        <div>
-          <h2>지난 며칠간의 감정 그래프</h2>
-          <div>
+    <div class="d-flex justify-content-center">
+      <div class="d-flex flex-column left-item">
+        <div class="d-flex flex-column align-center pb-4">
+          <h2>지난 며칠간의 감정</h2>
+          <div class="m-1 d-flex">
             <button class="btn btn-primary"
               :disabled="selectedPeriod === 7"
               @click="selectPeriod(7)">
               7일
             </button>
-            <button class="btn btn-primary"
+            <button class="btn btn-primary mx-2"
               :disabled="selectedPeriod === 14"
               @click="selectPeriod(14)">
               14일
@@ -27,17 +27,17 @@
             <ChartDoughnut :chart-data="doughnutChartData" :key="selectedPeriod"/>
           </div>
         </div>
-        <div>
-          <h2>감정 추이 변화 그래프</h2>
+        <div class="d-flex flex-column align-center">
+          <h2 class="p-2">감정 추이 변화 그래프</h2>
           <div v-if="!isLineChartData">일기에서 추출된 감정이 없습니다.</div>
           <div v-if="isLineChart">
             <ChartLine :chart-data="lineChartData"/>
           </div>
         </div>
       </div>
-      <div>
+      <div class="d-flex flex-column right-item align-center p-3">
         <h2>감정 별 일기</h2>
-        <div>
+        <div class="m-3">
         <!-- 버튼 목록 -->
           <button class="btn btn-primary"
             :disabled="selectedEmotion===1"
@@ -75,7 +75,7 @@
 </template>
   
 <script setup>
-import { onMounted, ref, computed } from 'vue'
+import { onMounted, ref, computed, watch } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import axios from 'axios'
 import ChartDoughnut from '@/components/charts/ChartDoughnut.vue'
@@ -189,6 +189,7 @@ const changePage = function (num) {
 // 일기 목록 감정 선택
 const selectEmotion = function (num) {
   selectedEmotion.value = num
+  pageNum.value = 1
   axios({
     method: 'get',
     url: `${API_URL}/emotion/${selectedEmotion.value}?page=${pageNum.value}`,
@@ -242,5 +243,14 @@ onMounted(() => {
 </script>
   
 <style scoped>
-  
+.left-item {
+  background-color: #F9F7C9;
+  padding: 20px;
+  width: 30%;
+}
+
+.right-item {
+  background-color: #AAD9BB;
+  width: 30%;
+}
 </style>

@@ -11,7 +11,7 @@
       </thead>
       <tbody>
         <tr v-for="follow in follows" :key="follow.userId">
-          <td @click="openModal(follow.userId)">{{ follow.nickName }}</td>
+          <td class="follow-name" @click="openModal(follow.userId)">{{ follow.nickName }}</td>
           <td>{{ follow.mbti }}</td>
           <td>{{ follow.interests }}</td>
           <td :style="{ 'color' : follow._online ? 'green': 'red'}">{{ follow._online ? "online" : "offline" }}</td>
@@ -51,6 +51,10 @@ watch(page, (newVal, oldVal) => {
 </script>
 
 <style scoped>
+
+.follow-name {
+  cursor: pointer;
+}
 .table {
   width: 100%;
   border-collapse: collapse;

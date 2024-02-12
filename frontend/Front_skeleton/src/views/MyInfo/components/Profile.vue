@@ -1,34 +1,42 @@
 <template>
   <div class="d-flex flex-column">
-    <h2>About Me</h2>
-    <div>
-      <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
-      <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
-      <div>username : {{ userInfo.nickName }}</div>
-      <div>email : {{ userInfo.email }}</div>
-      <div>{{ userInfo.myIntro }}</div>
-      <div>{{ userInfo.charName }}</div>
-      <div>{{ userInfo.gender }}</div>
-      <div>{{ userInfo.birthday }}</div>
-      <button @click="openProfileModal">Edit</button>
-      <h3>MBTI</h3>
-      <h5>{{ userInfo.mbti }}</h5>
+    <div class="text-center mb-3">
+      <div class="d-flex justify-content-between pb-2">
+        <h2>About Me</h2>
+        <button class="btn btn-sm btn-primary" @click="openProfileModal">Edit</button>
+      </div>
+      <div>
+        <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
+        <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
+        <p>닉네임 : {{ userInfo.nickName }}</p>
+        <p>이메일 : {{ userInfo.email }}</p>
+        <p>{{ userInfo.myIntro }}</p>
+        <p>{{ userInfo.charName }}</p>
+        <p>{{ userInfo.gender }}</p>
+        <p>{{ userInfo.birthday }}</p>
+        <h3>MBTI</h3>
+        <h5>{{ userInfo.mbti }}</h5>
+      </div>
     </div>
-    <div>
-      <h3>감정그래프</h3>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between">
+        <h3>감정그래프</h3>
+        <button class="btn btn-sm btn-primary" @click="router.push({name:'feelings'})">Detail</button>
+      </div>
       <div v-if="isGraph">
         <PieChart :chart-data="chartData"/>
       </div>
       <div v-else>작성된 일기에서 추출된 감정이 아직 없습니다.</div>
-      <button class="btn" @click="router.push({name:'feelings'})">Detail</button>
     </div>
-    <div>
-      <h3>관심사</h3>
+    <div class="mb-3">
+      <div class="d-flex justify-content-between">
+        <h3>관심사</h3>
+        <button class="btn btn-sm btn-primary" @click="router.push({name: 'interests'})">Detail</button>
+      </div>
       <p v-for="(interest, index) of interests" :key="interest.interestId">
         {{ index + 1 }}. <span :style="{ 'color' : interest.preference === 'LIKE' ? 'green': 'red'}">{{ interest.interestName }}</span>
       </p>
       <p v-if="!interests.length">작성된 일기에서 추출된 관심사가 아직 없습니다.</p>
-      <button class="btn" @click="router.push({name: 'interests'})">Detail</button>
     </div>
     <ProfileEdit 
       :is-modal="isProfileModal" 

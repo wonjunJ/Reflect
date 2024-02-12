@@ -15,12 +15,18 @@
       </template>
     </el-calendar>
     <!-- 선택된 날에 활동 내역이 있는지 없는지 판별, 있으면 props로 데이터 전달-->
-    <div v-if="isDiary" class="d-flex">
-      <DiaryList v-if="getDateDiary(modifyDate(selectedDate))" :diary="diaryDetail"/>
-      <CommunityList v-if="getDateDiary(modifyDate(selectedDate))" :communitys="communitys" :pagingInfo="pagingInfo" @change-page="changePage"/>
+    <div v-if="isDiary" class="d-flex justify-content-evenly mt-3">
+      <div class="text-center">
+        <h4>Diary</h4>
+        <DiaryList class="mx-3" v-if="getDateDiary(modifyDate(selectedDate))" :diary="diaryDetail"/>
+      </div>
+      <div class="text-center">
+        <h4>Community</h4>
+        <CommunityList class="mx-3" v-if="getDateDiary(modifyDate(selectedDate))" :communitys="communitys" :pagingInfo="pagingInfo" @change-page="changePage"/>
+      </div>
     </div>
-    <div v-if="!isDiary">
-      <p>이 날 활동 내역이 없습니다.</p>
+    <div v-if="!isDiary" class="text-center">
+      <p class="m-3">이 날 활동 내역이 없습니다.</p>
     </div>
   </div>
 </template>
@@ -115,6 +121,12 @@ watch(() => selectedDate.value.getMonth(), (newMonth, oldMonth) => {
   const month = date[1]
   // axios 요청 뒤에 넣기 /2024-02 식으로
   getMonthlyDiary(year, month)
+})
+
+watch(selectedDate, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    pageNum.value = 1
+  }
 })
 
 onMounted(() => {

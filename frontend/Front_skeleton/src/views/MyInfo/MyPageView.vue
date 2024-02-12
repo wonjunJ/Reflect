@@ -1,18 +1,24 @@
 <template>
-  <h1>This is MyPage</h1>
+  <h1>MyPage</h1>
   <div class="d-flex">
-    <aside class="aside-container">
+    <aside class="aside">
       <Profile :user-info="userInfo" @change-character="changeCharacter" @reload-profile="getUserInfo"/>
     </aside>
-    <body class="d-flex flex-column body">
+    <body class="d-flex flex-column align-center body">
       <Calendar/>
-      <QandA/>
+      <QandA class="m-4"/>
       <div class="d-flex">
-        <div>
+        <div class="mx-3 text-center">
           <h4>Following</h4>
           <FollowList :follows="followings" :paging-info="followPagingInfo" @change-page="changeFollowPage"/>
         </div>
-        <CommunityList :communitys="communitys" :paging-info="roomPagingInfo" @change-page="changeCommunityPage"/>
+        <div class="text-center">
+          <h4>Community</h4>
+          <CommunityList class="mx-3 text-center" 
+            :communitys="communitys" 
+            :paging-info="roomPagingInfo" 
+            @change-page="changeCommunityPage"/>
+        </div>
       </div>
     </body>
   </div>
@@ -111,7 +117,7 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.aside-container {
+.aside {
   background-color: #AAD9BB;
   padding: 20px;
 }
