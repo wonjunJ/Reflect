@@ -82,6 +82,17 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
 
 
+    @Override
+    public List<DiaryDetailResponse> findAllDiaryDetailByDairyId(User user, Long id) {
+        List<Diary> AllDiaries = jpaQueryFactory
+                .selectFrom(diary)
+                .fetch();
+
+        return AllDiaries
+                .stream()
+                .map(this::mapToDiaryDetail)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public List<DiaryDetailResponse> findDiaryDetailByDairyId(User user, Long id) {

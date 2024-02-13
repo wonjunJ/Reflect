@@ -18,6 +18,7 @@ public interface DiaryRepositoryCustom {
     // 일기 디테일페이지 전후 7개 일기 조회
     List<DiaryDetailResponse> findDiaryDetailByDairyId(User user, Long id);
 
+    List<DiaryDetailResponse> findAllDiaryDetailByDairyId(User user, Long id);
 
 
     List<GraphResponse> findGraphInfo(User user, int recent);
