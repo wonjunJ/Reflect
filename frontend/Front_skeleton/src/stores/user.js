@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
+import SockJS from 'sockjs-client'
+import Stomp from 'stompjs'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
@@ -26,6 +28,28 @@ export const useUserStore = defineStore('user', () => {
     }
   })
 
+  var stompClient = null
+
+  function connect() {
+    // SockJS 연결 설정
+    var socket = new SockJS(`${API_URL}/reflect-socket`)
+    // STOMP 클라이언트 생성
+    stompClient = Stomp.over(socket)
+    let headers = {
+      Authorization: `Bearer ${accessToken.value}`
+    }
+    // 웹소켓 서버 연결
+    stompClient.connect(headers, function (frame){
+      console.log('Connected: ' + frame)
+
+      stompClient.subscribe(`/alram/msg-to/${userId.value}`, function (greeting) {
+        console.log(greeting)
+        const message = JSON.parse(greeting.body).msg
+      })
+    })
+
+  }
+
   function login(id, password) {
     axios({
       method: 'post',
@@ -40,8 +64,11 @@ export const useUserStore = defineStore('user', () => {
         refreshToken.value = res.data.RefreshToken
         userId.value = res.data.userId
         router.push({name: 'mypage'})
+        connect()
+        
       })
       .catch(err => {
+        console.log(err)
         window.alert('아이디 또는 비밀번호가 잘못되었습니다.')
       })
   }
