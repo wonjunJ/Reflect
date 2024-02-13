@@ -40,8 +40,10 @@ export const useUserStore = defineStore('user', () => {
         refreshToken.value = res.data.RefreshToken
         userId.value = res.data.userId
         router.push({name: 'mypage'})
+        
       })
       .catch(err => {
+        console.log(err)
         window.alert('아이디 또는 비밀번호가 잘못되었습니다.')
       })
   }

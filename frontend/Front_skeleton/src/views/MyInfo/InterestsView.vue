@@ -79,7 +79,7 @@
           </div>
           <div>
             <!-- 일기 목록 -->
-            <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo" @change-page="changePage"></DiaryDetailList>
+            <DiaryDetailList :diarys="filteredDiarys" :pagingInfo="pagingInfo" @change-page="changePage" :key="selectedMbti"></DiaryDetailList>
           </div>
         </div>
       </div>
@@ -137,9 +137,9 @@ const selectMbti = function (num) {   // MBTI 선택 함수
     }
   })
     .then(res => {
+      selectedMbti.value = num              // 선택된 mbti 바꾸기
       filteredDiarys.value = res.data.data  // 일기 목록 저장
       pagingInfo.value = res.data.pagingInfo  // 페이지네이션 정보 저장
-      selectedMbti.value = num              // 선택된 mbti 바꾸기
     })
     .catch(err => {
       console.log(err)
