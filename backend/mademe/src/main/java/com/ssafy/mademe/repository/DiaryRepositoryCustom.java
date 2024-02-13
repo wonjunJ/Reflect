@@ -1,11 +1,10 @@
 package com.ssafy.mademe.repository;
 
-import com.ssafy.mademe.dto.response.EmotionCntResponse;
-import com.ssafy.mademe.dto.response.GraphResponse;
-import com.ssafy.mademe.dto.response.MonthDiaryResponse;
-import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
+import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.User;
+import io.lettuce.core.dynamic.annotation.Param;
+import org.springframework.data.jpa.repository.Query;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -17,6 +16,9 @@ public interface DiaryRepositoryCustom {
     List<MonthDiaryResponse> findMonthStatus(User user, LocalDate date);
     //SimpleDiaryResponse findSimpleDiaryInfoById(Long id);
     // 일기 디테일페이지 전후 7개 일기 조회
-    List<Diary> findDiaryDetailByDate(User user, LocalDateTime startOfDay, LocalDateTime endOfDay);
+    List<DiaryDetailResponse> findDiaryDetailByDairyId(User user, Long id);
+
+
+
     List<GraphResponse> findGraphInfo(User user, int recent);
 }
