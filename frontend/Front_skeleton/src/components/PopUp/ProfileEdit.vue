@@ -10,7 +10,7 @@
           <!-- 프로필 사진 수정 -->
           <div class="d-flex justify-content-between">
             <h5>프로필 사진</h5>
-            <input type="file" @change="handleImageUpload">
+            <input type="file" accept="image/jpeg, image/png, image/gif" @change="handleImageUpload" size="2097152">
           </div>
           <img v-if="state.form.profileImg" :src="state.form.profileImg" alt="Profile image" style="width : 300px;">
           <img v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 300px;">
