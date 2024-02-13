@@ -18,6 +18,7 @@ public class EmotionLog {
     private EmotionCode emotionCode;
 
     @Lob
+    @Column(columnDefinition = "text")
     private String sentence;
 
     @ManyToOne(fetch = FetchType.LAZY)

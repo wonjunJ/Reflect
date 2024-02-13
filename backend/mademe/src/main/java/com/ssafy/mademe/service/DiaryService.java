@@ -59,7 +59,7 @@ public class DiaryService {
     }
 
     @Transactional
-    public User addDiaryGPTLog(User user, DiaryGPTRequest request){
+    public Diary addDiaryGPTLog(User user, DiaryGPTRequest request){
         Diary diary = new Diary();
         diary.setContent(request.getDailyData().getContent());
         diary.setDiaryScore(request.getDailyData().getDaily_score());
@@ -88,14 +88,15 @@ public class DiaryService {
             user.setRecordTime(1);
         }
         diary.setUser(user);
-        diaryRepository.save(diary);
+        Diary resultId = diaryRepository.save(diary);
 
         //포인트 획득
         int curPoint = user.getPoint();
         user.setPoint(curPoint + 10);
         getDiaryTitle(user);
         getMbtiTitle(user);
-        return userRepository.save(user);
+        userRepository.save(user);
+        return resultId;
     }
 
     //일기 관련 칭호 획득

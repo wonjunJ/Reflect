@@ -2,6 +2,7 @@ package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
 import com.ssafy.mademe.dto.response.*;
+import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.DiaryService;
 import com.ssafy.mademe.service.RoomService;
@@ -62,13 +63,14 @@ public class DiaryController {
 
     //일기 작성(GPT 분석 데이터까지 함께 저장)
     @PostMapping("/gpt")
-    public Map<String, String> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
+    public Map<String, Long> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
         DiaryGPTRequest request = data.get("data");
         //request.getDailyData().getKeywords().forEach(s -> System.out.println("data는 " + s));
-        User savedUser = diaryService.addDiaryGPTLog(user, request);
+        Diary diaryId = diaryService.addDiaryGPTLog(user, request);
         //칭호 획득 관련 처리 추가
-        Map<String, String> state = new HashMap<>();
-        state.put("state", "success");
+        Map<String, Long> state = new HashMap<>();
+        //state.put("state", "success");
+        state.put("diaryId", diaryId.getId());
         return state;
     }
 }

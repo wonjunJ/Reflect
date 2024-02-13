@@ -28,5 +28,6 @@ public class MBTILog {
 //    private Long cnt;
 
     @Lob
+    @Column(columnDefinition = "text")
     private String sentence;
 }
