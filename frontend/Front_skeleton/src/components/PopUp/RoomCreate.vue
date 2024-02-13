@@ -11,7 +11,7 @@
         <!-- 썸네일 사진 -->
         <div class="room-img">
           <div class="up-img">
-            <el-upload class="upload-demo" :before-upload="beforeUpload">
+            <el-upload class="upload-demo" :before-upload="beforeUpload" >
               <!-- <div class="btn-container">
                 <a class="img-btn cyan" :disabled="uploading">사진 업로드</a>
               </div> -->
@@ -65,7 +65,7 @@
           
           <!-- 자유주제 --><!-- 해시태그  -->
           <div v-if="isFree" class="room-hashtag">
-            <Tagify />
+            <Tagify @updateHashtags="handleHashtagsUpdate"/>
           </div>
           
           <!-- 백문백답 --><!-- 질문선택-->
@@ -73,7 +73,7 @@
               <label for="questions" class="qestions-label">질문  </label>
               <select class="question-select" id="questions" required="required">
                 <option value="" selected disabled hidden>질문을 선택해주세요.</option>
-                <option v-for="question in questionlist" :key="question.pk" :value="question.id" @click=findId(question.pk)>
+                <option v-for="question in questionlist" :key="question.pk" :value="question.id" @change=findId(question.pk) required>
                   {{ question.id }}
                 </option>
               </select>
@@ -84,7 +84,7 @@
             <div class="limit-container">
               <p>인원수</p>
               <div class="slider">
-                <MemberLimitSlider />
+                <MemberLimitSlider @update-value="handleValueUpdate"/>
               </div>
             </div>
           </div>
@@ -96,7 +96,7 @@
   </div>
 </template>
 <script setup>
-import { ref} from 'vue'
+import { ref, watchEffect } from 'vue'
 import {useRouter} from 'vue-router'
 import { useRoomStore } from '@/stores/room';
 import { useUserStore } from '@/stores/user';
@@ -117,12 +117,50 @@ const imgData = ref(null)
 let uploading = false;
 const roomTitle = ref(null)
 const roomDescribe = ref(null)
-const hashtag = ref(null)
+const hashtags = ref([])
 const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
-const memberNum = ref(null)
+const memberNum = ref(0)
 const type = ref('BACKMOON')
+const mode = ref([])
+
+
+const handleValueUpdate = (newValue) => {
+  const numericValue = Number(newValue); // newValue를 숫자로 변환
+  if (!isNaN(numericValue)) { // numericValue가 유효한 숫자인지 확인
+    memberNum.value = numericValue;
+    console.log('Updated member limit from child:', memberNum.value);
+  }
+};
+
+const handleHashtagsUpdate = (newHashtags) => {
+  hashtags.value = newHashtags
+  console.log('Updated hashtags from child:', hashtags.value);
+}
+
+
+const Mask = () => {
+  isMask.value =!isMask.value
+}
+
+const Secret = () => {
+  isSecret.value =!isSecret.value
+}
+
+const Anonymous = () => {
+  isAnonymous.value =!isAnonymous.value
+}
+
+watchEffect(() => {
+  mode.value = []; // 매번 mode 배열을 초기화
+  if (isMask.value) mode.value.push('MASK');
+  if (isSecret.value) mode.value.push('SECRET');
+  if (isAnonymous.value) mode.value.push('ANONYMOUS');
+  console.log(mode.value)
+});
+
+
   
 // 파일 업로드 전 호출되는 메서드
 const beforeUpload = (file) => {
@@ -147,48 +185,25 @@ const replaceImg = (e) => {
 };
 
 
-function extractBase64Data(previewUrlRef) {
-  // previewUrlRef.value가 null이 아니고, 문자열일 때만 처리
-  if (previewUrlRef.value && typeof previewUrlRef.value === 'string') {
-    const base64Data = previewUrlRef.value.replace(/^data:image\/[a-z]+;base64,/, '');
-    return base64Data;
-  }
-  return null; // previewUrlRef.value가 null이거나 유효하지 않은 경우 null 반환
-}
-
 
 watch(previewUrl, (newValue, oldValue) => {
-    imgData.value = extractBase64Data(previewUrl);
-    console.log(imgData.value); // 새로운 값이 설정될 때마다 로그를 찍어보세요
+    imgData.value = previewUrl.value;
+    // console.log(imgData.value)
 });
 
 const writeQuestion = () => {
   isHundred.value = true
   isFree.value = false
   type.value = 'BACKMOON'
+  console.log('방 타입:', type.value); //
 }
 const writeHashtag= () => {
   isHundred.value = false
   isFree.value = true
   type.value = 'FREE'
+  console.log('방 타입:', type.value); //
 }
-// const goRoom = () => {
-//   const roomInfoData = {
-//     isHundred: isHundred.value,
-//     isFree: isFree.value,
-//     questions: questions.value,
-//     previewUrl: previewUrl.value,
-//     roomTitle: roomTitle.value,
-//     roomDescribe: roomDescribe.value,
-//     hashtag: hashtag.value,
-//     isAnonymous: isAnonymous.value,
-//     isMask: isMask.value,
-//     isSecret: isSecret.value,
-//     memberNum: memberNum.value,
-//   };
-// }
 
-  // RoomWaitingView.vue로 이동
 
   const questionlist = [
   { pk: 1, id: '내 이름의 뜻은?' },
@@ -294,36 +309,26 @@ const writeHashtag= () => {
 ];
 
 const questionId = ref(null)
+
 const findId = (id) => {
   questionId.value = id
-  console.log(questionId)
+  console.log('질문 번호 : ',questionId)
 }
 
 
 
 const createRoom = () => {
-  axios({
-    method: 'post',
-    url:`${roomStore.API_URL}/room/create`,
-    data: {
+  const payload ={
       type: type.value,
-      question_id: questionId.value,
+      questionId: questionId.value,
       thumbnail: imgData.value,
       title: roomTitle.value,
       intro: roomDescribe.value,
-      hash_name: hashtag.value,
-      anonymous: isAnonymous.value,
-      mask: isMask.value,
-      secret: isSecret.value,
-      total_num: memberNum.value,
-    },
-    headers: {
-          Authorization : `Token ${userStore.accessToken}`
+      hashTags: hashtags.value,
+      mode: mode.value,
+      totalNum: memberNum.value,
     }
-  })
-    .then((res) => {
-      router.push({name:'waiting'})
-    })
+    roomStore.createRoom(payload)
 }
 
 const closeModal = () => {

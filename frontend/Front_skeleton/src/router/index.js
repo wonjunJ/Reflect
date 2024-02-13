@@ -74,7 +74,7 @@ const router = createRouter({
       component: Interests,
     },
     {
-      path: '/rooms',
+      path: '/room',
       name: 'roomlist',
       component: RoomListView,
       // meta: { requresAuth: true},
