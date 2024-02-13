@@ -82,9 +82,10 @@ const reloadProfile = () => {
   emit('reloadProfile')
 }
 
+// 그래프 랜더링 여부 - onMounted로 데이터 불러오기 전에 먼저 랜더링 하는거 방지
 const isGraph = ref(false)
 
-// 그래프용 데이터 (서버에서 datasets[0].data 데이터 받아와야함)
+// 그래프용 데이터
 const chartData = ref({
   labels: ['Happy', 'Joy', 'Sad', 'Anger', 'Disgust'],
   datasets: [
@@ -97,12 +98,10 @@ const chartData = ref({
   ]
 })
 
-const interests = ref([
-  { id: 1, emotion: 0, name: 'name1' },
-  { id: 2, emotion: 0, name: 'name2' },
-  { id: 3, emotion: 0, name: 'name3' },
-])
+// 관심사 목록
+const interests = ref([])
 
+// 배열 합 구하는 함수
 const sumArray = function (array) {
   let sum = 0
   array.forEach(element => {
@@ -113,6 +112,7 @@ const sumArray = function (array) {
   return sum
 }
 
+// 프로필 정보 요청 함수
 const getProfileInfo = function () {
   axios({
     method: 'get',
@@ -127,7 +127,7 @@ const getProfileInfo = function () {
       interests.value = res.data.interests
       chartData.value.datasets[0].data = Object.values(emotion)
       if (sumArray(Object.values(emotion))) {
-        isGraph.value = true
+        isGraph.value = true  // 추출된 데이터가 있을 때만 그래프 출력
       }
     })
     .catch(err => {

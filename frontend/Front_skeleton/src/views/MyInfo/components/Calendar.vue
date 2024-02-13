@@ -43,6 +43,7 @@ const API_URL = userStore.API_URL
 
 // 선택된 날짜
 const selectedDate = ref(new Date())
+// 날짜 객체 YYYY-MM-DD 형식 문자열로 반환하는 함수 
 const modifyDate = function (date) {
   const year = date.getFullYear().toString()
   let month = (date.getMonth() + 1).toString()
@@ -56,19 +57,21 @@ const modifyDate = function (date) {
   return `${year}-${month}-${day}`
 }
 
-const monthlyDiarys = ref([])
-const diaryDetail = ref({})
-const communitys = ref([])
-const pageNum = ref(1)
-const pagingInfo = ref({})
+const monthlyDiarys = ref([])   // 한달치 일기
+const diaryDetail = ref({})     // 선택된 하루의 일기
+const communitys = ref([])      // 선택된 하루의 커뮤니티 활동 내역
+const pageNum = ref(1)          // 커뮤니티 페이지네이션 현재 페이지 번호
+const pagingInfo = ref({})      // 커뮤니티 페이지네이션 정보
 const changePage = function (num) {
   pageNum.value = num
 }
 
+// 한달치 일기 목록 중 해당 날짜의 일기 정보를 각 달력 칸에 뿌리는 함수
 const getDateDiary = function (date) {
   return monthlyDiarys.value.find(diary => diary.date === date)
 }
 
+// 선택된 하루 날짜의 일기 정보를 가져오는 함수
 const getDailyDiary = function (id, num) {
   axios({
     method: 'get',
@@ -100,6 +103,7 @@ const isDiary = computed(() => {
   return monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value)) !== undefined
 })
 
+// 한달치 일기 목록 요청 함수
 const getMonthlyDiary = function (year, month) {
   axios({
     method: 'get',
@@ -120,6 +124,7 @@ const getMonthlyDiary = function (year, month) {
     })
 }
 
+// 일기의 감정 값을 바탕으로 이모티콘 반환하는 함수
 const getEmotionEmoji = function (num) {
   if (num === 1) {
     return "😊"
@@ -145,12 +150,14 @@ watch(() => selectedDate.value.getMonth(), (newMonth, oldMonth) => {
   getMonthlyDiary(year, month)
 })
 
+// 날짜 바뀌면 페이지네이션 페이지 1로 초기화
 watch(selectedDate, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     pageNum.value = 1
   }
 })
 
+// 마운트되면 오늘 날짜 바탕으로 한달치 일기 목록 가져오기
 onMounted(() => {
   const today = new Date()
   const year = today.getFullYear().toString()

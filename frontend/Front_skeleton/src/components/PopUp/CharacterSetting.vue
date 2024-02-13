@@ -28,17 +28,20 @@
     emit('closeModal')
   }
   
+  // 캐릭터 선택지
   const options = ref([
     { id: 1, name: '슬라임', ishave: true },
     { id: 2, name: '코기', ishave: false },
     { id: 3, name: '해골', ishave: true },
   ])
   
-  const selectedCharacter = ref(props.characterId)
+  const selectedCharacter = ref(props.characterId)  // 선택된 캐릭터 아이디
+  // 캐릭터 선택 함수
   const selectCharacter = function (num) {
     selectedCharacter.value = num
   }
   
+  // 캐릭터 변경 emit
   const changeCharacter = function () {
     emit('changeCharacter', selectedCharacter.value)
   }

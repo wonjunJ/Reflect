@@ -85,15 +85,14 @@ import DiaryDetailList from './components/DiaryDetailList.vue'
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
   
-const emotionData = ref({})
-// 선택된 기간과 감정코드
-const selectedPeriod = ref(7)
-const selectedEmotion = ref(1)
-const pageNum = ref(1)
-const isPieChart = ref(false)
-const isLineChart = ref(false)
-const isPieChartData = ref(true)
-const isLineChartData = ref(true)
+const emotionData = ref({})           // 감정 정보
+const selectedPeriod = ref(7)         // 선택한 감정 그래프 기간
+const selectedEmotion = ref(1)        // 선택한 감정 코드
+const pageNum = ref(1)                // 감정 별 일기 페이지네이션 페이지 번호
+const isPieChart = ref(false)         // 파이차트 랜더링 여부 - 데이터 요청 전 랜더링 방지
+const isLineChart = ref(false)        // 라인차트 랜더링 여부 - 데이터 요청 전 랜더링 방지
+const isPieChartData = ref(true)      // 파이차트 데이터 유무 판단
+const isLineChartData = ref(true)     // 라인차트 데이터 유무 판단
   
 // 도넛 그래프 데이터
 const doughnutChartData = ref({
@@ -107,6 +106,7 @@ const doughnutChartData = ref({
   ]
 })
 
+// 배열의 합 계산 - 차트용 데이터 유무 판단 용
 const sumArray = function (array) {
   let sum = 0
   array.forEach(element => {
@@ -121,7 +121,6 @@ const sumArray = function (array) {
 const selectPeriod = function (num) {
   selectedPeriod.value = num
   let data = emotionData.value["7days"]
-  // 기간 바뀌면 서버에 요청 보내서 datasets[0].data 바꿔주기
   if (num === 14) {
     data = emotionData.value["14days"]
   } else if (num === 28) {
@@ -135,14 +134,10 @@ const selectPeriod = function (num) {
   }
 }
 
-const lineData = ref([
-  { date: "2024-02-01", score: 50 },
-  { date: "2024-02-02", score: 100 },
-  { date: "2024-02-03", score: 0 },
-  { date: "2024-02-04", score: 25 },
-  { date: "2024-02-05", score: 75 },
-])
+// 라인차트용 데이터
+const lineData = ref([])
 
+// chart js 용 데이터 변환
 const lineChartData = computed(() => {
   let labels = []
   let data = []
@@ -167,15 +162,17 @@ const lineChartData = computed(() => {
     ]
   }
 })
-  
-const filteredDiarys = ref([])
-const pagingInfo = ref({})
 
+const filteredDiarys = ref([])  // 감정별 일기 목록
+const pagingInfo = ref({})      // 일기 목록 페이지네이션 정보
+
+// 페이지가 바뀐 경우 새로운 일기 목록 가져오기
 const changePage = function (num) {
   pageNum.value = num
   selectedEmotion(selectedEmotion.value)
 }
 
+// 선택된 감정이 바뀐 경우 페이지 1로 초기화
 watch(selectedEmotion, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     pageNum.value === 1
@@ -206,6 +203,7 @@ const selectEmotion = function (num) {
     })
 }
 
+// 감정 분포 그래프 정보 요청 함수
 const getEmotionInfo = function () {
   axios({
     method: 'get',
@@ -227,6 +225,7 @@ const getEmotionInfo = function () {
     })
 }
 
+// 감정 변화 추이 그래프 정보 요청 함수
 const getGraphInfo = function () {
   axios({
     method: 'get',
@@ -247,7 +246,8 @@ const getGraphInfo = function () {
       }
     })
 }
-  
+
+// selectPeriod(7)이 순서가 꼬이는 문제가 발생해 getEmotionInfo 함수 내용을 일일히 입력함
 onMounted(() => {
   selectEmotion(1)
   axios({

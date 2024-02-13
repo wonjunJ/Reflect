@@ -115,12 +115,13 @@ const filteredDiarys = ref([])  // props로 일기 목록에 전해줄 일기
 const pagingInfo = ref({})      // 페이지네이션 정보
 const selectedMbti = ref(1)     // 선택된 MBTI 코드
 const pageNum = ref(1)          // 선택된 페이지
+// 페이지 변경 시 새 일기 목록 요청 함수
 const changePage = function (num) {
   pageNum.value = num
-  console.log(pageNum.value)
   selectMbti(selectedMbti.value)
 }
 
+// 선택된 mbti가 바뀌면 페이지 1로 초기화
 watch(selectedMbti, (newVal, oldVal) => {
   if (newVal !== oldVal) {
     pageNum.value = 1
@@ -324,6 +325,7 @@ const deleteInterests = function (num, preference) {
     })
 }
 
+// 관심사 목록 정보 요청 함수
 const getInterestInfos = function () {
   axios({
     method: 'get',
@@ -346,6 +348,7 @@ const getInterestInfos = function () {
     })
 }
 
+// MBTI 정보 요청 함수
 const getMbtiInfos = function () {
   axios({
     method: 'get',

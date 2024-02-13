@@ -96,6 +96,7 @@ const state = reactive({
   formAlign: 'left',
 })
 
+// 유효성 검사
 const isFormValid = computed(() => {
   const rules = state.rules
   const form = state.form
@@ -124,6 +125,7 @@ const isFormValid = computed(() => {
   return isValid
 })
 
+// 비밀번호 변경 함수
 const changePassword = function () {
   axios({
     method: 'put',

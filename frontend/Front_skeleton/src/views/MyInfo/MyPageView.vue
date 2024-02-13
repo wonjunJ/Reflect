@@ -37,24 +37,24 @@ import CommunityList from './components/CommunityList.vue'
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 
-// 사용자 정보 더미데이터
+// 사용자 정보
 const userInfo = ref({})
 
 const emit = defineEmits(['changeCharacter',])
 
-// 팔로잉 목록
-const followings = ref([])
-const followPageNum = ref(1)
-const followPagingInfo = ref({})
+const followings = ref([])    // 팔로잉 목록
+const followPageNum = ref(1)  // 팔로잉 페이지네이션 번호
+const followPagingInfo = ref({})  // 팔로잉 페이지네이션 정보
+// 페이지 변화 시 새로운 목록 요청
 const changeFollowPage = function (num) {
   followPageNum.value = num
   getFollowInfo()
 }
 
-// 가입 커뮤니티 목록
-const communitys = ref([])
-const roomPageNum = ref(1)
-const roomPagingInfo = ref({})
+const communitys = ref([])  // 커뮤니티 목록
+const roomPageNum = ref(1)  // 커뮤니티 페이지네이션 번호
+const roomPagingInfo = ref({})  // 커뮤니티 페이지네이션 정보
+// 페이지 변화 시 새로운 목록 요청
 const changeCommunityPage = function (num) {
   roomPageNum.value = num
   getCommunitysInfo()
@@ -65,6 +65,7 @@ const changeCharacter = (num) => {
   emit('changeCharacter', num)
 }
 
+// 사용자 정보 요청 함수
 const getUserInfo = function () {
   axios({
     method: 'get',
@@ -85,6 +86,7 @@ const getUserInfo = function () {
     })
 }
 
+// 커뮤니티 목록 요청 함수
 const getCommunitysInfo = function () {
   axios({
     method: 'get',
@@ -106,6 +108,7 @@ const getCommunitysInfo = function () {
     })
 }
 
+// 팔로워 목록 요청 함수
 const getFollowInfo = function () {
   axios({
     method: 'get',

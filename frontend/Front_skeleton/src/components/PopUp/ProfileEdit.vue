@@ -109,6 +109,7 @@ onMounted(() => {
   state.form = {...props.userInfo}
 })
 
+// 사진 base64로 변환
 const handleImageUpload = (event) => {
   const file = event.target.files[0]
   const reader = new FileReader()
@@ -148,6 +149,7 @@ const isFormValid = computed(() => {
   return isValid
 })
 
+// 프로필 수정 요청
 const editProfile = function () {
   axios({
     method: 'put',

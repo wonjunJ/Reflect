@@ -32,6 +32,7 @@ const emit = defineEmits(['changePage'])
 
 const page = ref(1)
 
+// 페이지 바뀌면 emit 보내기
 watch(page, (newVal, oldVal) => {
   emit('changePage', newVal)
 })

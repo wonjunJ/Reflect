@@ -39,6 +39,7 @@ const userStore = useUserStore()
 const API_URL = userStore.API_URL
 const questionsStore = useQuestionsStore()
 
+// 답변한 질문 목록
 const completedQuestions = ref([])
 
 // 답 저장용 배열 만들기
@@ -50,8 +51,10 @@ const createArray = function () {
   return emptyArray
 }
 
+// 전체 답변 배열
 const answerList = ref(createArray())
 
+// 전체 답변 배열과 답변한 질문 동기화 
 const refreshAnswerList = function () {
   completedQuestions.value.forEach((element) => {
     answerList.value[element.questionId-1].answer = element.answer
@@ -59,6 +62,7 @@ const refreshAnswerList = function () {
   })
 }
 
+// 답변 수정 및 작성 중계 함수
 const submitAnswer = function (id) {
   if (answerList.value[id-1].initAnswer) {
     putAnswer(answerList.value[id-1])
@@ -67,6 +71,7 @@ const submitAnswer = function (id) {
   }
 }
 
+// 답변 수정 함수
 const putAnswer = function (obj) {
   axios({
     method: 'put',
@@ -94,6 +99,7 @@ const putAnswer = function (obj) {
     })
 }
 
+// 답변 작성 함수
 const postAnswer = function (obj) {
   axios({
     method: 'post',
@@ -122,6 +128,7 @@ const postAnswer = function (obj) {
     })
 }
 
+// 답변 삭제 함수
 const deleteAnswer = function (id) {
   axios({
     method: 'delete',
@@ -150,6 +157,7 @@ const deleteAnswer = function (id) {
     })
 }
 
+// 답변한 질문 목록 요청 함수
 const getAnswers = function () {
   axios({
     method: 'get',
@@ -160,10 +168,7 @@ const getAnswers = function () {
   })
     .then(res => {
       completedQuestions.value = res.data
-      completedQuestions.value.forEach((element) => {
-        answerList.value[element.questionId-1].answer = element.answer
-        answerList.value[element.questionId-1].initAnswer = element.answer
-      })
+      refreshAnswerList()
     })
     .catch(err => {
       console.log(err)
