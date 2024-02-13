@@ -15,6 +15,9 @@ export const useRoomStore = defineStore('room', () => {
   const isFiltered = ref(false)
   const searchedRooms = ref([])
   const roomDetail = ref([])
+  const pagingInfo = ref([])
+  const waitingId = ref(0)
+  
 
   
   //방 상세정보 조회
@@ -43,18 +46,30 @@ export const useRoomStore = defineStore('room', () => {
     //const {type,questionId,thumbnail,title,intro,hashTags,mode,totalNum} = payload
     console.log(token)
     console.log(payload)
+    const json = {
+      "totalNum" : payload.totalNum,
+      "type" : payload.type,
+      "mode" : payload.mode,
+      "title" : payload.title,
+      "intro" : payload.intro,
+      "thumbnail" : payload.thumbnail,
+      "questionId" : payload.questionId,
+      "hashTags" : payload.hashTags
+    }
+    console.log(json);
     axios({
       method: 'post',
       url: `${API_URL}/room/create`,
       headers : {
         Authorization: `Bearer ${token}`
       },
-      data: payload
+      data: json
     })
     .then((res) => {
         console.log(res.data)
         console.log('방 생성 완료')
-        // router.push({name:'waiting'})
+        waitingId.value = res.data.roomId
+        router.push({path: `/waiting/${waitingId}`})
       })
     .catch((err) => {
       console.log(err)
@@ -69,7 +84,7 @@ export const useRoomStore = defineStore('room', () => {
   const getRooms = () => {
     const from = 2
     const to = 8
-    const pageable = 0
+    const page = 0
     axios({
       method: 'get',
       url: `${API_URL}/room`,
@@ -79,12 +94,15 @@ export const useRoomStore = defineStore('room', () => {
       params: {
         from: from,
         to: to,
-        page: pageable
+        page: page
       }
     })
       .then((res) => {
-        console.log(res.data)
-        rooms.value = res.data
+        console.log(res.data.data)
+        // console.log(res.data.pagingInfo)
+        rooms.value = res.data.data
+        pagingInfo.value = res.data.pagingInfo
+        console.log(pagingInfo.value)
         return rooms
       })
       .catch((err) => 
@@ -95,6 +113,9 @@ export const useRoomStore = defineStore('room', () => {
   // 필터링된 방의 목록을 가져옴
   // 100문100답, 자유주제, 인원수, 모집중 기준으로 필터링
   const getFilteredRooms = (filter, from, to, pageable) => {
+    console.log(from)
+    console.log(to)
+    console.log(pageable)
     axios({
       method:'get',
       url:`${API_URL}/room`,
@@ -109,8 +130,10 @@ export const useRoomStore = defineStore('room', () => {
       }
     })
       .then((res) => {
-        console.log(res.data)
-        filteredRooms.value = res.data
+        console.log(res.data.data)
+        filteredRooms.value = res.data.data
+        pagingInfo.value = res.data.pagingInfo
+        console.log(pagingInfo.value)
         isFiltered.value = true
       })
       .catch((err) => console.log(err))
@@ -126,8 +149,10 @@ export const useRoomStore = defineStore('room', () => {
       }
     })
       .then((res) => {
-        console.log(res.data)
-        myRooms.value = res.data
+        console.log(res.data.data)
+        myRooms.value = res.data.data
+        pagingInfo.value = res.data.pagingInfo
+        console.log(pagingInfo.value)
         // rooms.value = ref('a')
         return myRooms
       })
@@ -149,13 +174,19 @@ export const useRoomStore = defineStore('room', () => {
       params: {searchWord:search, from:from, to:to, page:pageable}
     })
     .then((res) => {
-        console.log(res.data)
-        searchedRooms.value = res.data
+        console.log(res.data.data)
+        searchedRooms.value = res.data.data
+        pagingInfo.value = res.data.pagingInfo
+        console.log(pagingInfo.value)
+        console.log('검색완료')
       })
-    .catch((err) => console.log(err))
+    .catch((err) => {
+      console.log('검색 실패')
+      console.log(err)
+    })
   }
 
 
 
-  return { roomDetail, getRoomDetail,rooms, getRooms, myRooms, getMyRooms,API_URL, createRoom, getFilteredRooms, getSearchRooms, searchedRooms, filteredRooms }
+  return { pagingInfo,roomDetail, getRoomDetail,rooms, getRooms, myRooms, getMyRooms,API_URL, createRoom, getFilteredRooms, getSearchRooms, searchedRooms, filteredRooms }
 })

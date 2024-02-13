@@ -2,13 +2,17 @@
     <div>
     <div class="all-room-container">
         <div class="row row-cols-1 row-cols-md-5 g-4">
-        <div class="col" v-for="room in rooms" :key="room.room_id">
+            <div class="col" v-for="room in rooms" :key="room.roomId">
             <div class="card h-100">
                 <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
                 <div class="card-body">
                     <h6>{{ room.type }}</h6>
                     <h5 class="card-title">{{ room.title }}</h5>
-                    <div class="d-inline-flex gap-1">{{ room.hashtag }}</div>
+                    <div class="d-inline-flex gap-1">
+                        <span v-for="(tag, index) in room.hashTags" :key="index">
+                            #{{ tag }}<span v-if="index < room.hashTags.length - 1"> </span>
+                        </span>
+                    </div>
                     <br>
                     <div class="room-member">
                         <div class="member-icon">
@@ -29,39 +33,42 @@
     </div>
     <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
     </div>
-        <!-- 페이지네이션 -->
-        <!-- <v-pagination
-              v-model="page"
-              :length="rooms.pagingInfo.totalPage"
-            ></v-pagination> -->
+    <!-- 페이지네이션 -->
+    <v-pagination
+            v-model="page.pageNum"
+            :length="page.totalPage"
+        ></v-pagination>
 </div>
 
 </template>
 
 <script setup>
 import { useRoomStore } from '@/stores/room';
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import RoomEnter from '@/components/PopUp/RoomEnter.vue';
-import { onMounted } from 'vue';
+
 
 const roomStore = useRoomStore()
-const rooms = roomStore.rooms
-onMounted(() =>{
-    roomStore.getRooms()
-})
+
+// computed 속성을 사용하여 rooms와 page를 정의
+const rooms = computed(() => roomStore.rooms);
+const page = computed(() => roomStore.pagingInfo);
 
 
 
 const isEnterRoom = ref(false)
 
 const openEnterModalOpen = () => {
-isEnterRoom.value =  true
+    isEnterRoom.value =  true
 }
 
 const closeModal = () => {
-isEnterRoom.value = false
+    isEnterRoom.value = false
 }
 
+onMounted(() =>{
+    roomStore.getRooms()
+})
 
 
 

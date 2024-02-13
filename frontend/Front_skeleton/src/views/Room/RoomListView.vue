@@ -141,7 +141,7 @@
       <!-- 사람 구하는 방 리스트 -->
       <div v-if="isWaiting"> 
 
-        <FilteredRoomList />
+        <FilteredRoomList :waiting="waiting" :from=2 :to=8 />
       </div>
       
       <!-- 내가 가입한 방 리스트 -->
@@ -221,7 +221,7 @@ onMounted(() => {
 const search = () => {
   // const searchKey = document.getElementsByClassName('searchbox')
   console.log('검색 시작')
-  // console.log(searchKey.value)
+  console.log(searchKey.value)
   isSearched.value = true
   isAll.value = false
   isWaiting.value = false
@@ -230,17 +230,11 @@ const search = () => {
 }
 
 const submitFilter = () => {
-  // const num = limit.value[1]-limit.value[0]
-  // for ( var i = 0; i <= num; i++ ) {
-  //   const filter = {
-  //     isHundredFilter: isHundredFilter.value,
-  //     isFreeFilter: isFreeFilter.value,
-  //     isWaitingFilter: isWaitingFilter.value,
-  //     limit: limit.value[0] + i
-  //   }
-  // }
+
   from.value = range.value[0]
-  to.value = range.value[1] 
+  to.value = range.value[1]
+  console.log(from.value)
+  console.log(range.value[0]) 
   if (isHundredFilter && !isFreeFilter) {
     type.value = 'BACKMOON'
   }
@@ -279,6 +273,8 @@ const waitingRooms = () => {
   isFiltered.value = false
   isMyRoom.value = false
   isSearched.value = false 
+  to.value = 8
+  from.value = 2
   
 }
 const myRooms = () => {
@@ -289,13 +285,7 @@ const myRooms = () => {
   isSearched.value = false //
 }
 
-// const filteredRooms = () => {
-//   isAll.value = false
-//   isWaiting.value = false
-//   isFiltered.value = true
-//   isMyRoom.value = false
-//   isSearched.value = false 
-// }
+
 
 
 const openCreateRoomModal = () => {

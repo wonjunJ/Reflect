@@ -1,13 +1,17 @@
 <template>
     <div class="all-room-container">
         <div class="row row-cols-1 row-cols-md-5 g-4">
-        <div class="col" v-for="room in rooms" :key="room.room_id">
+        <div class="col" v-for="room in rooms" :key="room.roomId">
             <div class="card h-100">
-                <img src="data:image/;base64,+{{ room.thumbnail }}" class="card-img-top" alt="방 썸네일">
+                <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
                 <div class="card-body">
                     <h6>{{ room.type }}</h6>
                     <h5 class="card-title">{{ room.title }}</h5>
-                    <div class="d-inline-flex gap-1">{{ room.hashtag }}</div>
+                    <div class="d-inline-flex gap-1">
+                        <span v-for="(tag, index) in room.hashTags" :key="index">
+                            #{{ tag }}<span v-if="index < room.hashTags.length - 1"> </span>
+                        </span>
+                    </div>
                     <br>
                     <div class="room-member">
                         <div class="member-icon">
@@ -25,26 +29,30 @@
                 </div>
             </div>
         </div>
+        <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
     </div>
-    <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
+    <v-pagination
+            v-model="page.pageNum"
+            :length="page.totalPage"
+        ></v-pagination>
     </div>
 </template>
 
 <script setup>
 import { useRoomStore } from '@/stores/room';
-import { ref } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import RoomEnter from '@/components/PopUp/RoomEnter.vue';
-import { onMounted } from 'vue';
+
 const props = defineProps({
-  type: String,
-  waiting: String,
-  from: Number,
-  to: Number
+    type: String,
+    waiting: String,
+    from: Number,
+    to: Number
 });
 
-
-
 const roomStore = useRoomStore()
+const rooms = computed(() => roomStore.filteredRooms);
+const page = computed(() => roomStore.pagingInfo);
 onMounted(() =>{
     // roomStore.num1 = props.limit[0]
     // roomStore.num2 = props.limit[1]
@@ -56,7 +64,6 @@ onMounted(() =>{
     const filter = {type, waiting}
     roomStore.getFilteredRooms(filter, from, to, pageable)
 })
-const rooms = roomStore.filteredRooms
 
 const isEnterRoom = ref(false)
 

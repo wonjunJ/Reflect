@@ -99,12 +99,12 @@
 import { ref, watchEffect } from 'vue'
 import {useRouter} from 'vue-router'
 import { useRoomStore } from '@/stores/room';
-import { useUserStore } from '@/stores/user';
+// import { useUserStore } from '@/stores/user';
 import axios from 'axios'
 import { watch } from 'vue';
 
 
-const userStore = useUserStore()
+// const userStore = useUserStore()
 const roomStore = useRoomStore()
 const router = useRouter()
 const { isModalOpen } = defineProps(['isModalOpen'])
