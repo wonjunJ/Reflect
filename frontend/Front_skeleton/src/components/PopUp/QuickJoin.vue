@@ -7,7 +7,7 @@
             <div>
                 <!-- 백문백답일 경우와 자유주제일 경우 -->
                 <div>
-                    <!-- <RouterLink :to="{name:'waiting', params:{id:roomId}}" class="btn">참여하기</RouterLink> -->
+                    <button type="button" class="btn btn-secondary" @click="participate">참여하기</button>
                     <button type="button" class="btn btn-primary" @click="closeModal">닫기</button>
                 </div>
             </div>
@@ -17,14 +17,38 @@
 
 <script setup>
 import {ref,onMounted} from 'vue';
-import { RouterLink } from 'vue-router';
 import { useRoomStore } from '@/stores/room'
+import router from '@/router';
 
 
 const {isQuickHundredModalOpen, isQuickFreeModalOpen} = defineProps(['isQuickHundredModalOpen','isQuickFreeModalOpen'])
 
 const roomStore = useRoomStore()
+const rooms = ref([])
+const from =2
+const to = 8
+const page = 0
 const emit = defineEmits()
+const participate =() => {
+    if (isQuickFreeModalOpen){
+        rooms.value = roomStore.getFilteredRooms('FREE', from, to, page)
+    }
+    else if (isQuickHundredModalOpen){
+        rooms.value = roomStore.getFilteredRooms('BACKMOON', from, to, page)
+    }
+    // 방 목록이 비어있지 않은지 확인
+    if (rooms.value && rooms.value.length > 0) {
+        // 랜덤 방 선택
+        const randomRoom = rooms.value[Math.floor(Math.random() * rooms.value.length)];
+
+        // 선택된 방의 ID를 사용하여 라우트 변경
+         router.push({path: `/waiting/${randomRoom.roomId}`})
+    } else {
+        // 적절한 처리 또는 경고 메시지 표시
+        console.log("사용 가능한 방이 없습니다.");
+        window.alert("사용 가능한 방이 없습니다.")
+    }
+}
 // const rooms = ref(null)
 // onMounted(() =>{
 //     const chooseType = () => {
