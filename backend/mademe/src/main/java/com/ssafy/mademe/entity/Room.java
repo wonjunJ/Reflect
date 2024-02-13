@@ -42,6 +42,7 @@ public class Room {
     private String intro;
 
     @Lob
+    @Column(columnDefinition = "text")
     private String thumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)
