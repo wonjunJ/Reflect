@@ -6,9 +6,10 @@
       
       <el-row class="row rounded-4">
         <el-col class="col1">
-        <div  class="list" v-for="entry in filteredDiaryEntries" :key="entry.date" @click="selectDate(entry.date)">
+          <div>{{ responseData }}</div>
+        <div  class="list" v-for="entry in responseData" :key="entry.create_date" @click="selectDate(create_date)">
           <div class="entry">
-            <span class="date">{{ entry.emotion }} {{ formatDate(entry.date) }}</span>
+            <span class="date">{{ entry.emotion }} {{ formatDate(entry.create_date) }}</span>
              <div class="keywords">
               <span v-for="keyword in entry.keywords" :key="keyword">#{{ keyword }} </span>
               </div>
@@ -20,10 +21,20 @@
 </template>
   
 <script setup>
-import { ref, computed } from 'vue';
-// import {useDiaryStore} from '@/stores/diary.js'
-// const store = useDiaryStore();
+import { ref, computed, onMounted, reactive } from 'vue';
+import { defineProps } from 'vue'; // defineProps import
 
+// props를 정의
+
+// props를 정의
+const props = defineProps({
+  responseData: Array // responseData prop은 Array 형식으로 정의
+});
+
+// responseData를 reactive로 선언
+const responseData = reactive({
+  data: props.responseData
+});
 const diaryEntries = ref([
   { date: '2024-01-01', emotion: '😄', keywords: ['행복', '가족', '기쁨'] },
   { date: '2024-01-02', emotion: '😄', keywords: ['사랑', '친구', '즐거움'] },

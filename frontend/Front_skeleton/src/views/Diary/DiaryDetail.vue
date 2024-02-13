@@ -5,9 +5,9 @@
       
       <div class="d2">
         <div class="d1">
-        <p class="p1"><img src="@/img/profile.png" alt="" style="width: 80px; height: 70px;">아오상수시치</p>
-      </div>
-        <DiaryList></DiaryList>
+          <p class="p1"><img src="@/img/profile.png" alt="" style="width: 80px; height: 70px;">아오상수시치</p>
+        </div>
+        <DiaryList :responseData="responseData" />
       </div>
       
     </el-col>
@@ -60,7 +60,7 @@
             <source src="@/img/my_recording.webm" type="video/webm">
           </video>
         </div>
-        <textarea class="textarea1 rounded-4" v-model="transcribedText" type="textarea" :rows="6"></textarea>
+        <textarea class="textarea1 rounded-4" v-model="userInfo.content" type="textarea" :rows="6"></textarea>
       </div>
       
     </el-col>
@@ -74,6 +74,10 @@ import DiaryList from "@/components/Diary/DiaryList.vue";
 import axios from 'axios';
 import { useUserStore } from '@/stores/user.js'
 import { ref, watch, onMounted, computed } from "vue";
+import { useRoute, useRouter } from 'vue-router'
+
+const route = useRoute()
+
 const transcribedText = ref("오늘은 참으로 활기찬 하루였다.햇살이 따스하게 내리쬐는 오후, 나는 오랜만에 마음먹고 집 근처의 공원으로 반려견 웰시코기 루키와 함께 산책을 나섰다.루키는 이미 문밖으로 나서는 순간부터 흥분을 감추지 못하고, 꼬리를 흔들며 기쁨을 표현했다.공원에 도착하자마자, 루키는 마치 오랫동안 기다려온 듯 자유롭게 뛰어다니기 시작했다.나도 그 모습을 보며 자연스레 미소가 지어졌다.")
 const getimgUrl = ref(null);
 const previewUrl = ref(null);
@@ -85,6 +89,7 @@ const imgSelect = ref(null);
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 
+let responseData = []
 const userInfo = ref({})
 const userImg = ref({})
 console.log(videoUrl.value)
@@ -113,18 +118,28 @@ const imgSelectAI = () => {
   return imgSelect.value = false;
 }
 onMounted(() => {
+  console.log(route.params.id);
   axios({
     method: 'get',
-    url: `${API_URL}/diaryDetail/`,
+    url: `${API_URL}/DiaryDetail/${route.params.id}`,
     headers: {
       Authorization: `Bearer ${userStore.accessToken}`
     }
   })
-    .then(res => {
-      userInfo.value = res.data
+  .then(response => {
+      console.log(response.data)
+      responseData = response.data;
+      for (const data of responseData) {
+        if (data.diaryId == route.params.id) {
+          userInfo.value = data;
+          console.log(userInfo.value);
+          break; // 일치하는 데이터를 찾았으면 루프를 중단합니다.
+        }
+      }
+      console.log(userInfo);
     })
     .catch(err => {
-      // console.log(err)
+      console.log(err)
     })
   // 컴포넌트가 마운트되었을 때 초기 텍스트 처리
   transcribedText.value = addNewLines(transcribedText.value);
