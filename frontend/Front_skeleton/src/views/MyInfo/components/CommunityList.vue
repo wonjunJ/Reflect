@@ -16,7 +16,7 @@
           <td>{{ community.curNum }}/{{ community.totalNum }}</td>
           <td>{{ community.type }}</td>
           <td>{{ community.hashTags.join(", ") }}</td>
-          <td><button>show</button></td>
+          <td><button @click="router.push({name: 'waiting', params: {id: community.roomId}})">show</button></td>
         </tr>
       </tbody>
     </table>
@@ -27,6 +27,9 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const emit = defineEmits(['changePage'])
 const props = defineProps({

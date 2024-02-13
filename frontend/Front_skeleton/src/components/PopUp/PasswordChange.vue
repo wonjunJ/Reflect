@@ -146,6 +146,9 @@ const changePassword = function () {
     .catch(err => {
       if (err.response.status === 400) {
         window.alert('비밀번호가 잘못되었습니다.')
+      } else if (err.response.status === 401) {
+        userStore.refresh()
+        changePassword()
       } else {
         window.alert('비밀번호 변경에 실패하였습니다.')
       }

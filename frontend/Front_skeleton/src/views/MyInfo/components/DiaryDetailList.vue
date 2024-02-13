@@ -10,7 +10,7 @@
         <tr v-for="diary in diarys" :key="diary.diaryId">
           <td>{{ diary.createDate }}</td>
           <td>{{ diary.sentence }}</td>
-          <td><button>test</button></td>
+          <td><button @click="router.push({name: 'DiaryDetail', params: {id: diary.diaryId}})">Detail</button></td>
         </tr>
       </table>
     </div>
@@ -21,6 +21,9 @@
 
 <script setup>
 import { ref, watch } from 'vue'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 const props = defineProps({
     diarys: Object,
     pagingInfo: Object,

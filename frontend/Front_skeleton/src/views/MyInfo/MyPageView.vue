@@ -78,6 +78,10 @@ const getUserInfo = function () {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getUserInfo()
+      }
     })
 }
 
@@ -93,6 +97,13 @@ const getCommunitysInfo = function () {
       communitys.value = res.data.data
       roomPagingInfo.value = res.data.pagingInfo
     })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getCommunitysInfo()
+      }
+    })
 }
 
 const getFollowInfo = function () {
@@ -106,6 +117,13 @@ const getFollowInfo = function () {
     .then(res => {
       followings.value = res.data.data
       followPagingInfo.value = res.data.pagingInfo
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getFollowInfo()
+      }
     })
 }
 

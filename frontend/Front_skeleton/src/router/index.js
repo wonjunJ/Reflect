@@ -42,7 +42,7 @@ const router = createRouter({
       component: Diary
     },
     {
-      path: '/DiaryDetail',
+      path: '/DiaryDetail/:id',
       name: 'DiaryDetail',
       component: DiaryDetail,
       props: true,

@@ -78,7 +78,7 @@ const closeModal = function () {
 
 const questionlist = questionsStore.questions
 
-onMounted(() => {
+const getQuestions = function () {
   axios({
     method: 'get',
     url: `${API_URL}/question/`,
@@ -91,7 +91,15 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.statuss === 401) {
+        userStore.refresh()
+        getQuestions()
+      }
     })
+}
+
+onMounted(() => {
+  getQuestions()
 })
 </script>
 

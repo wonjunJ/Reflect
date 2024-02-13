@@ -80,6 +80,10 @@ const postAnswer = function () {
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          postAnswer()
+        }
       })
   } else {
     window.alert('내용을 입력해야합니다.')
@@ -105,6 +109,10 @@ const putAnswer = function () {
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          putAnswer()
+        }
       })
   } else {
     window.alert('내용을 입력해야합니다.')
@@ -128,6 +136,10 @@ const deleteAnswer = function () {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        deleteAnswer()
+      }
     })
 }
 </script>

@@ -113,7 +113,7 @@ const sumArray = function (array) {
   return sum
 }
 
-onMounted(() => {
+const getProfileInfo = function () {
   axios({
     method: 'get',
     url: `${API_URL}/user/simple`,
@@ -132,7 +132,15 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getProfileInfo()
+      }
     })
+}
+
+onMounted(() => {
+  getProfileInfo()
 })
 </script>
 

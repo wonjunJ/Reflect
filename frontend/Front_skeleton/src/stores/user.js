@@ -46,6 +46,23 @@ export const useUserStore = defineStore('user', () => {
       })
   }
 
+  function refresh() {
+    axios({
+      method: "post",
+      url: `${API_URL}/user/refresh`,
+      headers: {
+        Authorization: `Bearer ${refreshToken.value}`
+      }
+    })
+      .then(res => {
+        accessToken.value = res.data.AccessToken
+        refreshToken.value = res.data.RefreshToken
+      })
+      .catch(err => {
+        console.log(err)
+      })
+  }
+
   function logout() {
     accessToken.value = null
     refreshToken.value = null
@@ -53,5 +70,5 @@ export const useUserStore = defineStore('user', () => {
     router.push({name: 'index'})
   }
 
-  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL }
+  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL, refresh }
 }, { persist : {storage : sessionStorage}})

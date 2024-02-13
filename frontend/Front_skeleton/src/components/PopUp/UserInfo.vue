@@ -66,6 +66,10 @@
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          follow()
+        }
       })
   }
 
@@ -86,10 +90,14 @@
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          unfollow()
+        }
       })
   }
 
-  onMounted(() => {
+  const getUserInfo = function () {
     axios({
       method: 'get',
       url: `${API_URL}/follow/detail?id=${props.userId}`,
@@ -102,7 +110,15 @@
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          getUserInfo()
+        }
       })
+  }
+
+  onMounted(() => {
+    getUserInfo()
   })
   </script>
   

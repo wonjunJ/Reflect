@@ -117,11 +117,17 @@ const selectedMbti = ref(1)     // 선택된 MBTI 코드
 const pageNum = ref(1)          // 선택된 페이지
 const changePage = function (num) {
   pageNum.value = num
+  console.log(pageNum.value)
   selectMbti(selectedMbti.value)
 }
 
+watch(selectedMbti, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    pageNum.value = 1
+  }
+})
+
 const selectMbti = function (num) {   // MBTI 선택 함수
-  pageNum.value = 1
   axios({
     method: 'get',
     url: `${API_URL}/interest/mbti/${mbtiCodes.value[num]}?page=${pageNum.value}`,
@@ -136,6 +142,10 @@ const selectMbti = function (num) {   // MBTI 선택 함수
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        selectMbti(num)
+      }
     })
 }
 
@@ -270,6 +280,10 @@ const addInterest = function () {
       })
       .catch(err => {
         console.log(err)
+        if (err.response.status === 401) {
+          userStore.refresh()
+          addInterest()
+        }
       })
   } else {
     window.alert('관심사를 입력해주세요')
@@ -303,11 +317,14 @@ const deleteInterests = function (num, preference) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+          userStore.refresh()
+          deleteInterests()
+        }
     })
 }
 
-onMounted(() => {
-  selectMbti(1)
+const getInterestInfos = function () {
   axios({
     method: 'get',
     url: `${API_URL}/interest?top=15`,
@@ -322,8 +339,14 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getInterestInfos()
+      }
     })
+}
 
+const getMbtiInfos = function () {
   axios({
     method: 'get',
     url: `${API_URL}/interest/mbti`,
@@ -339,7 +362,17 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getMbtiInfos()
+      }
     })
+}
+
+onMounted(() => {
+  selectMbti(1)
+  getInterestInfos()
+  getMbtiInfos()
 })
 </script>
 

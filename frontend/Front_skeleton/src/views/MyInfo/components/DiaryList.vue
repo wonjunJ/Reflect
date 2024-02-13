@@ -11,7 +11,7 @@
         <td>{{ diary.date }}</td>
         <td>{{ diary.diaryScore }}</td>
         <td>{{ diary.keyword }}</td>
-        <td><button>show</button></td>
+        <td><button @click="router.push({name: 'DiaryDetail', params: {id: diary.diaryId}})">show</button></td>
       </tr>
     </table>
   </div>
@@ -19,7 +19,9 @@
 
 <script setup>
 import { ref } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const props = defineProps({
   diary: Object
 })

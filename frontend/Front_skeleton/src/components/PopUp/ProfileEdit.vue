@@ -12,7 +12,7 @@
             <h5>프로필 사진</h5>
             <input type="file" @change="handleImageUpload">
           </div>
-          <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image" style="width : 300px;">
+          <img v-if="state.form.profileImg" :src="state.form.profileImg" alt="Profile image" style="width : 300px;">
           <img v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 300px;">
           <!-- 캐릭터 수정 -->
           <div class="d-flex justify-content-between">
@@ -33,8 +33,8 @@
                 placeholder="성별"
                 clearable
               >
-                <el-option label="남성" value="male" />
-                <el-option label="여성" value="female" />
+                <el-option label="남성" value="MALE" />
+                <el-option label="여성" value="FEMALE" />
                 <el-option label="기타" value="" />
               </el-select>
             </el-form-item>
@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, watchEffect } from 'vue'
+import { reactive, ref, computed, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user'
 import axios from 'axios'
 import CharacterSetting from './CharacterSetting.vue'
@@ -105,10 +105,8 @@ const state = reactive({
   labelWidth: '80px'
 })
 
-watchEffect(() => {
-  if (props.isModal) {
-    state.form = {... props.userInfo}
-  }
+onMounted(() => {
+  state.form = {...props.userInfo}
 })
 
 const handleImageUpload = (event) => {
@@ -162,9 +160,14 @@ const editProfile = function () {
     .then(res => {
       window.alert('변경 사항이 저장 되었습니다.')
       emit('reloadProfile')
+      emit('closeModal')
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        editProfile()
+      }
     })
 }
 

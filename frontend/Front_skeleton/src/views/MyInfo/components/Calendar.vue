@@ -6,7 +6,7 @@
         {{ data.day.split('-').slice(2).join('') }}
         </p>
         <span v-if="getDateDiary(data.day)">
-          {{ getDateDiary(data.day).emotion }}
+          {{ getEmotionEmoji(getDateDiary(data.day).emotion) }}
         </span>
         <!-- 커뮤니티 활동 내역 있으면 체크표시 -->
         <span v-if="getDateDiary(data.day) && getDateDiary(data.day).doCommunity">
@@ -56,12 +56,6 @@ const modifyDate = function (date) {
   return `${year}-${month}-${day}`
 }
 
-// 샘플 데이터
-const sampleData = ref([
-  { diaryId: 1, date: "2024-02-08", emotion: null, doCommunity: false},
-  { diaryId: 2, date: "2024-02-02", emotion: null, doCommunity: true}
-])
-
 const monthlyDiarys = ref([])
 const diaryDetail = ref({})
 const communitys = ref([])
@@ -75,25 +69,33 @@ const getDateDiary = function (date) {
   return monthlyDiarys.value.find(diary => diary.date === date)
 }
 
+const getDailyDiary = function (id, num) {
+  axios({
+    method: 'get',
+    url: `${API_URL}/diary/simple?diaryId=${id}&page=${num}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      diaryDetail.value = res.data.diary
+      communitys.value = res.data.community
+      pagingInfo.value = res.data.communityPagingInfo
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getDailyDiary()
+      }
+    })
+}
+
 // 선택된 날짜에 작성된 일기가 있는지 판별
 const isDiary = computed(() => {
   if (monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value))) {
     const diaryId = monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value)).diaryId
-    axios({
-      method: 'get',
-      url: `${API_URL}/diary/simple?diaryId=${diaryId}&page=${pageNum.value}`,
-      headers: {
-        Authorization: `Bearer ${userStore.accessToken}`
-      }
-    })
-      .then(res => {
-        diaryDetail.value = res.data.diary
-        communitys.value = res.data.community
-        pagingInfo.value = res.data.communityPagingInfo
-      })
-      .catch(err => {
-        console.log(err)
-      })
+    getDailyDiary(diaryId, pageNum.value)
   }
   return monthlyDiarys.value.find(diary => diary.date === modifyDate(selectedDate.value)) !== undefined
 })
@@ -111,7 +113,27 @@ const getMonthlyDiary = function (year, month) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getMonthlyDiary()
+      }
     })
+}
+
+const getEmotionEmoji = function (num) {
+  if (num === 1) {
+    return "😊"
+  } else if (num === 2) {
+    return "😆"
+  } else if (num === 3) {
+    return "😢"
+  } else if (num === 4) {
+    return "😠"
+  } else if (num === 5) {
+    return "😫"
+  } else {
+    return ""
+  }
 }
 
 // 달이 바뀌면 일기 데이터 다시 불러와야하니까 watch로 지켜보기

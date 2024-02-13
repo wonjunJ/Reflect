@@ -87,6 +87,10 @@ const putAnswer = function (obj) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        putAnswer(obj)
+      }
     })
 }
 
@@ -111,6 +115,10 @@ const postAnswer = function (obj) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        postAnswer(obj)
+      }
     })
 }
 
@@ -135,11 +143,14 @@ const deleteAnswer = function (id) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        deleteAnswer(id)
+      }
     })
 }
 
-
-onMounted(() => {
+const getAnswers = function () {
   axios({
     method: 'get',
     url: `${API_URL}/question/`,
@@ -156,15 +167,15 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      userStore.refresh()
+      getAnswers()
     })
-})
+}
 
-// watch(completedQuestions, (newCompletedQuestions) => {
-//   newCompletedQuestions.forEach((element) => {
-//     answerList.value[element.questionId - 1].answer = element.answer
-//     answerList.value[element.questionId - 1].initAnswer = element.answer
-//   })
-// }, {deep: true})
+
+onMounted(() => {
+  getAnswers()
+})
 
 const questionlist = questionsStore.questions
 </script>

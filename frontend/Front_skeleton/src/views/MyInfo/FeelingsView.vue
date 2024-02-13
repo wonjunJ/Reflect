@@ -120,28 +120,18 @@ const sumArray = function (array) {
 // 기간 선택 함수
 const selectPeriod = function (num) {
   selectedPeriod.value = num
+  let data = emotionData.value["7days"]
   // 기간 바뀌면 서버에 요청 보내서 datasets[0].data 바꿔주기
-  if (num === 7) {
-    const data = emotionData.value["7days"]
-    delete data.none
-    doughnutChartData.value.datasets[0].data = Object.values(emotionData.value["7days"])
-    if (sumArray(Object.values(emotionData.value["7days"])) === 0) {
-      isPieChartData.value = false
-    }
-  } else if (num === 14) {
-    const data = emotionData.value["14days"]
-    delete data.none
-    doughnutChartData.value.datasets[0].data = Object.values(emotionData.value["14days"])
-    if (sumArray(Object.values(emotionData.value["14days"])) === 0) {
-      isPieChartData.value = false
-    }
-  } else {
-    const data = emotionData.value["1month"]
-    delete data.none
-    doughnutChartData.value.datasets[0].data = Object.values(emotionData.value["1month"])
-    if (sumArray(Object.values(emotionData.value["1month"])) === 0) {
-      isPieChartData.value = false
-    }
+  if (num === 14) {
+    data = emotionData.value["14days"]
+  } else if (num === 28) {
+    data = emotionData.value["1month"]
+  }
+  delete data.none
+  doughnutChartData.value.datasets[0].data = Object.values(data);
+
+  if (sumArray(Object.values(data)) === 0) {
+    isPieChartData.value = false;
   }
 }
 
@@ -185,11 +175,16 @@ const changePage = function (num) {
   pageNum.value = num
   selectedEmotion(selectedEmotion.value)
 }
+
+watch(selectedEmotion, (newVal, oldVal) => {
+  if (newVal !== oldVal) {
+    pageNum.value === 1
+  }
+})
   
 // 일기 목록 감정 선택
 const selectEmotion = function (num) {
   selectedEmotion.value = num
-  pageNum.value = 1
   axios({
     method: 'get',
     url: `${API_URL}/emotion/${selectedEmotion.value}?page=${pageNum.value}`,
@@ -204,6 +199,52 @@ const selectEmotion = function (num) {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        selectEmotion(num)
+      }
+    })
+}
+
+const getEmotionInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/emotion/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      emotionData.value = res.data
+      isPieChart.value = true
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getEmotionInfo()
+      }
+    })
+}
+
+const getGraphInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/emotion/graph?recent=15`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      lineData.value = res.data
+      isLineChart.value = true
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getGraphInfo()
+      }
     })
 }
   
@@ -223,22 +264,27 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        axios({
+          method: 'get',
+          url: `${API_URL}/emotion/`,
+          headers: {
+            Authorization: `Bearer ${userStore.accessToken}`
+          }
+        })
+          .then(res => {
+            emotionData.value = res.data
+            isPieChart.value = true
+            selectPeriod(7)
+          })
+          .catch(err => {
+            console.log(err)
+          })
+      }
     })
   
-  axios({
-    method: 'get',
-    url: `${API_URL}/emotion/graph?recent=15`,
-    headers: {
-      Authorization: `Bearer ${userStore.accessToken}`
-    }
-  })
-    .then(res => {
-      lineData.value = res.data
-      isLineChart.value = true
-    })
-    .catch(err => {
-      console.log(err)
-    })
+  getGraphInfo()
 })
 </script>
   
