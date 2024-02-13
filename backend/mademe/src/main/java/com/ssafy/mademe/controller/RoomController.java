@@ -112,6 +112,11 @@ public class RoomController {
         return mapToRoomDetail(room, null, request.getHashTags(), request.getMode());
     }
 
+    @GetMapping("/recommend")
+    public RoomDetailResponse recommendRoom(@AuthenticationPrincipal User user){
+        return null;
+    }
+
     //방 탈퇴하기(방 참가 상태(채팅 화면)에서 탈퇴하기를 누를때)
     @DeleteMapping("/")
     public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){ //방 아이디 값만 받는다.

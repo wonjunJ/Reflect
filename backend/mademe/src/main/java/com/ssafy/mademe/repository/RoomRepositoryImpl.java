@@ -2,6 +2,7 @@ package com.ssafy.mademe.repository;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
+import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
 import com.ssafy.mademe.dto.response.RoomListResponse;
@@ -43,18 +44,26 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
-                .leftJoin(room.roomModes, roomModeList)
+                //.leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
-                        roomModeList.id.roomMode.ne(RoomMode.SECRET),
-                        //room.mode.ne(RoomMode.SECRET),
+                        //roomModeList.id.roomMode.ne(RoomMode.SECRET),
+                        room.id.notIn(
+                                JPAExpressions
+                                        .select(roomModeList.id.room.id)
+                                        .from(roomModeList)
+                                        .where(roomModeList.id.roomMode.eq(RoomMode.SECRET))
+                                        .groupBy(roomModeList.id.room.id)
+                        ),
                         conditionFiltering(filter),
                         searchWords(searchWord)
                 )
+                .groupBy(room.id)
                 .offset(pageable.getOffset())
                 .limit(pageable.getPageSize())
                 .fetch()
                 .stream()
+                //.distinct()
                 .map(this::mapToRoomList)
                 .toList();
 
@@ -65,14 +74,22 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
-                .leftJoin(room.roomModes, roomModeList)
+                //.leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
-                        roomModeList.id.roomMode.ne(RoomMode.SECRET),
-                        //room.mode.ne(RoomMode.SECRET),
+                        room.id.notIn(
+                                JPAExpressions
+                                        .select(roomModeList.id.room.id)
+                                        .from(roomModeList)
+                                        .where(roomModeList.id.roomMode.eq(RoomMode.SECRET))
+                                        .groupBy(roomModeList.id.room.id)
+                        ),
                         conditionFiltering(filter),
                         searchWords(searchWord)
-                );
+                )
+                .groupBy(room.id);
+
+        //System.out.println(count);
 
         return PageableExecutionUtils.getPage(data, pageable, count::fetchOne);
     }
