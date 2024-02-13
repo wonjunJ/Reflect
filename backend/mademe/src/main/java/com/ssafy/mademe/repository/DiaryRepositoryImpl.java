@@ -2,11 +2,8 @@ package com.ssafy.mademe.repository;
 
 import com.querydsl.core.Tuple;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.mademe.dto.response.EmotionCntResponse;
+import com.ssafy.mademe.dto.response.*;
 //import com.ssafy.mademe.entity.QDiary;
-import com.ssafy.mademe.dto.response.GraphResponse;
-import com.ssafy.mademe.dto.response.MonthDiaryResponse;
-import com.ssafy.mademe.dto.response.SimpleDiaryResponse;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.EmotionCode;
 import com.ssafy.mademe.entity.QDiary;
@@ -87,43 +84,55 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
 
 
     @Override
-    public List<Diary> findDiaryDetailByDate(User user, LocalDateTime startOfDay, LocalDateTime endOfDay) {
+    public List<DiaryDetailResponse> findDiaryDetailByDairyId(User user, Long id) {
+        Long diaryId = id;
+        QDiary diary = QDiary.diary;
 
-        // 해당 날짜 이전에 작성된 3개의 일기 조회
-        List<Diary> diariesBeforeDate = jpaQueryFactory
+        // 조회된 일기의 생성 날짜 조회
+        LocalDateTime targetCreateDate = jpaQueryFactory
+                .select(diary.createDate)
+                .from(diary)
+                .where(diary.id.eq(diaryId))
+                .fetchOne();
+
+        // 현재 일기 조회
+        Diary currentDiary = jpaQueryFactory
                 .selectFrom(diary)
-                .where(diary.user.eq(user)
-                        .and(diary.createDate.before(startOfDay)))
-                .orderBy(diary.createDate.desc())
+                .where(diary.id.eq(diaryId)
+                        .and(diary.user.eq(user)))
+                .fetchOne();
+
+        // 전의 데이터 조회
+        List<Diary> previousDiaries = jpaQueryFactory
+                .selectFrom(diary)
+                .where(diary.createDate.before(targetCreateDate)
+                        .and(diary.user.eq(user)))
+                .orderBy(diary.createDate.asc())
                 .limit(3)
                 .fetch();
 
-        // 해당 날짜에 작성된 일기 조회
-        List<Diary> diariesOnDate = jpaQueryFactory
+        // 후의 데이터 조회
+        List<Diary> nextDiaries = jpaQueryFactory
                 .selectFrom(diary)
-                .where(diary.user.eq(user)
-                        .and(diary.createDate.goe(startOfDay))
-                        .and(diary.createDate.loe(endOfDay)))
-                .orderBy(diary.createDate.asc())
-                .fetch();
-
-        // 해당 날짜 이후에 작성된 3개의 일기 조회
-        List<Diary> diariesAfterDate = jpaQueryFactory
-                .selectFrom(diary)
-                .where(diary.user.eq(user)
-                        .and(diary.createDate.after(endOfDay)))
+                .where(diary.createDate.after(targetCreateDate)
+                        .and(diary.user.eq(user)))
                 .orderBy(diary.createDate.asc())
                 .limit(3)
                 .fetch();
 
         // 결과 병합
-        List<Diary> result = new ArrayList<>();
-        result.addAll(diariesBeforeDate);
-        result.addAll(diariesOnDate);
-        result.addAll(diariesAfterDate);
+        previousDiaries.add(currentDiary);
+        previousDiaries.addAll(nextDiaries);
 
-        return result;
+        return previousDiaries
+                .stream()
+                .map(this::mapToDiaryDetail)
+                .collect(Collectors.toList());
+
+//        List<Diary> sevenDiaries = previousDiaries;
+//        return sevenDiaries;
     }
+
 
     @Override
     public List<GraphResponse> findGraphInfo(User user, int recent) {
@@ -160,6 +169,17 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
         return GraphResponse.builder()
                 .date(Objects.requireNonNull(tuple.get(0, LocalDateTime.class)).toLocalDate())
                 .score(tuple.get(1, Integer.class))
+                .build();
+    }
+
+    private DiaryDetailResponse mapToDiaryDetail(Diary diary){
+        return DiaryDetailResponse.builder()
+                .diaryId(diary.getId())
+                .createDate(diary.getCreateDate().toLocalDate())
+                .content(diary.getContent())
+                .diaryImg(diary.getDiaryImg())
+                .diaryScore(diary.getDiaryScore())
+                .keyword(diary.getKeyword())
                 .build();
     }
 }

@@ -26,30 +26,16 @@ public class DiaryDetailController {
 
     private final DiaryDetailService diaryDetailService;
 
-    // yyyy-mm-dd
-    @GetMapping("/{date}")
+
+    @GetMapping("/{diaryId}")
     public ResponseEntity<List<DiaryDetailResponse>> getDiaryDetailByDate(
             @AuthenticationPrincipal User user,
-            @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
+            @PathVariable("diaryId") Long diaryId) {
 
-        List<Diary> diaries = diaryDetailService.getDiaryDetailByDate(user, date);
-        List<DiaryDetailResponse> diaryDetailResponses = diaries.stream()
-                .map(this::mapToDiaryDetail) // DiaryResponse 생성자는 Diary 객체를 받아 DTO를 생성
-                .collect(Collectors.toList());
+        List<DiaryDetailResponse> diaries = diaryDetailService.findDiaryDetails(user, diaryId);
 
-        return ResponseEntity.ok(diaryDetailResponses);
+        return ResponseEntity.ok(diaries);
 
-    }
-
-    public DiaryDetailResponse mapToDiaryDetail(Diary diary){
-        return DiaryDetailResponse.builder()
-                .diaryId(diary.getId())
-                .createDate(diary.getCreateDate().toLocalDate())
-                .content(diary.getContent())
-                .diaryImg(diary.getDiaryImg())
-                .diaryScore(diary.getDiaryScore())
-                .keyword(diary.getKeyword())
-                .build();
     }
 
 }
