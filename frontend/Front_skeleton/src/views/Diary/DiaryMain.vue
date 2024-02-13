@@ -168,7 +168,7 @@ export default {
         };
         this.videoMediaRecorder.onstop = async () => {
           const blob = new Blob(this.videoChunks, { type: 'video/webm' });
-          await this.uploadToS3(blob); // S3에 업로드
+          // await this.uploadToS3(blob); // S3에 업로드
           this.videoChunks.length = 0; // 다음 녹화를 위해 videoChunks 배열 초기화
         };
       } catch (error) {
@@ -419,7 +419,7 @@ export default {
     },
     async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
         const vm = this;
-        const loadingInstance = ElLoading.service({ fullscreen: true, text: '불러오는 중...' });
+        const loadingInstance = ElLoading.service({ fullscreen: true, text: '일기 내용 GPT 분석중...' });
         try {
         const openai = new OpenAI({
             apiKey: import.meta.env.VITE_API_URL,
