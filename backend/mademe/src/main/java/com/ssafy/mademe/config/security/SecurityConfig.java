@@ -55,7 +55,7 @@ public class SecurityConfig {
                         .requestMatchers("/user/join", "/user/login", "/user/refresh",
                                 "/user/id/*", "/user/nick/*", "/user/social/*", "/user/send", "/user/findid",
                                 "/user/code", "/user/findpw", "/reflect-socket/**", "/api/sessions", "/api/sessions/**").permitAll()
-                        .requestMatchers("/user/*", "/follow/*", "/app/*", "/diary/*",
+                        .requestMatchers("/user/*","/DiaryDetail/*", "/follow/*", "/app/*", "/diary/*",
                                 "/interest/*", "/question/*", "/room/*", "/emotion/*",
                                 "/pet/*", "api/sessions", "api/sessions/**").hasRole("USER")
                         .anyRequest().authenticated())

@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @RestController
-@RequestMapping("/DairyDetail")
+@RequestMapping("/DiaryDetail")
 @RequiredArgsConstructor
 public class DiaryDetailController {
 
