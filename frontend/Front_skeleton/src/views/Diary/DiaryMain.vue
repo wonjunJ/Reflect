@@ -516,31 +516,37 @@ export default {
           console.log(messages)
           if (lastMessageForRun) {
             const userStore = useUserStore();
+            const id = ref('')
+            const gptjson = lastMessageForRun.content[0].text.value;
+            const fixedJson = gptjson.replace(/,(\s*[}\]])/g, '$1');
+            const result = fixedJson.replace(/\n|\r/g, "");
             console.log(userStore.accessToken)
             console.log(`${lastMessageForRun.content[0].text.value} \n`);
-            console.log(JSON.parse(lastMessageForRun.content[0].text.value));
+            
+            console.log((JSON.parse(result)));
             axios({
               method: 'post',
               url: `${userStore.API_URL}/diary/gpt`,
               headers: {
                 Authorization: `Bearer ${userStore.accessToken}`
               },
-              data: {
-                data: JSON.parse(lastMessageForRun.content[0].text.value)
-              }
+              data: JSON.parse(result)
             })
             
             .then(res => {
+              const diaryId = res.data.diaryId;
+              loadingInstance.close();
+              vm.$router.push({ name: 'DiaryDetail', params: { id: diaryId } });
               console.log('gptAnswer')
             })
             .catch(err => {
               console.log(userStore.accessToken)
               console.log(err)
             })
-            nextTick(() => {
-              loadingInstance.close();
-              vm.$router.push({ name: 'DiaryDetail' });
-            });
+            // nextTick(() => {
+            //   loadingInstance.close();
+            //   vm.$router.push({ name: 'DiaryDetail', params: { diaryId } });
+            // });
           } else if (
             !["failed", "cancelled", "expired"].includes(runStatus.status)
           ) {

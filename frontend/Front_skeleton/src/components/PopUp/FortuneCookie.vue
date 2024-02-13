@@ -154,7 +154,7 @@ window.onload = function() {
       emit('closeModal')
   }
   
-  fortuneCookie.addEventListener('click', openCookie)
+  // fortuneCookie.addEventListener('click', openCookie)
   btnReset.addEventListener('click', closeModal)
   document.addEventListener('keypress', handleEnter)
 }
