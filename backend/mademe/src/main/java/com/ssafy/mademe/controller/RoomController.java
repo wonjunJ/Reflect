@@ -142,7 +142,7 @@ public class RoomController {
                 .title(room.getTitle())
                 .intro(room.getIntro())
                 .thumbnail(room.getThumbnail())
-                .qId(room.getQuestion().getId())
+                .qId(room.getQuestion() == null ? null : room.getQuestion().getId())
                 .participants(participants)
                 .hashTags(hashTags)
                 .build();
