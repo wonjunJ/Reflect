@@ -71,9 +71,9 @@
           <!-- 백문백답 --><!-- 질문선택-->
           <div v-if="isHundred" class="select-hundred" >
               <label for="questions" class="qestions-label">질문  </label>
-              <select class="question-select" id="questions" required="required">
+              <select class="question-select" id="questions" required="required" v-model="questionId">
                 <option value="" selected disabled hidden>질문을 선택해주세요.</option>
-                <option v-for="question in questionlist" :key="question.pk" :value="question.id" @change=findId(question.pk) required>
+                <option v-for="question in questionlist" :key="question.pk" :value="question.pk">
                   {{ question.id }}
                 </option>
               </select>
@@ -121,7 +121,7 @@ const hashtags = ref([])
 const isAnonymous = ref(false)
 const isMask = ref(false)
 const isSecret = ref(false)
-const memberNum = ref(0)
+const memberNum = ref(2)
 const type = ref('BACKMOON')
 const mode = ref([])
 
@@ -308,12 +308,7 @@ const writeHashtag= () => {
   { pk: 100, id: '항상 갖고 다니는 소지품은?' },
 ];
 
-const questionId = ref(null)
-
-const findId = (id) => {
-  questionId.value = id
-  console.log('질문 번호 : ',questionId)
-}
+const questionId = ref(0)
 
 
 

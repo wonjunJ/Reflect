@@ -76,7 +76,7 @@
                 </li>
                 <!-- 내가 참여중인 방 목록 -->
                 <li class="nav-item my-rooms">
-                    <a class="nav-link" @click="myRooms">My Rooms ></a>
+                    <a class="nav-link" @click="myRooms">My Rooms </a>
                     
                 </li>
             </ul>
