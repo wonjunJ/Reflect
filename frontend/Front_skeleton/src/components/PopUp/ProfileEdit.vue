@@ -65,7 +65,7 @@
 </template>
 
 <script setup>
-import { reactive, ref, computed, onMounted } from 'vue'
+import { reactive, ref, computed, watchEffect } from 'vue'
 import { useUserStore } from '@/stores/user'
 import axios from 'axios'
 import CharacterSetting from './CharacterSetting.vue'
@@ -105,8 +105,10 @@ const state = reactive({
   labelWidth: '80px'
 })
 
-onMounted(() => {
-  state.form = {...props.userInfo}
+watchEffect(() => {
+  if (props.isModal) {
+    state.form = {...props.userInfo}
+  }
 })
 
 // 사진 base64로 변환
