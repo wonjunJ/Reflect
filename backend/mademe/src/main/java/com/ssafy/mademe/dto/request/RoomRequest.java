@@ -14,7 +14,7 @@ import java.util.List;
 public class RoomRequest {
     private int totalNum;
     private RoomType type;
-    private RoomMode mode;
+    private List<RoomMode> mode;
     private String title;
     private String intro;
     private String thumbnail;

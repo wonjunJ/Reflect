@@ -29,8 +29,8 @@ public class Room {
     @Enumerated(EnumType.STRING)
     private RoomType type;
 
-    @Enumerated(EnumType.STRING)
-    private RoomMode mode;
+//    @Enumerated(EnumType.STRING)
+//    private RoomMode mode;
 
     //User테이블 쪽으로 단방향 관계만
     @ManyToOne(fetch = FetchType.LAZY)
@@ -58,6 +58,9 @@ public class Room {
 
     @OneToMany(mappedBy = "id.room", cascade = CascadeType.ALL)
     private List<HashTag> hashTags = new ArrayList<>();
+
+    @OneToMany(mappedBy = "id.room", cascade = CascadeType.ALL)
+    private List<RoomModeList> roomModes = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {

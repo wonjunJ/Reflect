@@ -18,7 +18,7 @@ public class RoomDetailResponse {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private LocalDate createDate;
     private RoomType type;
-    private RoomMode mode;
+    private List<RoomMode> mode;
     private Long ownerId;
     private String title;
     private String intro;
