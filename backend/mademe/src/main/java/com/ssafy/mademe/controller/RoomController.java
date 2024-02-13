@@ -4,6 +4,7 @@ import com.ssafy.mademe.dto.request.ChangeOwnerRequest;
 import com.ssafy.mademe.dto.request.RoomRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Room;
+import com.ssafy.mademe.entity.RoomMode;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.exception.room.NotAuthorizedException;
 import com.ssafy.mademe.repository.RoomRepository;
@@ -34,6 +35,7 @@ public class RoomController {
     public Map<String, Object> getMyKeepRoomList(@AuthenticationPrincipal User user, @PageableDefault(size = 3) Pageable pageable){
         Page<MyRoomInfoResponse> infos = roomService.getRoomInfos(user, null, false, pageable);
         for(MyRoomInfoResponse tmp : infos){
+            tmp.setMode(roomService.getRoomModes(tmp.getRoomId()));
             tmp.setHashTags(roomService.getHashTagList(tmp.getRoomId()));
         }
         Map<String, Object> json = new HashMap<>();
@@ -53,7 +55,7 @@ public class RoomController {
     public RoomDetailResponse getRoomDetailInfo(@AuthenticationPrincipal User user, @PathVariable("roomId") Long roomId){
         Room roomInfo = roomService.getRoomDetailInfo(roomId);
         return mapToRoomDetail(roomInfo, roomService.getParticipants(user, roomId),
-                roomService.getHashTagList(roomId));
+                roomService.getHashTagList(roomId), roomService.getRoomModes(roomId));
     }
 
     //방 전체 목록 조회(검색까지)
@@ -63,6 +65,10 @@ public class RoomController {
                                                 @RequestParam("from") int from, @RequestParam("to") int to,
                                                 @PageableDefault(size = 10) Pageable pageable){
         Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(filter, searchWord, from, to, pageable);
+        for(RoomListResponse tmp : roomInfos){
+            tmp.setMode(roomService.getRoomModes(tmp.getRoomId()));
+            tmp.setHashTags(roomService.getHashTagList(tmp.getRoomId()));
+        }
         Map<String, Object> json = new HashMap<>();
         json.put("pagingInfo", PagingInfoResponse.builder()
                 .totalPage(roomInfos.getTotalPages()) //전체 페이지 수
@@ -103,7 +109,7 @@ public class RoomController {
     public RoomDetailResponse createRoom(@AuthenticationPrincipal User user, @RequestBody RoomRequest request){
         Room room = roomService.createRoom(user, request);
         roomService.storeHashTags(room, request.getHashTags());
-        return mapToRoomDetail(room, null, request.getHashTags());
+        return mapToRoomDetail(room, null, request.getHashTags(), request.getMode());
     }
 
     //방 탈퇴하기(방 참가 상태(채팅 화면)에서 탈퇴하기를 누를때)
@@ -126,12 +132,12 @@ public class RoomController {
     }
 
     private RoomDetailResponse mapToRoomDetail(Room room, List<FollowingResponse> participants,
-                                               List<String> hashTags){
+                                               List<String> hashTags, List<RoomMode> modes){
         return RoomDetailResponse.builder()
                 .roomId(room.getId())
                 .createDate(room.getCreateDate().toLocalDate())
                 .type(room.getType())
-                .mode(room.getMode())
+                .mode(modes)
                 .ownerId(room.getOwnerId().getId())
                 .title(room.getTitle())
                 .intro(room.getIntro())

@@ -73,4 +73,13 @@ public class DiaryController {
         state.put("diaryId", diaryId.getId());
         return state;
     }
+
+    @PostMapping("/img")
+    public Map<String, String> addDiaryImg(@RequestBody Diary diary){ //id값하고 diaryImg값만 받아온다.
+        diaryService.addDiaryImg(diary);
+        Map<String, String> state = new HashMap<>();
+        //state.put("state", "success");
+        state.put("state", "success");
+        return state;
+    }
 }

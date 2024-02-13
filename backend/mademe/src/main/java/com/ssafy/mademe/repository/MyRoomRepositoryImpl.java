@@ -44,7 +44,6 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                         room.totalNum,
                         room.curNum,
                         room.type,
-                        room.mode,
                         room.thumbnail,
                         room.title,
                         room.question.id,
@@ -122,11 +121,10 @@ public class MyRoomRepositoryImpl implements MyRoomRepositoryCustom {
                 .totalNum(tuple.get(4, Integer.class))
                 .curNum(tuple.get(5, Integer.class))
                 .type(tuple.get(6, RoomType.class))
-                .mode(tuple.get(7, RoomMode.class))
-                .thumnail(tuple.get(8, String.class))
-                .title(tuple.get(9, String.class))
-                .qId(tuple.get(10, Long.class)) //null이 될수도 있다.
-                .isExit(Boolean.TRUE.equals(tuple.get(11, Boolean.class)))
+                .thumnail(tuple.get(7, String.class))
+                .title(tuple.get(8, String.class))
+                .qId(tuple.get(9, Long.class)) //null이 될수도 있다.
+                .isExit(Boolean.TRUE.equals(tuple.get(10, Boolean.class)))
                 .build();
     }
 

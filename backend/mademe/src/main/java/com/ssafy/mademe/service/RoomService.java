@@ -8,6 +8,7 @@ import com.ssafy.mademe.dto.response.RoomListResponse;
 import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.entity.embedded.EmdHash;
 import com.ssafy.mademe.entity.embedded.EmdRoom;
+import com.ssafy.mademe.entity.embedded.EmdRoomMode;
 import com.ssafy.mademe.exception.room.NotAuthorizedException;
 import com.ssafy.mademe.exception.room.RoomNotFoundException;
 import com.ssafy.mademe.exception.user.InvalidCodeException;
@@ -32,6 +33,7 @@ public class RoomService {
     private final RoomRepository roomRepository;
     private final QuestionCodeRepository questionCodeRepository;
     private final HashCodeRepository hashCodeRepository;
+    private final RoomModeListRepository roomModeListRepository;
 
     public Page<MyRoomInfoResponse> getRoomInfos(User user, LocalDate indate, Boolean isExit, Pageable pageable){
         return myRoomRepository.findRoomInfoListByUser(user, indate, isExit, pageable);
@@ -50,6 +52,15 @@ public class RoomService {
         List<String> rst = new ArrayList<>();
         for(HashTag tag : list){
             rst.add(tag.getId().getHashCode().getHashName());
+        }
+        return rst;
+    }
+
+    public List<RoomMode> getRoomModes(Long roomId){
+        List<RoomModeList> list = roomModeListRepository.findById_Room_Id(roomId);
+        List<RoomMode> rst = new ArrayList<>();
+        for(RoomModeList mode : list){
+            rst.add(mode.getId().getRoomMode());
         }
         return rst;
     }
@@ -88,13 +99,21 @@ public class RoomService {
         Room room = new Room();
         room.setTotalNum(request.getTotalNum());
         room.setType(request.getType());
-        room.setMode(request.getMode());
+        //room.setMode(request.getMode());
         room.setTitle(request.getTitle());
         room.setIntro(request.getIntro());
         room.setOwnerId(user);
         room.setThumbnail(request.getThumbnail());
-        Optional<QuestionCode> qid = questionCodeRepository.findById(request.getQuestionId());
-        qid.ifPresent(room::setQuestion);
+        if(request.getQuestionId() != null && request.getQuestionId() != 0){
+            Optional<QuestionCode> qid = questionCodeRepository.findById(request.getQuestionId());
+            qid.ifPresent(room::setQuestion);
+        }
+        for(RoomMode rm : request.getMode()){
+            RoomModeList mlist = new RoomModeList();
+            mlist.setId(new EmdRoomMode());
+            mlist.getId().setRoomMode(rm);
+            room.addRoomModeList(mlist);
+        }
         return roomRepository.save(room);
     }
 
@@ -109,6 +128,14 @@ public class RoomService {
             HashTag hashTag = new HashTag();
             hashTag.setId(new EmdHash(room, code));
             hashTagRepository.save(hashTag);
+        }
+    }
+
+    public void storeRoomModes(Room room, List<RoomMode> modes){
+        for(RoomMode rm : modes){
+            RoomModeList mlist = new RoomModeList();
+            mlist.setId(new EmdRoomMode(room, rm));
+            roomModeListRepository.save(mlist);
         }
     }
 
