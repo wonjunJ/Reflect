@@ -58,6 +58,16 @@ public class DiaryService {
         throw new DiaryNotFoundException("해당 일기 정보가 없습니다.");
     }
 
+    public void addDiaryImg(Diary diary){
+        Optional<Diary> diaryInfo = diaryRepository.findById(diary.getId());
+        if(diaryInfo.isPresent()){
+            diaryInfo.get().setDiaryImg(diary.getDiaryImg());
+            diaryRepository.save(diaryInfo.get());
+            return;
+        }
+        throw new DiaryNotFoundException("해당 일기 정보가 없습니다.");
+    }
+
     @Transactional
     public Diary addDiaryGPTLog(User user, DiaryGPTRequest request){
         Diary diary = new Diary();

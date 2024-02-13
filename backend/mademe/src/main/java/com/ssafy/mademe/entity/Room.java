@@ -76,4 +76,9 @@ public class Room {
         hashTags.add(hashTag);
         hashTag.getId().setRoom(this);
     }
+
+    public void addRoomModeList(RoomModeList roomModeList){
+        roomModes.add(roomModeList);
+        roomModeList.getId().setRoom(this);
+    }
 }

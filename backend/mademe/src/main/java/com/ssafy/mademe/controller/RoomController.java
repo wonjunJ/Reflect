@@ -65,6 +65,10 @@ public class RoomController {
                                                 @RequestParam("from") int from, @RequestParam("to") int to,
                                                 @PageableDefault(size = 10) Pageable pageable){
         Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(filter, searchWord, from, to, pageable);
+        for(RoomListResponse tmp : roomInfos){
+            tmp.setMode(roomService.getRoomModes(tmp.getRoomId()));
+            tmp.setHashTags(roomService.getHashTagList(tmp.getRoomId()));
+        }
         Map<String, Object> json = new HashMap<>();
         json.put("pagingInfo", PagingInfoResponse.builder()
                 .totalPage(roomInfos.getTotalPages()) //전체 페이지 수
@@ -105,7 +109,7 @@ public class RoomController {
     public RoomDetailResponse createRoom(@AuthenticationPrincipal User user, @RequestBody RoomRequest request){
         Room room = roomService.createRoom(user, request);
         roomService.storeHashTags(room, request.getHashTags());
-        return mapToRoomDetail(room, null, request.getHashTags(), null);
+        return mapToRoomDetail(room, null, request.getHashTags(), request.getMode());
     }
 
     //방 탈퇴하기(방 참가 상태(채팅 화면)에서 탈퇴하기를 누를때)

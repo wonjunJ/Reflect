@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import static com.ssafy.mademe.entity.QHashTag.hashTag;
 import static com.ssafy.mademe.entity.QHashCode.hashCode;
 import static com.ssafy.mademe.entity.QRoom.room;
+import static com.ssafy.mademe.entity.QRoomModeList.roomModeList;
 
 @RequiredArgsConstructor
 public class RoomRepositoryImpl implements RoomRepositoryCustom {
@@ -34,7 +35,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         room.totalNum,
                         room.curNum,
                         room.type,
-                        room.mode,
                         room.thumbnail,
                         room.title,
                         room.intro,
@@ -43,9 +43,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
+                .leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
-                        room.mode.ne(RoomMode.SECRET),
+                        roomModeList.id.roomMode.ne(RoomMode.SECRET),
+                        //room.mode.ne(RoomMode.SECRET),
                         conditionFiltering(filter),
                         searchWords(searchWord)
                 )
@@ -63,9 +65,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
+                .leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
-                        room.mode.ne(RoomMode.SECRET),
+                        roomModeList.id.roomMode.ne(RoomMode.SECRET),
+                        //room.mode.ne(RoomMode.SECRET),
                         conditionFiltering(filter),
                         searchWords(searchWord)
                 );
@@ -109,11 +113,10 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .totalNum(tuple.get(2, Integer.class))
                 .curNum(tuple.get(3, Integer.class))
                 .type(tuple.get(4, RoomType.class))
-                .mode(tuple.get(5, RoomMode.class))
-                .thumnail(tuple.get(6, String.class))
-                .title(tuple.get(7, String.class))
-                .intro(tuple.get(8, String.class))
-                .qId(tuple.get(9, Long.class))
+                .thumnail(tuple.get(5, String.class))
+                .title(tuple.get(6, String.class))
+                .intro(tuple.get(7, String.class))
+                .qId(tuple.get(8, Long.class))
                 .build();
     }
 }

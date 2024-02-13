@@ -8,6 +8,7 @@ import com.ssafy.mademe.dto.response.RoomListResponse;
 import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.entity.embedded.EmdHash;
 import com.ssafy.mademe.entity.embedded.EmdRoom;
+import com.ssafy.mademe.entity.embedded.EmdRoomMode;
 import com.ssafy.mademe.exception.room.NotAuthorizedException;
 import com.ssafy.mademe.exception.room.RoomNotFoundException;
 import com.ssafy.mademe.exception.user.InvalidCodeException;
@@ -103,9 +104,15 @@ public class RoomService {
         room.setIntro(request.getIntro());
         room.setOwnerId(user);
         room.setThumbnail(request.getThumbnail());
-        if(request.getQuestionId() != null){
+        if(request.getQuestionId() != null && request.getQuestionId() != 0){
             Optional<QuestionCode> qid = questionCodeRepository.findById(request.getQuestionId());
             qid.ifPresent(room::setQuestion);
+        }
+        for(RoomMode rm : request.getMode()){
+            RoomModeList mlist = new RoomModeList();
+            mlist.setId(new EmdRoomMode());
+            mlist.getId().setRoomMode(rm);
+            room.addRoomModeList(mlist);
         }
         return roomRepository.save(room);
     }
@@ -121,6 +128,14 @@ public class RoomService {
             HashTag hashTag = new HashTag();
             hashTag.setId(new EmdHash(room, code));
             hashTagRepository.save(hashTag);
+        }
+    }
+
+    public void storeRoomModes(Room room, List<RoomMode> modes){
+        for(RoomMode rm : modes){
+            RoomModeList mlist = new RoomModeList();
+            mlist.setId(new EmdRoomMode(room, rm));
+            roomModeListRepository.save(mlist);
         }
     }
 
