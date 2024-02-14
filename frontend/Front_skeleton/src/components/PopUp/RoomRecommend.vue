@@ -87,7 +87,7 @@ const props = defineProps({
 
 const emit = defineEmits()
 
-const roomId = ref(null)
+let roomId = null
 
 
 const openEnterModalOpen = (id) => {
