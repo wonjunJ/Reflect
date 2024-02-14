@@ -12,11 +12,11 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DiaryDetailService {
     private final DiaryRepository diaryRepository;
-
-    public List<DiaryDetailResponse> findAllDiaryDetails(User user, Long diaryId) {
-        return diaryRepository.findAllDiaryDetailByDairyId(user, diaryId);
-    }
-
+    // 모든 일기 조회용
+//    public List<DiaryDetailResponse> findAllDiaryDetails(User user, Long diaryId) {
+//        return diaryRepository.findAllDiaryDetailByDairyId(user, diaryId);
+//    }
+    // 7개 일기 조회용
     public List<DiaryDetailResponse> findDiaryDetails(User user, Long diaryId) {
         return diaryRepository.findDiaryDetailByDairyId(user, diaryId);
     }

@@ -27,29 +27,29 @@ public class DiaryDetailController {
     private final DiaryDetailService diaryDetailService;
 
     // 모든 일기 조회용
-    @GetMapping("/{diaryId}")
-    public ResponseEntity<List<DiaryDetailResponse>> getAllDiaryDetailByDate(
-            @AuthenticationPrincipal User user,
-            @PathVariable("diaryId") Long diaryId) {
-
-        List<DiaryDetailResponse> diaries = diaryDetailService.findAllDiaryDetails(user, diaryId);
-
-        return ResponseEntity.ok(diaries);
-
-    }
-
-
-    // 7개 조회용
 //    @GetMapping("/{diaryId}")
-//    public ResponseEntity<List<DiaryDetailResponse>> getDiaryDetailByDate(
+//    public ResponseEntity<List<DiaryDetailResponse>> getAllDiaryDetailByDate(
 //            @AuthenticationPrincipal User user,
 //            @PathVariable("diaryId") Long diaryId) {
 //
-//        List<DiaryDetailResponse> diaries = diaryDetailService.findDiaryDetails(user, diaryId);
+//        List<DiaryDetailResponse> diaries = diaryDetailService.findAllDiaryDetails(user, diaryId);
 //
 //        return ResponseEntity.ok(diaries);
 //
 //    }
+
+
+    // 7개 조회용
+    @GetMapping("/{diaryId}")
+    public ResponseEntity<List<DiaryDetailResponse>> getDiaryDetailByDate(
+            @AuthenticationPrincipal User user,
+            @PathVariable("diaryId") Long diaryId) {
+
+        List<DiaryDetailResponse> diaries = diaryDetailService.findDiaryDetails(user, diaryId);
+
+        return ResponseEntity.ok(diaries);
+
+    }
 
 
 

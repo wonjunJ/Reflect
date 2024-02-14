@@ -15,6 +15,7 @@ import java.time.LocalDateTime;
 import java.time.Month;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -118,30 +119,30 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .selectFrom(diary)
                 .where(diary.createDate.before(targetCreateDate)
                         .and(diary.user.eq(user)))
-                .orderBy(diary.createDate.desc())
+                .orderBy(diary.createDate.asc())
                 .limit(3)
                 .fetch();
+        Collections.reverse(previousDiaries);
 
         // 후의 데이터 조회
         List<Diary> nextDiaries = jpaQueryFactory
                 .selectFrom(diary)
                 .where(diary.createDate.after(targetCreateDate)
                         .and(diary.user.eq(user)))
-                .orderBy(diary.createDate.asc())
+                .orderBy(diary.createDate.asc()) // 정렬 순서 변경
                 .limit(3)
                 .fetch();
 
         // 결과 병합
-        previousDiaries.add(currentDiary);
-        previousDiaries.addAll(nextDiaries);
+        List<Diary> combinedDiaries = new ArrayList<>(previousDiaries);
+        combinedDiaries.add(currentDiary);
+        combinedDiaries.addAll(nextDiaries);
 
-        return previousDiaries
+        return combinedDiaries
                 .stream()
                 .map(this::mapToDiaryDetail)
                 .collect(Collectors.toList());
 
-//        List<Diary> sevenDiaries = previousDiaries;
-//        return sevenDiaries;
     }
 
 
