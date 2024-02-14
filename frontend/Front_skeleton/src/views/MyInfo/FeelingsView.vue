@@ -1,5 +1,4 @@
 <template>
-  <h1>Feeling</h1>
   <div>
 
     <div class="d-flex">

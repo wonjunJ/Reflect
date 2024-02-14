@@ -53,9 +53,9 @@ const router = createRouter({
       component: MyPage,
       beforeEnter: (to, from) => {
         const userStore = useUserStore()
-        // if (!userStore.isLogin) {
-        //   return {name: 'index'}
-        // }
+        if (!userStore.isLogin) {
+          return {name: 'index'}
+        }
       }
     },
     {
