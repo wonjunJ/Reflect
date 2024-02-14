@@ -5,7 +5,7 @@ import { useUserStore } from './user'
 import axios from 'axios'
 
 export const useRoomStore = defineStore('room', () => {
-  const API_URL = import.meta.env.API_URL
+  const API_URL = 'http://localhost:8080'
   const userStore = useUserStore()
   const token = userStore.accessToken
   const router = useRouter()
@@ -69,7 +69,7 @@ export const useRoomStore = defineStore('room', () => {
         console.log(res.data)
         console.log('방 생성 완료')
         waitingId.value = res.data.roomId
-        router.push({path: `/waiting/${waitingId}`})
+        router.push({path: `/waiting/${waitingId}`, params:{id:waitingId}})
       })
     .catch((err) => {
       console.log(err)

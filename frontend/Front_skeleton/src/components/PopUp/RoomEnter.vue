@@ -18,7 +18,7 @@ const props = defineProps({
 const emit = defineEmits();
 
 const participate = () => {
-  router.push({path: `/waiting/${props.waitingId}`})
+  router.push({path: `/waiting/${props.waitingId}`, params:{id:waitingId}})
 }
 
 const closeModal = () => {
