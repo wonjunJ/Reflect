@@ -42,7 +42,7 @@
 
         <!-- 모달 내용 -->
         <div>
-          <QuickJoin :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen" @closeModal="closeModal" />
+          <QuickJoin :recRooms="recRooms" :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen" @closeModal="closeModal" />
         </div>
 
         <!-- 방 만들기 버튼 -->
@@ -183,6 +183,8 @@ import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import QuickJoin from '@/components/PopUp/QuickJoin.vue'
 import { useRoomStore} from '@/stores/room'
 import {useRouter} from 'vue-router'
+import axios from 'axios';
+
 // import Slider from '@vueform/slider'
 
 const router = useRouter()
@@ -280,7 +282,7 @@ const recRooms = ref([])
 const roomRecommend = () => {
     axios({
       method: 'get',
-      url: `${API_URL}/room/recommend`,
+      url: `${roomStore.API_URL}/room/recommend`,
       headers : {
         Authorization: `Bearer ${roomStore.token}`
       }

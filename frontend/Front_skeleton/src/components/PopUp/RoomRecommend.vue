@@ -79,7 +79,13 @@ const roomStore = useRoomStore()
 const isEnterRoom = ref(false)
 const roomId = ref(null)
 
-const { isHundredModalOpen, isFreeModalOpen, rooms } = defineProps({isHundredModalOpen: Boolean, isFreeModalOpen:Boolean, recRooms:Object});
+const props = defineProps({
+    recRooms: Array,
+    isHundredModalOpen: Boolean,
+    isFreeModalOpen: Boolean
+});
+const rooms = ref(props.recRooms);
+
 const emit = defineEmits()
 
 
