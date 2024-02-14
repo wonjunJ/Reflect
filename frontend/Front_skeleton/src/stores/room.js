@@ -5,7 +5,7 @@ import { useUserStore } from './user'
 import axios from 'axios'
 
 export const useRoomStore = defineStore('room', () => {
-  const API_URL = 'http://localhost:8080'
+  const API_URL = import.meta.env.API_URL
   const userStore = useUserStore()
   const token = userStore.accessToken
   const router = useRouter()

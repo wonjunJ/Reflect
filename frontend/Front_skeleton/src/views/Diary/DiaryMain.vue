@@ -88,7 +88,7 @@ export default {
     const userInfo = ref({})
     const snowContainer = ref(null);
     
-    const API_URL = ref('http://localhost:8080')
+   
     
     onMounted(() => {
       const Snow = new SnowCanvas();
@@ -100,7 +100,7 @@ export default {
       
     });
     
-    return { snowContainer, userInfo, API_URL, };
+    return { snowContainer, userInfo };
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
