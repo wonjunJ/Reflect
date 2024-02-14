@@ -2,7 +2,7 @@ import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
 import SockJS from 'sockjs-client'
-import Stomp from 'stompjs'
+import Stomp from 'webstomp-client'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
@@ -13,12 +13,7 @@ export const useUserStore = defineStore('user', () => {
   const refreshToken = ref(null)
   const userId = ref(null)
 
-  // const isLogin = ref(false)
-
-  // function login() {
-  //   isLogin.value = true
-  //   router.push({name: 'mypage'})
-  // }
+  const userInfo = ref({})
 
   const isLogin = computed(() => {
     if (accessToken.value) {
@@ -47,7 +42,26 @@ export const useUserStore = defineStore('user', () => {
         const message = JSON.parse(greeting.body).msg
       })
     })
+  }
 
+  function getUserInfo() {
+    axios({
+      method: 'get',
+      url: `${API_URL}/user/`,
+      headers: {
+        Authorization: `Bearer ${accessToken.value}`
+      }
+    })
+      .then(res => {
+        const { point, titles, alrams, charName } = res.data
+        userInfo.value = { point, titles, alrams, charName }
+      })
+      .catch(err => {
+        if (err.response.status === 401) {
+          refresh()
+          getUserInfo()
+        } 
+      })
   }
 
   function login(id, password) {
@@ -63,6 +77,7 @@ export const useUserStore = defineStore('user', () => {
         accessToken.value = res.data.AccessToken
         refreshToken.value = res.data.RefreshToken
         userId.value = res.data.userId
+        getUserInfo()
         router.push({name: 'mypage'})
         connect()
         
@@ -97,5 +112,5 @@ export const useUserStore = defineStore('user', () => {
     router.push({name: 'index'})
   }
 
-  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL, refresh }
+  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL, refresh, stompClient, connect, getUserInfo, userInfo }
 }, { persist : {storage : sessionStorage}})

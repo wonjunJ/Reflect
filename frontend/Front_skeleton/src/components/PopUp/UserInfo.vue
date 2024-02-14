@@ -9,6 +9,7 @@
         <img class="rounded-circle" v-if="userData.profileImg" :src="userData.profileImg" alt="">
         <img class="rounded-circle" v-else src="@/assets/defaultRoom.jpg" alt="">
         <p>{{ userData.nickName }}</p>
+        <button @click="openMessageModal">✉️ 쪽지보내기</button>
         <div>
           <h5>Interests</h5>
           <p v-for="(interest, index) of userData.interests" :key="interest.interestId">
@@ -18,6 +19,11 @@
         <button class="btn btn-primary" @click="submitFollow">{{ userData._follow ? 'Unfollow' : 'Follow' }}</button>
       </div>
     </div>
+    <SendMessage v-if="isMessageModal"
+      :is-modal="isMessageModal"
+      :send-user-id="userId"
+      @close-modal="closeMessageModal"
+    ></SendMessage>
   </div>
 </template>
 
@@ -25,6 +31,7 @@
 import { ref, onMounted } from 'vue'
 import { useUserStore } from '@/stores/user.js'
 import axios from 'axios'
+import SendMessage from './SendMessage.vue'
 
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
@@ -34,11 +41,21 @@ const props = defineProps({
   userId: Number,
 })
 
+const isMessageModal = ref(false)
+
+const openMessageModal = function () {
+  isMessageModal.value = true
+}
+
 const userData = ref({})
 
 const emit = defineEmits(['closeModal'])
 const closeModal = function () {
   emit('closeModal')
+}
+
+const closeMessageModal = function () {
+  isMessageModal.value = false
 }
 
 // 팔로우 언팔로우 중계 함수

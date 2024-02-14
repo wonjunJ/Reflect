@@ -11,7 +11,6 @@ import Footer from './components/Footer.vue';
 </script>
 
 <template>
-
   <div id="app">
     <Navbar/>
     <RouterView/>
@@ -22,11 +21,21 @@ import Footer from './components/Footer.vue';
 </template>
 
 <script>
-import WalkImage from './img/corgiWalk.gif';
-import HitImage from './img/corgiClick.gif';
-import IdleImage from './img/corgi.gif';
-import AttackImage from './img/corgiEnd.gif'
+import corgi from './img/corgi.gif';
+import slime from './img/slime.gif';
+import rabbit from './img/rabbit.gif'
+import corgiEnd from './img/corgiEnd.gif';
+import slimeEnd from './img/slimeDie.gif';
+import rabbitEnd from './img/rabbitEnd.gif'
+import corgiClick from './img/corgiClick.gif';
+import slimeClick from './img/slimeHit.gif';
+import rabbitClick from './img/rabbitClick.gif'
+import corgiWalk from './img/corgiWalk.gif';
+import slimeWalk from './img/slimeWalk.gif';
+import rabbitWalk from './img/rabbitWalk.gif'
 import { usePositionStore } from '@/stores/pet.js';
+import { useUserStore } from '@/stores/user.js'
+import { ref, computed } from 'vue'
 export default {
   data() {
     return {
@@ -81,12 +90,35 @@ export default {
     setInterval(this.updatePet, 10);
   },
   computed: {
+    userStore() {
+      return useUserStore()
+    },
+    charName() {
+      return this,this.userStore.userInfo.charName
+    },
+    IdleImage() {
+      const charName = this.charName;
+      return charName === "코기" ? corgi : (charName === '토끼' ? rabbit : slime);
+    },
+    WalkImage() {
+      const charName = this.charName;
+      return charName === "코기" ? corgiWalk : (charName === '토끼' ? rabbitWalk : slimeWalk);
+    },
+    HitImage() {
+      const charName = this.charName;
+      return charName === "코기" ? corgiClick : (charName === '토끼' ? rabbitClick : slimeClick);
+    },
+    AttackImage() {
+      const charName = this.charName;
+      return charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd);
+    },
     getPetImage() {
-      if (this.isCatchUp) {
+      const { isCatchUp, isClick, isIdle, IdleImage, WalkImage, HitImage, AttackImage } = this
+      if (isCatchUp) {
         return AttackImage;
-      } else if (this.isClick) {
+      } else if (isClick) {
         return HitImage;
-      } else if (this.isIdle) {
+      } else if (isIdle) {
         return IdleImage;
       // } else if (this.isIdle) {
       //   return AttackImage;
