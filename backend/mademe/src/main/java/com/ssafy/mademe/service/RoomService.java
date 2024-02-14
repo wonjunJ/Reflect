@@ -1,10 +1,7 @@
 package com.ssafy.mademe.service;
 
 import com.ssafy.mademe.dto.request.RoomRequest;
-import com.ssafy.mademe.dto.response.FollowingResponse;
-import com.ssafy.mademe.dto.response.MyRoomInfoResponse;
-import com.ssafy.mademe.dto.response.RoomDetailResponse;
-import com.ssafy.mademe.dto.response.RoomListResponse;
+import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.*;
 import com.ssafy.mademe.entity.embedded.EmdHash;
 import com.ssafy.mademe.entity.embedded.EmdRoom;
@@ -34,6 +31,7 @@ public class RoomService {
     private final QuestionCodeRepository questionCodeRepository;
     private final HashCodeRepository hashCodeRepository;
     private final RoomModeListRepository roomModeListRepository;
+    private final InterestRepository interestRepository;
 
     public Page<MyRoomInfoResponse> getRoomInfos(User user, LocalDate indate, Boolean isExit, Pageable pageable){
         return myRoomRepository.findRoomInfoListByUser(user, indate, isExit, pageable);
@@ -70,6 +68,8 @@ public class RoomService {
     }
 
     public List<RoomDetailResponse> recommendRoom(User user){
+        List<InterestResponse> myInterests = interestRepository.findInterestList(user, 5, Preference.LIKE);
+
         return null;
     }
 

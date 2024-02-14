@@ -1,5 +1,6 @@
 package com.ssafy.mademe.repository;
 
+import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.dto.response.RoomDetailResponse;
 import com.ssafy.mademe.dto.response.RoomListResponse;
 import com.ssafy.mademe.entity.User;
@@ -10,5 +11,5 @@ import java.util.List;
 
 public interface RoomRepositoryCustom {
     Page<RoomListResponse> findTotalRoomList(List<String> filter, String searchWord, int from, int to, Pageable pageable);
-    List<RoomDetailResponse> findRecommendedRoom(User user);
+    List<RoomDetailResponse> findRecommendedRoom(User user, List<InterestResponse> myInterests);
 }
