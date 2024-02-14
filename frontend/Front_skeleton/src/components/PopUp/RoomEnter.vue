@@ -2,18 +2,24 @@
   <div v-if="isEnterRoom" class="modal">
     <div class="modal-content">
       <h1>방에 참여하시겠습니까?</h1>      
-      router.push({path: `/waiting/${waitingId}`})
-        <button type="button" class="btn btn-primary" @click="closeModal">닫기</button>
+      <button type="button" class="btn btn-secondary" @click="participate">참여하기</button>
         <button type="button" class="btn btn-primary" @click="closeModal">닫기</button>
       </div>
     </div>
 </template>
 <script setup>
-import { ref, defineProps, defineEmits, onBeforeUnmount } from 'vue';
-import { RouterLink } from 'vue-router';
+import { ref, defineProps, defineEmits } from 'vue';
+import router from '@/router';
 
-const props = defineProps(['isEnterRoom']);
+const props = defineProps({
+  isEnterRoom: Boolean,
+  waitingId: Number
+});
 const emit = defineEmits();
+
+const participate = () => {
+  router.push({path: `/waiting/${props.waitingId}`})
+}
 
 const closeModal = () => {
   emit('closeModal');

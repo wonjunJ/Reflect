@@ -81,10 +81,9 @@ export const useRoomStore = defineStore('room', () => {
 
 
     // 모든 방 목록을 가져옴 
-  const getRooms = () => {
+  const getRooms = (page) => {
     const from = 2
     const to = 8
-    const page = 0
     axios({
       method: 'get',
       url: `${API_URL}/room`,
@@ -112,10 +111,11 @@ export const useRoomStore = defineStore('room', () => {
 
   // 필터링된 방의 목록을 가져옴
   // 100문100답, 자유주제, 인원수, 모집중 기준으로 필터링
-  const getFilteredRooms = (filter, from, to, pageable) => {
+  const getFilteredRooms = (filter, from, to, page) => {
     console.log(from)
     console.log(to)
-    console.log(pageable)
+    console.log(page)
+    console.log(filter)
     axios({
       method:'get',
       url:`${API_URL}/room`,
@@ -123,10 +123,10 @@ export const useRoomStore = defineStore('room', () => {
         Authorization: `Bearer ${token}`
       },
       params: {
-        filter: filter, // "FREE,BACKMOON,Waiting"와 같은 형태로 변환
+        filter: filter.join(','), // "FREE,BACKMOON,Waiting"와 같은 형태로 변환
         from: from,
         to: to,
-        page: pageable
+        page: page
       }
     })
       .then((res) => {
@@ -134,13 +134,14 @@ export const useRoomStore = defineStore('room', () => {
         filteredRooms.value = res.data.data
         pagingInfo.value = res.data.pagingInfo
         console.log(pagingInfo.value)
-        isFiltered.value = true
+        // isFiltered.value = true
+        return filteredRooms
       })
       .catch((err) => console.log(err))
   }
 
   // 내가 가입한 방 리스트 조회
-  const getMyRooms = () => {
+  const getMyRooms = (page) => {
     axios({
       method: 'get',
       url: `${API_URL}/room/mine`,
@@ -161,17 +162,16 @@ export const useRoomStore = defineStore('room', () => {
   }
 
   // 검색 조회
-  const getSearchRooms = (search) => {
+  const getSearchRooms = (searchKey, page) => {
     const from = 2
     const to = 8
-    const pageable = 0
     axios({
       method: 'get',
       url: `${API_URL}/room`,
       headers : {
         Authorization: `Bearer ${token}`
       },
-      params: {searchWord:search, from:from, to:to, page:pageable}
+      params: {search:searchKey, from:from, to:to, page:page}
     })
     .then((res) => {
         console.log(res.data.data)
@@ -179,6 +179,7 @@ export const useRoomStore = defineStore('room', () => {
         pagingInfo.value = res.data.pagingInfo
         console.log(pagingInfo.value)
         console.log('검색완료')
+        return searchedRooms
       })
     .catch((err) => {
       console.log('검색 실패')
@@ -188,5 +189,5 @@ export const useRoomStore = defineStore('room', () => {
 
 
 
-  return { pagingInfo,roomDetail, getRoomDetail,rooms, getRooms, myRooms, getMyRooms,API_URL, createRoom, getFilteredRooms, getSearchRooms, searchedRooms, filteredRooms }
+  return { token,pagingInfo,roomDetail, getRoomDetail,rooms, getRooms, myRooms, getMyRooms,API_URL, createRoom, getFilteredRooms, getSearchRooms, searchedRooms, filteredRooms }
 })

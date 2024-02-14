@@ -76,7 +76,7 @@
                 </li>
                 <!-- 내가 참여중인 방 목록 -->
                 <li class="nav-item my-rooms">
-                    <a class="nav-link" @click="myRooms">My Rooms ></a>
+                    <a class="nav-link" @click="myRooms">My Rooms </a>
                     
                 </li>
             </ul>
@@ -86,8 +86,8 @@
         <div class="search-filter">    
           <!-- 검색창 -->
           <div class="room-search">
-            <form class="d-flex" role="search">
-              <input v-model="searchKey" class="searchbox" type="text" placeholder="Search" aria-label="Search" @keyup.enter="search()">
+            <form class="d-flex" role="search" @submit.prevent>
+              <input v-model="searchKey" class="searchbox" type="text" placeholder="Search" aria-label="Search" @keyup.enter="search">
             </form>
           </div>
 
@@ -95,23 +95,23 @@
           <div class="room-filter">
             <div class="dropdown">
               <img class="dropdown-toggle filter-icon"  data-bs-toggle="dropdown" aria-expanded="false" data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
-              <form class="dropdown-menu p-4">
+              <form class="dropdown-menu p-4" @submit.prevent>
                 <div class="mb-3">
                   <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="hundredFilter">
-                    <label class="form-check-label" for="hundredFilter" @click="isHundredFilter = !isHundredFilter">백문백답</label>
+                    <input type="checkbox" class="form-check-input" id="hundredFilter" @click="isHundredFilter = !isHundredFilter">
+                    <label class="form-check-label" for="hundredFilter" >백문백답</label>
                   </div>
                 </div>
                 <div class="mb-3">
                   <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="freeFilter">
-                    <label class="form-check-label" for="freeFilter" @click="isFreeFilter = !isFreeFilter">자유주제</label>
+                    <input type="checkbox" class="form-check-input" id="freeFilter" @click="isFreeFilter = !isFreeFilter">
+                    <label class="form-check-label" for="freeFilter" >자유주제</label>
                   </div>
                 </div>
                 <div class="mb-3">
                   <div class="form-check">
-                    <input type="checkbox" class="form-check-input" id="waitingFilter">
-                    <label class="form-check-label" for="waitingFilter" @click="isWaitingFilter = !isWaitingFilter">모집중</label>
+                    <input type="checkbox" class="form-check-input" id="waitingFilter" @click="isWaitingFilter = !isWaitingFilter">
+                    <label class="form-check-label" for="waitingFilter" >모집중</label>
                   </div>
                 </div>
                 <div>
@@ -206,22 +206,12 @@ const from = ref(2)
 const to = ref(8)
 const searchKey = ref(null)
 const type = ref(null)
-// const page = ref(0)
-// const totalPage = ref(0);
 
-// // 이벤트 핸들러 함수 정의
-// const handleTotalPage = (newTotalPage) => {
-//     totalPage.value = newTotalPage;
-// };
-
-onMounted(() => {
-  roomStore.getRooms()
-})
 
 const search = () => {
   // const searchKey = document.getElementsByClassName('searchbox')
-  console.log('검색 시작')
-  console.log(searchKey.value)
+  // console.log('검색 시작')
+  // console.log(searchKey.value)
   isSearched.value = true
   isAll.value = false
   isWaiting.value = false
@@ -234,17 +224,17 @@ const submitFilter = () => {
   from.value = range.value[0]
   to.value = range.value[1]
   console.log(from.value)
-  console.log(range.value[0]) 
-  if (isHundredFilter && !isFreeFilter) {
+  console.log(to.value)
+  if (isHundredFilter.value && !isFreeFilter.value) {
     type.value = 'BACKMOON'
   }
-  else if (!isHundredFilter && isFreeFilter) {
+  else if (!isHundredFilter.value && isFreeFilter.value) {
     type.value = 'FREE'
   }
   else {
     type.value = null
   }
-  if(isWaitingFilter) {
+  if(isWaitingFilter.value) {
     waiting.value = 'Waiting'
   }
   else {
@@ -333,7 +323,7 @@ html body {
 
 .room-list-back {
   width: 100%;
-  height: 900px;
+  height: 100%;
   background-color: white;
   border-radius: 70px 70px 0 0;
   padding-top: 30px;

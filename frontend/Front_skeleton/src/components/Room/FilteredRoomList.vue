@@ -25,15 +25,16 @@
                 </div>
 
                 <div class="card-footer text-center">
-                    <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
+                    <a class="btn btn-primary" @click="openEnterModalOpen(room.roomId)">Join</a>
                 </div>
             </div>
         </div>
         <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
     </div>
     <v-pagination
-            v-model="page.pageNum"
-            :length="page.totalPage"
+            v-model="page"
+            :length="pagingInfo.totalPage"
+            @update:modelValue="changeRoomPage"
         ></v-pagination>
     </div>
 </template>
@@ -52,25 +53,39 @@ const props = defineProps({
 
 const roomStore = useRoomStore()
 const rooms = computed(() => roomStore.filteredRooms);
-const page = computed(() => roomStore.pagingInfo);
+const pagingInfo = computed(() => roomStore.pagingInfo); //페이지네이션 정보
+const page = ref(1) // 현재 페이지 번호
+
+
+const changeRoomPage = (num) => {
+    const from = props.from
+    const to = props.to
+    const type = props.type
+    const waiting = props.waiting
+    const filter = [type, waiting]
+    page.value = num
+    roomStore.getFilteredRooms(filter, from, to, page.value)
+}
+
 onMounted(() =>{
     // roomStore.num1 = props.limit[0]
     // roomStore.num2 = props.limit[1]
     const from = props.from
     const to = props.to
+    console.log(props.type, props.waiting)
     const type = props.type
     const waiting = props.waiting
-    const pageable = 0
-    const filter = {type, waiting}
-    roomStore.getFilteredRooms(filter, from, to, pageable)
+    const filter = [type, waiting]
+    roomStore.getFilteredRooms(filter, from, to, page.value)
 })
 
 const isEnterRoom = ref(false)
+const selectedRoomId = ref(null); // 선택된 방의 roomId를 저장할 ref
 
-const openEnterModalOpen = () => {
-isEnterRoom.value =  true
+const openEnterModalOpen = (roomId) => {
+    selectedRoomId.value = roomId; // 선택된 방의 roomId 저장
+    isEnterRoom.value =  true
 }
-
 const closeModal = () => {
 isEnterRoom.value = false
 }

@@ -26,17 +26,18 @@
                 </div>
 
                 <div class="card-footer text-center">
-                    <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
+                    <a class="btn btn-primary" @click="openEnterModalOpen(room.roomId)">Join</a>
                 </div>
             </div>
         </div>
     </div>
-    <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
+    <RoomEnter :isEnterRoom="isEnterRoom" :waitingId="selectedRoomId" @closeModal="closeModal"/>
     </div>
     <!-- 페이지네이션 -->
     <v-pagination
-            v-model="page.pageNum"
-            :length="page.totalPage"
+            v-model="page"
+            :length="pagingInfo.totalPage"
+            @update:modelValue="changeRoomPage"
         ></v-pagination>
 </div>
 
@@ -49,16 +50,24 @@ import RoomEnter from '@/components/PopUp/RoomEnter.vue';
 
 
 const roomStore = useRoomStore()
+const selectedRoomId = ref(null); // 선택된 방의 roomId를 저장할 ref
+const page = ref(1) // 현재 페이지 번호
+// computed 속성을 사용하여 rooms와 pagingInfo 정의
+const rooms = computed(() => roomStore.rooms); // 방 목록
+const pagingInfo = computed(() => roomStore.pagingInfo); //페이지네이션 정보
 
-// computed 속성을 사용하여 rooms와 page를 정의
-const rooms = computed(() => roomStore.rooms);
-const page = computed(() => roomStore.pagingInfo);
+
+const changeRoomPage = (num) => {
+      page.value = num
+      roomStore.getRooms(page.value) // 새로운 커뮤니티 목록을 가져오는 함수
+    }
 
 
 
 const isEnterRoom = ref(false)
 
-const openEnterModalOpen = () => {
+const openEnterModalOpen = (roomId) => {
+    selectedRoomId.value = roomId; // 선택된 방의 roomId 저장
     isEnterRoom.value =  true
 }
 
@@ -67,7 +76,7 @@ const closeModal = () => {
 }
 
 onMounted(() =>{
-    roomStore.getRooms()
+    roomStore.getRooms(page.value)
 })
 
 
