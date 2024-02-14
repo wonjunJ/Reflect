@@ -4,7 +4,7 @@
         <!-- 방 추천 팝업 -->
 
         <h2>이러한 방들은 어떠신가요?</h2>
-
+            {{ props.recRooms }}
         
         <div>
             <!-- 추천방 목록 -->
@@ -18,7 +18,7 @@
                             
                             <!-- 방1 -->
                             <div class="carousel-item active">
-                                <div class="col" v-for="room in rooms" :key="room.room_id">
+                                <div class="col" v-for="room in props.recRooms" :key="room.room_id">
                                     <div class="card h-100">
                                         <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
                                         <div class="card-body">
@@ -38,7 +38,7 @@
                                         </div>
 
                                         <div class="card-footer text-center">
-                                            <a class="btn btn-primary" @click="openEnterModalOpen">Join</a>
+                                            <a class="btn btn-primary" @click="openEnterModalOpen(room.roomId)">Join</a>
                                         </div>
                                     </div>
                                 </div>
@@ -77,21 +77,21 @@ import { useRoomStore } from '@/stores/room'
 
 const roomStore = useRoomStore()
 const isEnterRoom = ref(false)
-const roomId = ref(null)
 
 const props = defineProps({
-    recRooms: Array,
+    recRooms: Object,
     isHundredModalOpen: Boolean,
     isFreeModalOpen: Boolean
 });
-const rooms = ref(props.recRooms);
+
 
 const emit = defineEmits()
 
+const roomId = ref(null)
 
 
-
-const openEnterModalOpen = () => {
+const openEnterModalOpen = (id) => {
+    roomId = id
     isEnterRoom.value =  true
 }
 

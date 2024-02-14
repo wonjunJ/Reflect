@@ -279,25 +279,24 @@ const myRooms = () => {
 
 const recRooms = ref([])
 
+// 방 추천 axios로 가져오기
 const roomRecommend = () => {
-    axios({
-      method: 'get',
-      url: `${roomStore.API_URL}/room/recommend`,
-      headers : {
-        Authorization: `Bearer ${roomStore.token}`
-      }
-    })
-      .then((res) => {
-        console.log(res.data)
-        recRooms.value = res.data
-        return recRooms
-      })
-      .catch((err) => 
-        console.log(err))
+  return axios({
+    method: 'get',
+    url: `${roomStore.API_URL}/room/recommend`,
+    headers: {
+      Authorization: `Bearer ${roomStore.token}`
+    }
+  })
+  .then((res) => {
+    console.log(res.data);
+    recRooms.value = res.data;
+    console.log(recRooms.value);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
 }
-
-
-
 
 
 const openCreateRoomModal = () => {
@@ -313,13 +312,18 @@ const closeModal = () => {
 }
 
 const openHundredModal = () => {
-  isHundredModalOpen.value = true
-  roomRecommend()
+  // 방 추천 요청을 먼저 보내고, 응답을 받은 후에 recRooms를 업데이트합니다.
+  roomRecommend().then(() => {
+    isHundredModalOpen.value = true;
+    console.log(recRooms.value);
+  });
 }
 
 const openFreeModal = ()=> {
   isFreeModalOpen.value = true
   roomRecommend()
+  console.log(recRooms.value)
+
 }
 
 const openQuickHundredModal = () => {
