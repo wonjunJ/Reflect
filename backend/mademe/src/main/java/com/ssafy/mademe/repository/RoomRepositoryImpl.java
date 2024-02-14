@@ -5,9 +5,11 @@ import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
+import com.ssafy.mademe.dto.response.RoomDetailResponse;
 import com.ssafy.mademe.dto.response.RoomListResponse;
 import com.ssafy.mademe.entity.RoomMode;
 import com.ssafy.mademe.entity.RoomType;
+import com.ssafy.mademe.entity.User;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -89,6 +91,19 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         //System.out.println(count);
 
         return PageableExecutionUtils.getPage(data, pageable, count::fetchOne);
+    }
+
+    @Override
+    public List<RoomDetailResponse> findRecommendedRoom(User user) {
+        return null;
+//        return jpaQueryFactory
+//                .select(
+//
+//                )
+//                .from(room)
+//                .where(
+//
+//                );
     }
 
     private BooleanExpression conditionFiltering(List<String> filter){

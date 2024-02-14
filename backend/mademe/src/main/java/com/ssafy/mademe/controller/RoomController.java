@@ -113,7 +113,8 @@ public class RoomController {
     }
 
     @GetMapping("/recommend")
-    public RoomDetailResponse recommendRoom(@AuthenticationPrincipal User user){
+    public List<RoomDetailResponse> recommendRoom(@AuthenticationPrincipal User user){
+
         return null;
     }
 

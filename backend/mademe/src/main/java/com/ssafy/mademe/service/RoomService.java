@@ -69,6 +69,10 @@ public class RoomService {
         return roomRepository.findTotalRoomList(filter, searchWord, from, to, pageable);
     }
 
+    public List<RoomDetailResponse> recommendRoom(User user){
+        return null;
+    }
+
     public void joinRoom(User user, Room room){
         MyRoom myRoom = myRoomRepository.findFirstById_UserAndId_Room(user, room);
         if(myRoom != null){
