@@ -19,7 +19,6 @@
             <h5>캐릭터 설정</h5>
             <button class="btn btn-primary" @click="openCharacterModal">수정</button>
           </div>
-          <p>{{ userInfo.characterId }}</p>
           <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
             <el-form-item prop="email" label="이메일" :label-width="state.labelWidth">
               <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off" disabled></el-input>
@@ -195,9 +194,9 @@ const closePasswordModal = function () {
     isPasswordModal.value = false
 }
 
-const changeCharacter = (num) => {
+const changeCharacter = () => {
   isCharacterModal.value = false
-  emit('changeCharacter', num)
+  emit('changeCharacter')
 }
 </script>
 

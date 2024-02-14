@@ -151,13 +151,13 @@ const lineChartData = computed(() => {
     isLineChartData.value = false
   }
   return {
-    labels,
+    labels: labels.reverse(),
     datasets: [
       {
         label: 'feelings',
         borderColor: '#f87979',
         fill: false,
-        data
+        data: data.reverse()
       }
     ]
   }

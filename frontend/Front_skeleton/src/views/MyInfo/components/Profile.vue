@@ -11,7 +11,6 @@
         <p>닉네임 : {{ userInfo.nickName }}</p>
         <p>이메일 : {{ userInfo.email }}</p>
         <p>{{ userInfo.myIntro }}</p>
-        <p>{{ userInfo.charName }}</p>
         <p>{{ userInfo.gender }}</p>
         <p>{{ userInfo.birthday }}</p>
         <h3>MBTI</h3>
@@ -74,8 +73,8 @@ const closeProfileModal = function () {
   isProfileModal.value = false
 }
 
-const changeCharacter = (num) => {
-  emit('changeCharacter', num)
+const changeCharacter = () => {
+  emit('changeCharacter')
 }
 
 const reloadProfile = () => {

@@ -6,31 +6,42 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="collapse navbar-collapse" id="navbarNav">
-      <ul class="navbar-nav">
-        <li v-if="userStore.isLogin" class="nav-item">
-            <RouterLink :to="{name: 'mypage'}">mypage</RouterLink>
-        </li>
-        &nbsp;
-        <li v-if="userStore.isLogin" class="nav-item">
-            <RouterLink :to="{name: 'Diary'}">Diary</RouterLink>
-        </li>
-        &nbsp;
-        <li v-if="userStore.isLogin" class="nav-item">
-            <RouterLink :to="{name: 'roomlist'}">roomlist</RouterLink>
+      <ul class="navbar-nav" v-if="userStore.isLogin">
+        <li class="nav-item">
+          <RouterLink :to="{name: 'mypage'}">mypage</RouterLink>
         </li>
         &nbsp;
         <li class="nav-item">
-          <img class="fortune-icon" src="@/assets/fortune-icon.jpg" alt="포춘쿠키아이콘" @click="onpenCookieModal">
-        </li>
-        <li v-if="!userStore.isLogin" class="nav-item">
-            <RouterLink :to="{name: 'signup'}">signup</RouterLink>
+          <RouterLink :to="{name: 'Diary'}">Diary</RouterLink>
         </li>
         &nbsp;
-        <li v-if="!userStore.isLogin" class="nav-item">
-          <RouterLink :to="{name: 'login'}">login</RouterLink>
+        <li class="nav-item">
+          <RouterLink :to="{name: 'roomlist'}">roomlist</RouterLink>
         </li>
-        <li v-if="userStore.isLogin" class="nav-item" @click="userStore.logout()">
+        &nbsp;
+        <li class="nav-item">
+          <div>{{ userStore.userInfo.point }}</div>
+        </li>
+        &nbsp;
+        <li class="nav-item">
+          <div><img src="@/img/bell-solid.svg" alt="">{{ userStore.userInfo.alrams.length }}</div>
+        </li>
+        &nbsp;
+        <li class="nav-item">
+          <img class="fortune-icon" src="@/assets/fortune-icon.jpg" alt="포춘쿠키아이콘" @click="openCookieModal">
+        </li>
+        &nbsp;
+        <li class="nav-item" @click="userStore.logout()">
           <button type="button" class="btn">log out</button>
+        </li>
+      </ul>
+      <ul class="navbar-nav" v-else>
+        <li class="nav-item">
+          <RouterLink :to="{name: 'signup'}">signup</RouterLink>
+        </li>
+        &nbsp;
+        <li class="nav-item">
+          <RouterLink :to="{name: 'login'}">login</RouterLink>
         </li>
       </ul>
     </div>
@@ -49,7 +60,7 @@ import FortuneCookie from './PopUp/FortuneCookie.vue';
 const userStore = useUserStore()
 const isCookie = ref(false)
 
-const onpenCookieModal = () => {
+const openCookieModal = () => {
   isCookie.value = true
 }
 

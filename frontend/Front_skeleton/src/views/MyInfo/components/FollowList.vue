@@ -38,7 +38,7 @@ const selectedUserId = ref(0)
 const isModal = ref(false)
 
 const openModal = function (id) {
-  selectedUserId.value = props.follows.find(item => item.userId === id).userId
+  selectedUserId.value = id
   isModal.value = true
 }
 const closeModal = function () {

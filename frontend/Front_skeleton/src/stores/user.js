@@ -1,6 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
+import SockJS from 'sockjs-client'
+import Stomp from 'webstomp-client'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
@@ -11,12 +13,7 @@ export const useUserStore = defineStore('user', () => {
   const refreshToken = ref(null)
   const userId = ref(null)
 
-  // const isLogin = ref(false)
-
-  // function login() {
-  //   isLogin.value = true
-  //   router.push({name: 'mypage'})
-  // }
+  const userInfo = ref({})
 
   const isLogin = computed(() => {
     if (accessToken.value) {
@@ -25,6 +22,47 @@ export const useUserStore = defineStore('user', () => {
       return false
     }
   })
+
+  var stompClient = null
+
+  function connect() {
+    // SockJS 연결 설정
+    var socket = new SockJS(`${API_URL}/reflect-socket`)
+    // STOMP 클라이언트 생성
+    stompClient = Stomp.over(socket)
+    let headers = {
+      Authorization: `Bearer ${accessToken.value}`
+    }
+    // 웹소켓 서버 연결
+    stompClient.connect(headers, function (frame){
+      console.log('Connected: ' + frame)
+
+      stompClient.subscribe(`/alram/msg-to/${userId.value}`, function (greeting) {
+        console.log(greeting)
+        const message = JSON.parse(greeting.body).msg
+      })
+    })
+  }
+
+  function getUserInfo() {
+    axios({
+      method: 'get',
+      url: `${API_URL}/user/`,
+      headers: {
+        Authorization: `Bearer ${accessToken.value}`
+      }
+    })
+      .then(res => {
+        const { point, titles, alrams, charName } = res.data
+        userInfo.value = { point, titles, alrams, charName }
+      })
+      .catch(err => {
+        if (err.response.status === 401) {
+          refresh()
+          getUserInfo()
+        } 
+      })
+  }
 
   function login(id, password) {
     axios({
@@ -39,7 +77,9 @@ export const useUserStore = defineStore('user', () => {
         accessToken.value = res.data.AccessToken
         refreshToken.value = res.data.RefreshToken
         userId.value = res.data.userId
+        getUserInfo()
         router.push({name: 'mypage'})
+        connect()
         
       })
       .catch(err => {
@@ -72,5 +112,5 @@ export const useUserStore = defineStore('user', () => {
     router.push({name: 'index'})
   }
 
-  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL, refresh }
+  return { accessToken, userId, refreshToken, isLogin, login, logout, API_URL, refresh, stompClient, connect, getUserInfo, userInfo }
 }, { persist : {storage : sessionStorage}})

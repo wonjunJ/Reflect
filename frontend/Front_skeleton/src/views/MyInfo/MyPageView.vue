@@ -60,9 +60,8 @@ const changeCommunityPage = function (num) {
   getCommunitysInfo()
 }
 
-const changeCharacter = (num) => {
-  userInfo.value.characterId = num
-  emit('changeCharacter', num)
+const changeCharacter = () => {
+  emit('changeCharacter')
 }
 
 // 사용자 정보 요청 함수
