@@ -112,6 +112,7 @@ public class RoomController {
         return mapToRoomDetail(room, null, request.getHashTags(), request.getMode());
     }
 
+    //방 추천하기
     @GetMapping("/recommend")
     public List<RoomDetailResponse> recommendRoom(@AuthenticationPrincipal User user){
         return roomService.recommendRoom(user);

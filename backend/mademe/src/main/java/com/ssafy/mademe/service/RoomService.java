@@ -74,6 +74,15 @@ public class RoomService {
                 int randomNumber = random.nextInt(tmpList.size());
                 tmpList.remove(randomNumber);
             }
+        } else if (tmpList.size() < 5) {
+            List<Long> idList = new ArrayList<>();
+            for(RoomDetailResponse tmp : tmpList){
+                idList.add(tmp.getRoomId());
+            }
+            tmpList.addAll(roomRepository.findMoreRecommend(idList, (5- tmpList.size())));
+        }
+        for(RoomDetailResponse rd : tmpList){
+            rd.setHashTags(getHashTagList(rd.getRoomId()));
         }
         return tmpList;
     }

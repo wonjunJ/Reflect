@@ -118,6 +118,27 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .collect(Collectors.toList());
     }
 
+    @Override
+    public List<RoomDetailResponse> findMoreRecommend(List<Long> ids, int limit) {
+        return jpaQueryFactory
+                .select(
+                        room.id,
+                        room.type,
+                        room.title,
+                        room.intro,
+                        room.thumbnail,
+                        room.question.id
+                )
+                .from(room)
+                .where(
+                        room.id.notIn(ids)
+                )
+                .fetch()
+                .stream()
+                .map(this::mapToRoomDetail)
+                .collect(Collectors.toList());
+    }
+
     private BooleanExpression conditionHashName(List<InterestResponse> myInterests){
         //return null;
         if(myInterests.isEmpty()){
@@ -184,6 +205,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     }
 
     private RoomListResponse mapToRoomList(Tuple tuple){
+        QuestionCode code = tuple.get(8, QuestionCode.class);
         return RoomListResponse.builder()
                 .roomId(tuple.get(0, Long.class))
                 .createDate(Objects.requireNonNull(tuple.get(1, LocalDateTime.class)).toLocalDate())
@@ -193,7 +215,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .thumnail(tuple.get(5, String.class))
                 .title(tuple.get(6, String.class))
                 .intro(tuple.get(7, String.class))
-                .qId(tuple.get(8, Long.class))
+                .qId(code == null ? null : code.getId())
                 .build();
     }
 
