@@ -42,7 +42,7 @@ const participate =() => {
         const randomRoom = rooms.value[Math.floor(Math.random() * rooms.value.length)];
 
         // 선택된 방의 ID를 사용하여 라우트 변경
-         router.push({path: `/waiting/${randomRoom.roomId}`})
+         router.push({path: `/waiting/${randomRoom.roomId}`, params:{id:waitingId}})
     } else {
         // 적절한 처리 또는 경고 메시지 표시
         console.log("사용 가능한 방이 없습니다.");

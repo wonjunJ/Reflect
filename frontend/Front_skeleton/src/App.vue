@@ -10,8 +10,7 @@ import { VueperSlides, VueperSlide } from 'vueperslides';
 import 'vueperslides/dist/vueperslides.css';
 
 
-// const positionStore = usePositionStore();
-// positionStore.setPosition(100, 200);
+
 </script>
 
 <template>
@@ -39,9 +38,10 @@ import slimeWalk from './img/slimeWalk.gif';
 import rabbitWalk from './img/rabbitWalk.gif'
 import { usePositionStore } from '@/stores/pet.js';
 import { useUserStore } from '@/stores/user.js'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 export default {
   components: { VueperSlides, VueperSlide },
+
   data() {
     return {
       isDiaryRoute: false,
@@ -58,6 +58,10 @@ export default {
       attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
+      IdleImage: corgi,
+      WalkImage: corgiWalk,
+      HitImage: corgiClick,
+      AttackImage: corgiEnd,
     };
   },
   mounted() {
@@ -117,6 +121,7 @@ export default {
       const charName = this.charName;
       return charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd);
     },
+
     getPetImage() {
       const { isCatchUp, isClick, isIdle, IdleImage, WalkImage, HitImage, AttackImage } = this
       if (isCatchUp) {

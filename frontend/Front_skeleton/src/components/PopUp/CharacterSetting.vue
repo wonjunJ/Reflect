@@ -61,7 +61,7 @@ const options = ref([
 
 const myPets = ref([])
 
-const selectedCharacter = ref(options.value.find(item => item.name === userStore.userInfo.charName).id)  // 선택된 캐릭터 아이디
+const selectedCharacter = ref(options.value.find(item => item.name === userStore.userInfo.charName) ? options.value.find(item => item.name === userStore.userInfo.charName).id : 1)  // 선택된 캐릭터 아이디
 // 캐릭터 선택 함수
 
 const selectCharacter = function (num) {

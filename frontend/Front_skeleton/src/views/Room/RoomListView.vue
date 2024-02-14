@@ -22,7 +22,38 @@
               <li><a class="dropdown-item" @click="openFreeModal">자유주제</a></li>
 
             </ul>
+
+        </div>
+
+        <!-- 방 추천 모달 내용 -->
+        <div>
+          <RoomRecommend :recRooms="recRooms" :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" />
+        </div>
+
+
+        <!-- 빠른참여 버튼 -->
+        <div class="btn-dropdown">
+            <button type="button" class="btn dropdown-toggle btn-quick" data-bs-toggle="dropdown" aria-expanded="false">
+                Quick Join
+            </button>
+            <ul class="dropdown-menu">
+                <li><a class="dropdown-item" @click="openQuickHundredModal">100문 100답</a></li>
+                <li><a class="dropdown-item" @click="openQuickFreeModal">자유주제</a></li>     
+            </ul>
+        </div>
+
+        <!-- 모달 내용 -->
+        <div>
+          <QuickJoin :recRooms="recRooms" :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen" @closeModal="closeModal" />
+        </div>
+
+        <!-- 방 만들기 버튼 -->
+        <!-- <button type="button" class="btn btn-primary create-btn" @click="openCreateRoomModal">+ Create</button> -->
+        <button class="btn btn-primary btn-create" @click="openCreateRoomModal">
+          <div class="inline-flex items-center space-x-2">
+            <div>+ Create</div>
           </div>
+          </button>
 
           <!-- 방 추천 모달 내용 -->
           <div>
@@ -252,8 +283,11 @@ import SearchedRoomList from '@/components/Room/SearchedRoomList.vue'
 import RoomCreate from '@/components/PopUp/RoomCreate.vue'
 import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import QuickJoin from '@/components/PopUp/QuickJoin.vue'
-import { useRoomStore } from '@/stores/room'
-import { useRouter } from 'vue-router'
+
+import { useRoomStore} from '@/stores/room'
+import {useRouter} from 'vue-router'
+import axios from 'axios';
+
 // import Slider from '@vueform/slider'
 
 const router = useRouter()
@@ -345,7 +379,26 @@ const myRooms = () => {
   isSearched.value = false //
 }
 
+const recRooms = ref([])
 
+// 방 추천 axios로 가져오기
+const roomRecommend = () => {
+  return axios({
+    method: 'get',
+    url: `${roomStore.API_URL}/room/recommend`,
+    headers: {
+      Authorization: `Bearer ${roomStore.token}`
+    }
+  })
+  .then((res) => {
+    console.log(res.data);
+    recRooms.value = res.data;
+    console.log(recRooms.value);
+  })
+  .catch((err) => {
+    console.log(err);
+  });
+}
 
 
 const openCreateRoomModal = () => {
@@ -361,11 +414,18 @@ const closeModal = () => {
 }
 
 const openHundredModal = () => {
-  isHundredModalOpen.value = true
+  // 방 추천 요청을 먼저 보내고, 응답을 받은 후에 recRooms를 업데이트합니다.
+  roomRecommend().then(() => {
+    isHundredModalOpen.value = true;
+    console.log(recRooms.value);
+  });
 }
 
 const openFreeModal = () => {
   isFreeModalOpen.value = true
+  roomRecommend()
+  console.log(recRooms.value)
+
 }
 
 const openQuickHundredModal = () => {
