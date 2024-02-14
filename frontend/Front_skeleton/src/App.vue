@@ -5,7 +5,6 @@ import { RouterLink, RouterView } from 'vue-router'
 import { usePositionStore } from '@/stores/pet.js';
 import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
-
 // const positionStore = usePositionStore();
 // positionStore.setPosition(100, 200);
 </script>
@@ -14,7 +13,7 @@ import Footer from './components/Footer.vue';
   <div id="app">
     <Navbar/>
     <RouterView/>
-    <img id="pet" class="pet" :src="getPetImage" alt="Pet" v-show="userStore.isLogin"/>
+    <img id="pet" class="pet" :src="getPetImage" alt="Pet"/>
     <!-- 조건부 렌더링으로 /Diary 경로일 때만 Diary 컴포넌트를 표시 -->
     <Footer/>
   </div>
@@ -35,8 +34,15 @@ import slimeWalk from './img/slimeWalk.gif';
 import rabbitWalk from './img/rabbitWalk.gif'
 import { usePositionStore } from '@/stores/pet.js';
 import { useUserStore } from '@/stores/user.js'
-import { ref, computed } from 'vue'
+import { ref } from 'vue'
 export default {
+  setup() {
+    const userStore = useUserStore()
+    const userInfo = userStore.userInfo
+    return {
+      userInfo
+    }
+  },
   data() {
     return {
       isDiaryRoute: false,
@@ -53,10 +59,21 @@ export default {
       attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
+      IdleImage: ref(''),
+      WalkImage: ref(''),
+      HitImage: ref(''),
+      AttackImage: ref(''),
     };
   },
   mounted() {
     const petStore = usePositionStore();
+    const userStore = useUserStore()
+
+    const charName = userStore.userInfo.charName
+    this.IdleImage = (charName === "코기" ? corgi : (charName === '토끼' ? rabbit : slime))
+    this.WalkImage = (charName === "코기" ? corgiWalk : (charName === '토끼' ? rabbitWalk : slimeWalk))
+    this.HitImage = (charName === "코기" ? corgiClick : (charName === '토끼' ? rabbitClick : slimeClick))
+    this.AttackImage = (charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd))
     
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
@@ -90,28 +107,6 @@ export default {
     setInterval(this.updatePet, 10);
   },
   computed: {
-    userStore() {
-      return useUserStore()
-    },
-    charName() {
-      return this,this.userStore.userInfo.charName
-    },
-    IdleImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgi : (charName === '토끼' ? rabbit : slime);
-    },
-    WalkImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiWalk : (charName === '토끼' ? rabbitWalk : slimeWalk);
-    },
-    HitImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiClick : (charName === '토끼' ? rabbitClick : slimeClick);
-    },
-    AttackImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd);
-    },
     getPetImage() {
       const { isCatchUp, isClick, isIdle, IdleImage, WalkImage, HitImage, AttackImage } = this
       if (isCatchUp) {
