@@ -22,6 +22,7 @@ public class DiaryDetailResponse {
     private String diaryImg; // 일기에 포함된 이미지의 URL
     private int diaryScore;
     private String keyword; // 일기와 관련된 키워드
+    private String video;  // 비디오 URL
 
     // 생성자
 //    public DiaryDetailResponse(Diary diary) {
