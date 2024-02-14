@@ -77,8 +77,6 @@ import { useRoomStore } from '@/stores/room'
 
 const roomStore = useRoomStore()
 const isEnterRoom = ref(false)
-const randomRooms = ref([])
-
 const roomId = ref(null)
 
 const { isHundredModalOpen, isFreeModalOpen, rooms } = defineProps({isHundredModalOpen: Boolean, isFreeModalOpen:Boolean, recRooms:Object});

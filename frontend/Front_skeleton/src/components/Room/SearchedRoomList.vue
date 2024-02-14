@@ -16,6 +16,8 @@
                           <span v-for="(tag, index) in room.hashTags" :key="index">
                               #{{ tag }}<span v-if="index < room.hashTags.length - 1"> </span>
                           </span>
+                        <p>Q : {{ getQuestionById(room.qid) }}</p>
+
                       </div>
                     <br>
                     <div class="room-member">
@@ -49,13 +51,23 @@
   import { ref, computed } from 'vue';
   import RoomEnter from '@/components/PopUp/RoomEnter.vue';
   import { onMounted } from 'vue';
+  import {useQuestionsStore} from '@/stores/questions'
+
   
   const props = defineProps({searchKey:String})
   const roomStore = useRoomStore()
   const rooms = computed(() => roomStore.searchedRooms);
   const pagingInfo = computed(() => roomStore.pagingInfo); //페이지네이션 정보
   const page = ref(1)
-  
+  const questionStore = useQuestionsStore()
+
+// qid를 사용하여 질문을 찾는 함수
+  const getQuestionById = (qid) => {
+    const question = questionStore.questions.find(question => question.id === qid);
+    return question ? question.question : '질문을 찾을 수 없음';
+  };
+
+
   const changeRoomPage = (num) => {
         page.value = num
         roomStore.getSearchRooms(props.searchKey, page.value) // 새로운 커뮤니티 목록을 가져오는 함수
