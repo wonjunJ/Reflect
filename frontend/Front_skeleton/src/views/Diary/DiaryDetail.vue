@@ -2,27 +2,40 @@
   <div style="background-color: #80BCBD;">
   <el-row>
     <el-col :span="8" class="sidebar">
-      
       <div class="d2">
         <div class="d1">
           <p class="p1"><img src="@/img/profile.png" alt="" style="width: 80px; height: 70px;">아오상수시치</p>
         </div>
-        <DiaryList :responseData="responseData" />
-      </div>
-      
-    </el-col>
 
+        <div class="container">
+          <div>
+            <h3 class="h3-1">My Diary</h3>
+          </div>
+          <el-row class="row rounded-4">
+            <el-col class="col1">
+              <div  class="list" v-for="entry in responseData" :key="entry.diaryId" >
+                <div class="entry1" @click="navigateToDetailPage(entry.diaryId)">
+                  <span class="date">{{ entry.createDate }}</span>
+                  <div class="keywords">
+                    <span v-for="word in entry.keyword" :key="word">{{ word }} </span>
+                    </div>
+                </div>
+              </div>
+            </el-col>
+          </el-row>
+        </div>
+      </div>
+    </el-col>
     <el-col :span="16" class="content">
       <div>
-        <h1 style="padding: 10px;">2024.01.04 일기</h1>
-        <h3 style="padding: 10px;">Keyword  #즐거움 #동료 #프로젝트</h3>
+        <h1 style="padding: 10px;">{{ userInfo.createDate }} 일기</h1>
+        <h3 style="padding: 10px;"> {{ userInfo.keyword }} </h3>
       </div>
       <div class="select-item">
         <el-menu
           default-active="1"
           class="el-menu"
           mode="horizontal"
-          @select="handleSelect"
           >
           <el-menu-item index="1" @click="changeMenuFalse(); changeVideoFalse();">일기</el-menu-item>
           <el-menu-item index="2" @click="changeMenuFalse(); changeVideoTrue();">동영상</el-menu-item>
@@ -35,34 +48,31 @@
           :before-upload="beforeUpload"
           >
           <el-button type="primary" @click="imgSelectImg(); ">파일 업로드</el-button>
-          
           </el-upload>        
           <el-button @click="getImageResponse(); imgSelectAI();">AI 사진생성</el-button>
-          <el-button @click="uploadImage"> 사진 업로드 </el-button>
+          <el-button @click="uploadImage(userInfo.diaryId)"> 사진 업로드 </el-button>
         </div>
       </div>
-      
       <div class="content-detail">
         <div v-if="getimgUrl" class="show-item">
             <img :src="getimgUrl" alt="업로드 이미지" style="width: 300px; height: 300px;" />
         </div>
         <div v-if="previewUrl && selectMenu===true && imgSelect===true" class="show-item">
-            
             <img :src="previewUrl" alt="업로드 이미지" style="width: 300px; height: 300px;" />
         </div>
         <div v-if="imageUrl && selectMenu===true && imgSelect===false" class="show-item">
-          
           <img :src="imageUrl" alt="생성된 이미지" style="width: 300px; height: 300px;">
         </div>
+        <div v-if="userInfo.diaryImg && selectMenu===true && imgSelect===true" class="show-item">
+          <img :src='userInfo.diaryImg' alt="ai이미지" style="width: 400px; height: 300px;">
+        </div>
         <div v-if="selectVideo===true" class="show-item">
-          <video controls width="250">
-            
-            <source src="@/img/my_recording.webm" type="video/webm">
+          <video controls width="400">
+            <source :src="userInfo.video" type="video/webm">
           </video>
         </div>
         <textarea class="textarea1 rounded-4" v-model="userInfo.content" type="textarea" :rows="6"></textarea>
       </div>
-      
     </el-col>
   </el-row>
   </div>
@@ -73,11 +83,11 @@
 import DiaryList from "@/components/Diary/DiaryList.vue";
 import axios from 'axios';
 import { useUserStore } from '@/stores/user.js'
-import { ref, watch, onMounted, computed } from "vue";
+import { ref, watch, onMounted, computed, onUpdated } from "vue";
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
-
+const router = useRouter()
 const transcribedText = ref("오늘은 참으로 활기찬 하루였다.햇살이 따스하게 내리쬐는 오후, 나는 오랜만에 마음먹고 집 근처의 공원으로 반려견 웰시코기 루키와 함께 산책을 나섰다.루키는 이미 문밖으로 나서는 순간부터 흥분을 감추지 못하고, 꼬리를 흔들며 기쁨을 표현했다.공원에 도착하자마자, 루키는 마치 오랫동안 기다려온 듯 자유롭게 뛰어다니기 시작했다.나도 그 모습을 보며 자연스레 미소가 지어졌다.")
 const getimgUrl = ref(null);
 const previewUrl = ref(null);
@@ -89,12 +99,14 @@ const imgSelect = ref(null);
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 
-let responseData = []
+
+let responseData = ref([])
 const userInfo = ref({})
 const userImg = ref({})
-console.log(videoUrl.value)
+//console.log(responseData.value)
 // const diaryStore = useDiaryStore();
 // 텍스트에서 마침표 뒤에 줄바꿈을 추가하는 함수
+
 const addNewLines = (text) => {
   return text.replace(/\.(\S)/g, '.\n$1');
 };
@@ -117,9 +129,8 @@ const imgSelectImg = () => {
 const imgSelectAI = () => {
   return imgSelect.value = false;
 }
-onMounted(() => {
-  console.log(route.params.id);
-  axios({
+async function fetchDiaryData(){
+  await axios({
     method: 'get',
     url: `${API_URL}/DiaryDetail/${route.params.id}`,
     headers: {
@@ -128,29 +139,25 @@ onMounted(() => {
   })
   .then(response => {
       console.log(response.data)
-      responseData = response.data;
-      for (const data of responseData) {
+      responseData.value = response.data;
+      for (const data of responseData.value) {
         if (data.diaryId == route.params.id) {
           userInfo.value = data;
           console.log(userInfo.value);
           break; // 일치하는 데이터를 찾았으면 루프를 중단합니다.
         }
       }
-      console.log(userInfo);
+      console.log('userInfo',userInfo);
     })
     .catch(err => {
       console.log(err)
     })
   // 컴포넌트가 마운트되었을 때 초기 텍스트 처리
   transcribedText.value = addNewLines(transcribedText.value);
-});
-
-watch(transcribedText, (newValue, oldValue) => {
-  // 마침표('.') 뒤에 바로 공백이 오지 않는 경우에 줄바꿈 문자('\n')을 추가합니다.
-  // newValue와 oldValue가 같지 않을 때만 처리하도록 함으로써 무한 루프를 방지합니다.
-  if (newValue !== oldValue) {
-    transcribedText.value = newValue.replace(/\.(\S)/g, '.\n$1');
-  }
+}
+onMounted(async () => {
+  console.log(route.params.id);
+  fetchDiaryData();
 });
 
 // 파일 업로드 전 호출되는 메서드
@@ -161,19 +168,33 @@ const beforeUpload = (file) => {
     previewUrl.value = e.target.result; // 미리보기 URL 설정
   };
   reader.readAsDataURL(file);
-  return true;
+  //return true;
 };
-const uploadImage = async () => {
+const uploadImage = async (diaryId) => {
   if (previewUrl.value) {
     try {
-      const Image = previewUrl.value;
-      const reader = new FileReader();
-      const base64Image = reader.readAsDataURL(Image);
-
-      const response = await axios.post(`${API_URL}/diaryDetail/img`, {
-        image: base64Image,
-      });
-      console.log('서버 응답:', response.data);
+      const Image = previewUrl;
+      const json = {
+        "id" : diaryId,
+        "diaryImg" : Image.value
+      }
+      await axios({
+        method: 'post',
+        url: `${API_URL}/diary/img`,
+        headers: {
+          Authorization: `Bearer ${userStore.accessToken}`
+        },
+        data: json
+      })
+      .then(response => {
+          console.log(response)
+        })
+        .catch(err => {
+          console.log(err)
+        })
+      console.log('서버 응답:', Image);
+      console.log('서버 응답:', Image.value);
+      console.log('id:', diaryId);
     } catch (error) {
       console.error('에러 발생:', error);
     }
@@ -181,13 +202,27 @@ const uploadImage = async () => {
   else if (imageUrl.value) {
     try {
       const Image = imageUrl.value;
-      const reader = new FileReader();
-      const base64Image = reader.readAsDataURL(Image);
-
-      const response = await axios.post(`${API_URL}/diaryDetail/img`, {
-        image: base64Image,
-      });
-      console.log('서버 응답:', response.data);
+      console.log('response',responseData)
+      console.log(Image)
+      const json = {
+        "id" : diaryId,
+        "diaryImg" : Image
+      }
+      console.log('json', json)
+      await axios({
+        method: 'post',
+        url: `${API_URL}/diary/img`,
+        headers: {
+          Authorization: `Bearer ${userStore.accessToken}`
+        },
+        data: json
+      })
+      .then(response => {
+          console.log(response)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     } catch (error) {
       console.error('에러 발생:', error);
     }
@@ -196,34 +231,38 @@ const uploadImage = async () => {
     alert('파일을 선택해주세요.');
   }
 }
-
-
-const decodeBase64ToImage= function(base64String) {
-  // Base64 문자열에서 데이터 부분을 추출합니다.
-  const base64Data = base64String.split(',')[1];
+function navigateToDetailPage(diaryId) {
+  axios({
+    method: 'get',
+    url: `${API_URL}/DiaryDetail/${diaryId}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+  .then(response => {
+      console.log(response.data)
+      responseData = response.data;
+      for (const data of responseData) {
+        if (data.diaryId == diaryId) {
+          userInfo.value = data;
+          location.reload();
+          console.log(userInfo.value);
+          break; // 일치하는 데이터를 찾았으면 루프를 중단합니다.
+        }
+      }
+      console.log(userInfo);
+    })
+    .catch(err => {
+      console.log(err)
+    })
   
-  // Base64를 디코딩하여 이진 데이터를 얻습니다.
-  const binaryString = atob(base64Data);
+  router.push({ name: 'DiaryDetail', params: { id: diaryId } });
   
-  // 이진 데이터를 ArrayBuffer로 변환합니다.
-  const arrayBuffer = new ArrayBuffer(binaryString.length);
-  const uint8Array = new Uint8Array(arrayBuffer);
-  for (let i = 0; i < binaryString.length; i++) {
-    uint8Array[i] = binaryString.charCodeAt(i);
-  }
-  
-  // ArrayBuffer를 Blob으로 변환합니다.
-  const blob = new Blob([uint8Array], { type: 'image/jpeg' }); // 이미지 유형에 따라 변경 가능
-  
-  return blob;
 }
-
-
-let generatedImage = null;
 
 const getImageResponse = async () => {
   try {
-    const prompt = `${transcribedText.value} 이 일기 내용을 바탕으로 그림을 그려줘.`;
+    const prompt = `${userInfo.value.content} 이 일기 내용을 바탕으로 그림을 그려줘.`;
     const response = await axios.post('https://api.openai.com/v1/images/generations', {
       model: "dall-e-3",
       prompt: prompt,
@@ -245,27 +284,8 @@ const getImageResponse = async () => {
   }
 };
 
-const putImg = function (obj) {
-  axios({
-    method: 'put',
-    url: `${API_URL}/diaryDetail/img`,
-    headers: {
-      Authorization: `Bearer ${userStore.accessToken}`
-    },
-    data: {
-      image: obj.image,
-    }
-  })
-    .then(res => {
-      //userImg.value.find 밑에꺼 참고해서 수정해야됨
-      //(item => item.questionId === res.data.questionId).answer = res.data.answer
-    })
-    .catch(err => {
-      console.log(err)
-    })
-}
 </script>
-  
+
 <style scoped>
 .d1 {
   height: 80px;
@@ -334,7 +354,7 @@ const putImg = function (obj) {
 .textarea1 {
   margin: auto;
   width: 683px;
-  height: 560px;
+  height: 860px;
   display: block;
   max-width: 100%;
   background-color: #F9F7C9;
@@ -377,5 +397,79 @@ const putImg = function (obj) {
   display: flex;
   justify-content: center;
   align-items: center;
+}
+.h3-1 {
+  
+  height: 60px;
+  flex-shrink: 0;
+  color: #000;
+  text-align: center;
+  font-family: "ZCOOL KuaiLe";
+  font-size: 40px;
+  font-style: normal;
+  font-weight: 400;
+  background-color: #D5F0C1;
+  border-radius: 20px;
+}
+.col1 {
+  padding: 10px;
+  width: 415.805px;
+  
+  flex-shrink: 0;
+  border-radius: 20px;
+  align-content: center;
+}
+.container {
+  flex-shrink: 0;
+  padding-bottom: 50px;
+  padding-top: 50px;
+  /* 일기목록 배경 */
+
+  position:relative;
+  width: 90%;
+  height: 785.77px;
+  left: 30px;
+  top: 50px;
+
+  background: #f1f5c3;
+  border-radius: 20px;
+  margin-right: 100px;
+}
+.row {
+  border: 1;
+  background-color: #F9F7C9;
+}
+.list {
+  
+  
+  height: auto;
+  flex-shrink: 0;
+  background: #F9F2E4;
+  margin: 30px;
+}
+
+ 
+.entry1 {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.entry1:hover {
+  background-color: #e0e0e0;
+}
+
+.date {
+  font-weight: bold;
+  margin-bottom: 5px;
+  /* display: block; */
+}
+
+.keywords span {
+  margin-right: 2px;
+  /* display: inline-block; */
 }
 </style>

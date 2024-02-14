@@ -133,7 +133,8 @@ export default {
       videoChunks: [],
       mediaRecorder: null,
       stream: null,
-      fileUrl: null,
+      fileUrl: ref(''),
+      diaryNum: ref('')
     };
   },
   methods: {
@@ -168,7 +169,7 @@ export default {
         };
         this.videoMediaRecorder.onstop = async () => {
           const blob = new Blob(this.videoChunks, { type: 'video/webm' });
-          // await this.uploadToS3(blob); // S3에 업로드
+          await this.uploadToS3(blob); // S3에 업로드
           this.videoChunks.length = 0; // 다음 녹화를 위해 videoChunks 배열 초기화
         };
       } catch (error) {
@@ -213,18 +214,19 @@ export default {
     }, 333);
   },
     postAnswer() {
+      const userStore = useUserStore();
       axios({
         method: 'post',
-        url: `${API_URL}/diary/video`,
+        url: `${userStore.API_URL}/diary/video`,
         headers: {
-          Authorization: `Bearer ${this.accessToken}`
+          Authorization: `Bearer ${userStore.accessToken}`
         },
         data: {
           videoUrl: this.fileUrl // 업로드된 파일의 URL을 전송합니다.
         }
       })
       .then(res => {
-        console.log('complete', res)
+        console.log('video send complete', res)
       })
       .catch(err => {
         console.log(err)
@@ -339,11 +341,11 @@ export default {
 
         // S3 객체를 생성합니다.
         const s3 = new AWS.S3();
-
+        const today = new Date().toISOString().slice(0, 19);
         // 파일 업로드를 위한 설정을 정의합니다.
         const params = {
           Bucket: 'mademe',
-          Key: 'recording.webm', // 업로드된 파일의 이름
+          Key: `${today}recording.webm`, // 업로드된 파일의 이름
           Body: blob,
           ContentType: 'video/webm' // 파일의 컨텐츠 타입
         };
@@ -516,21 +518,28 @@ export default {
           console.log(messages)
           if (lastMessageForRun) {
             const userStore = useUserStore();
-            const id = ref('')
             const gptjson = lastMessageForRun.content[0].text.value;
             const fixedJson = gptjson.replace(/,(\s*[}\]])/g, '$1');
             const result = fixedJson.replace(/\n|\r/g, "");
             console.log(userStore.accessToken)
             console.log(`${lastMessageForRun.content[0].text.value} \n`);
-            
             console.log((JSON.parse(result)));
+            console.log('data', (JSON.parse(result).data));
+            const json = {
+              "data" : JSON.parse(result).data,
+              "video" : vm.fileUrl
+            }
+            
+            console.log('json', json)
             axios({
               method: 'post',
               url: `${userStore.API_URL}/diary/gpt`,
               headers: {
                 Authorization: `Bearer ${userStore.accessToken}`
               },
-              data: JSON.parse(result)
+              data: json
+              // JSON.parse(result),
+              // video: url
             })
             
             .then(res => {
