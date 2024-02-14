@@ -14,7 +14,7 @@ import Footer from './components/Footer.vue';
   <div id="app">
     <Navbar/>
     <RouterView/>
-    <img id="pet" class="pet" :src="getPetImage" alt="Pet"/>
+    <img id="pet" class="pet" :src="getPetImage" alt="Pet" v-show="userStore.isLogin"/>
     <!-- 조건부 렌더링으로 /Diary 경로일 때만 Diary 컴포넌트를 표시 -->
     <Footer/>
   </div>
