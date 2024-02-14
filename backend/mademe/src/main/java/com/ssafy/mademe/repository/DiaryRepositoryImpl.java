@@ -192,6 +192,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .diaryImg(diary.getDiaryImg())
                 .diaryScore(diary.getDiaryScore())
                 .keyword(diary.getKeyword())
+                .video(diary.getVideo())
                 .build();
     }
 }
