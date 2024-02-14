@@ -12,16 +12,6 @@ const props = defineProps({
   chartData: Object
 })
 
-// const chartData = ref({
-//   labels: ['January', 'February', 'March'],
-//   datasets: [
-//     {
-//       label: 'Data One',
-//       backgroundColor: ['#f87979', '#81C784', '#64B5F6'],
-//       data: [40, 20, 12]
-//     }
-//   ]
-// })
 const chartOptions = ref({
   responsive: true,
   maintainAspectRatio: false

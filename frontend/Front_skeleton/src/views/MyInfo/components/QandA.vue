@@ -14,8 +14,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
   <QnA :is-modal="isModal" :question="questionlist[selectedNumber - 1]"
@@ -36,13 +34,14 @@ const API_URL = userStore.API_URL
 const questionsStore = useQuestionsStore()
 const router = useRouter()
 
+// 답변 끝낸 질문 목록
 const completedQuestions = ref([])
 
 const rows = [0, 1, 2, 3]
 const columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 
 const isModal = ref(false)
-const selectedNumber = ref(0)
+const selectedNumber = ref(0) // 선택된 질문 번호
 
 // 답변이 있는지 없는지 확인하는 함수
 const isCompleted = function (key) {
@@ -53,14 +52,17 @@ const selectedAnswer = computed(() => {
   return completedQuestions.value.find(item => item.questionId === selectedNumber.value)
 })
 
+// 팝업에서 새로 답변을 한 경우
 const addAnswer = function (object) {
   completedQuestions.value.push(object)
 }
 
+// 팝업에서 답변을 수정한 경우
 const editAnswer = function (id, answer) {
   completedQuestions.value.find(item => item.questionId === id).answer = answer
 }
 
+// 팝업에서 답변을 삭제한 경우
 const deleteAnswer = function (id) {
   const idx = completedQuestions.value.findIndex(item => item.questionId === id)
   if (idx !== -1) {
@@ -77,9 +79,11 @@ const closeModal = function () {
   isModal.value = false
 }
 
+// 질문 목록
 const questionlist = questionsStore.questions
 
-onMounted(() => {
+// 답변한 질문 목록 요청 함수
+const getQuestions = function () {
   axios({
     method: 'get',
     url: `${API_URL}/question/`,
@@ -92,7 +96,15 @@ onMounted(() => {
     })
     .catch(err => {
       console.log(err)
+      if (err.response.statuss === 401) {
+        userStore.refresh()
+        getQuestions()
+      }
     })
+}
+
+onMounted(() => {
+  getQuestions()
 })
 </script>
 
@@ -115,6 +127,11 @@ onMounted(() => {
   margin: 5px;
   border-radius: 20%;
   background-color: rgb(210, 210, 210);
+  cursor: pointer;
+}
+
+.box:hover {
+  transform: scale(1.1);
 }
 
 .green {

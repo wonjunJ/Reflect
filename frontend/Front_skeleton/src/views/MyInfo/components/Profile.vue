@@ -1,21 +1,24 @@
 <template>
   <div class="d-flex flex-column">
+
     <p class="title-section">ABOUT ME</p>
     <div class="sub-title-section">
       <p class="profile-title">MY INFO</p>
       <button @click="openProfileModal">Edit</button>
     </div>
     <div class="info-content">
-      <img v-if="userInfo.profileImg" :src="'data:image/jpeg;base64,' + userInfo.profileImg" alt="Profile image">
+      <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
       <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
-      <p>username : {{ userInfo.nickName }}</p>
-      <p>email : {{ userInfo.email }}</p>
-      <p>한줄 소개: {{ userInfo.introduction }}</p>
-      <p>캐릭터 이름: {{ userInfo.charName }}</p>
+      <p>닉네임 : {{ userInfo.nickName }}</p>
+      <p>이메일 : {{ userInfo.email }}</p>
+      <p>{{ userInfo.myIntro }}</p>
+      <p>{{ userInfo.gender }}</p>
+      <p>{{ userInfo.birthday }}</p>
     </div>
 
     <div class="sub-title-section">
       <p class="profile-title">MBTI</p>
+      <p>{{ userInfo.mbti }}</p>
     </div>
     <div class="info-content">
       <h5>{{ userInfo.mbti }}</h5>
@@ -29,26 +32,25 @@
       <div v-if="isGraph">
         <PieChart :chart-data="chartData" />
       </div>
-      <div v-else>작성된 일기에서 추출된 감정이 아직 없습니다.</div>
+      <div v-else>
+        작성된 일기에서 추출된 감정이 아직 없습니다.
+      </div>
+    </div>
 
+    <div class="sub-title-section">
+      <p class="profile-title">관심사 </p>
+      <button @click="router.push({ name: 'interests' })">Detail</button>
+    </div>
+    <div class="info-content">
+      <p v-for="(interest, index) of interests" :key="interest.interestId">
+        {{ index + 1 }}. <span :style="{ 'color': interest.preference === 'LIKE' ? 'green' : 'red' }">{{
+          interest.interestName }}</span>
+      </p>
+      <p v-if="!interests.length">작성된 일기에서 추출된 관심사가 아직 없습니다.</p>
     </div>
   </div>
-
-  <div class="sub-title-section">
-    <p class="profile-title">관심사 </p>
-    <button @click="router.push({ name: 'interests' })">Detail</button>
-  </div>
-  <div class="info-content">
-
-    <p v-for="(interest, index) of interests" :key="interest.interestId">
-      {{ index + 1 }}. <span :style="{ 'color': interest.preference === 'LIKE' ? 'green' : 'red' }">{{
-        interest.interestName }}</span>
-    </p>
-    <p v-if="!interests.length">작성된 일기에서 추출된 관심사가 아직 없습니다.</p>
-
-  </div>
   <ProfileEdit :is-modal="isProfileModal" :user-info="userInfo" @change-character="changeCharacter"
-    @closeModal="closeProfileModal" />
+    @reload-profile="reloadProfile" @closeModal="closeProfileModal" />
 </template>
 
 <script setup>
@@ -66,7 +68,7 @@ const props = defineProps({
   userInfo: Object,
 })
 
-const emit = defineEmits(['changeCharacter'])
+const emit = defineEmits(['changeCharacter', 'reloadProfile'])
 
 const isProfileModal = ref(false)
 
@@ -78,13 +80,18 @@ const closeProfileModal = function () {
   isProfileModal.value = false
 }
 
-const changeCharacter = (num) => {
-  emit('changeCharacter', num)
+const changeCharacter = () => {
+  emit('changeCharacter')
 }
 
+const reloadProfile = () => {
+  emit('reloadProfile')
+}
+
+// 그래프 랜더링 여부 - onMounted로 데이터 불러오기 전에 먼저 랜더링 하는거 방지
 const isGraph = ref(false)
 
-// 그래프용 데이터 (서버에서 datasets[0].data 데이터 받아와야함)
+// 그래프용 데이터
 const chartData = ref({
   labels: ['Happy', 'Joy', 'Sad', 'Anger', 'Disgust'],
   datasets: [
@@ -97,12 +104,10 @@ const chartData = ref({
   ]
 })
 
-const interests = ref([
-  { id: 1, emotion: 0, name: 'name1' },
-  { id: 2, emotion: 0, name: 'name2' },
-  { id: 3, emotion: 0, name: 'name3' },
-])
+// 관심사 목록
+const interests = ref([])
 
+// 배열 합 구하는 함수
 const sumArray = function (array) {
   let sum = 0
   array.forEach(element => {
@@ -113,7 +118,8 @@ const sumArray = function (array) {
   return sum
 }
 
-onMounted(() => {
+// 프로필 정보 요청 함수
+const getProfileInfo = function () {
   axios({
     method: 'get',
     url: `${API_URL}/user/simple`,
@@ -127,12 +133,20 @@ onMounted(() => {
       interests.value = res.data.interests
       chartData.value.datasets[0].data = Object.values(emotion)
       if (sumArray(Object.values(emotion))) {
-        isGraph.value = true
+        isGraph.value = true  // 추출된 데이터가 있을 때만 그래프 출력
       }
     })
     .catch(err => {
-      // console.log(err)
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getProfileInfo()
+      }
     })
+}
+
+onMounted(() => {
+  getProfileInfo()
 })
 </script>
 

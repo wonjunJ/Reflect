@@ -35,7 +35,8 @@
 
 <script>
 import { usePositionStore } from '@/stores/pet.js';
-import { onMounted, ref } from 'vue';
+import { ElLoading } from 'element-plus'
+import { onMounted, ref, nextTick } from 'vue';
 import { useUserStore } from '@/stores/user.js'
 import axios from 'axios'
 import OpenAI from 'openai';
@@ -89,15 +90,19 @@ export default {
   },
   setup() {
     const userInfo = ref({})
-    const API_URL = ref('')
+
+
+    const API_URL = ref('http://localhost:8080')
 
     onMounted(() => {
 
+
       const userStore = useUserStore()
       API_URL.value = userStore.API_URL
+      return { userInfo, API_URL };
+
     });
 
-    return { userInfo, API_URL };
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
@@ -130,7 +135,8 @@ export default {
       videoChunks: [],
       mediaRecorder: null,
       stream: null,
-      fileUrl: null,
+      fileUrl: ref(''),
+      diaryNum: ref('')
     };
   },
   methods: {
@@ -210,9 +216,10 @@ export default {
       }, 333);
     },
     postAnswer() {
+      const userStore = useUserStore();
       axios({
         method: 'post',
-        url: `${API_URL}/diary/video`,
+        url: `${userStore.API_URL}/diary/video`,
         headers: {
           Authorization: `Bearer ${userStore.accessToken}`
         },
@@ -220,12 +227,14 @@ export default {
           videoUrl: this.fileUrl // 업로드된 파일의 URL을 전송합니다.
         }
       })
+
         .then(res => {
-          console.log('complete', res)
+          console.log('video send complete', res)
         })
         .catch(err => {
           console.log(err)
         })
+
     },
     // 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
     getDominantExpression(expressions) {
@@ -336,11 +345,11 @@ export default {
 
         // S3 객체를 생성합니다.
         const s3 = new AWS.S3();
-
+        const today = new Date().toISOString().slice(0, 19);
         // 파일 업로드를 위한 설정을 정의합니다.
         const params = {
           Bucket: 'mademe',
-          Key: 'recording.webm', // 업로드된 파일의 이름
+          Key: `${today}recording.webm`, // 업로드된 파일의 이름
           Body: blob,
           ContentType: 'video/webm' // 파일의 컨텐츠 타입
         };
@@ -359,11 +368,11 @@ export default {
       try {
         this.isModalVisible = false;
         this.videoElement.srcObject = null;
-        //this.sendToChatGPT(this.transcribedText);
+        this.sendToChatGPT(this.transcribedText);
         this.isVideoStreamOn = false;
         this.videoMediaRecorder.stop();
         this.isVideoRecording = false;
-        this.$router.push({ name: 'DiaryDetail' });
+
       } catch (err) {
         console.log('오류발생', err)
       }
@@ -415,6 +424,8 @@ export default {
       }
     },
     async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
+      const vm = this;
+      const loadingInstance = ElLoading.service({ fullscreen: true, text: '일기 내용 GPT 분석중...' });
       try {
         const openai = new OpenAI({
           apiKey: import.meta.env.VITE_API_URL,
@@ -423,7 +434,7 @@ export default {
 
         async function main() {
           try {
-            const assistantId = "asst_oodV12lRGyeVQ5Qk0Jd9AxI6";
+            const assistantId = "asst_aFJZlObiinQ8gKlbOgVnnZ8i";
             const assistantFilePath = "./assistant.json";
             const assistant = await openai.beta.assistants.retrieve(assistantId);
             console.log(
@@ -462,7 +473,6 @@ export default {
                 const toolCalls =
                   runStatus.required_action.submit_tool_outputs.tool_calls;
                 const toolOutputs = [];
-
                 for (const toolCall of toolCalls) {
                   const functionName = toolCall.function.name;
 
@@ -510,21 +520,35 @@ export default {
               .pop();
             console.log(messages)
             if (lastMessageForRun) {
+              const userStore = useUserStore();
+              const gptjson = lastMessageForRun.content[0].text.value;
+              const fixedJson = gptjson.replace(/,(\s*[}\]])/g, '$1');
+              const result = fixedJson.replace(/\n|\r/g, "");
+              console.log(userStore.accessToken)
               console.log(`${lastMessageForRun.content[0].text.value} \n`);
+              console.log((JSON.parse(result)));
+              console.log('data', (JSON.parse(result).data));
+              const json = {
+                "data": JSON.parse(result).data,
+                "video": vm.fileUrl
+              }
+              console.log('json', json)
               axios({
                 method: 'post',
-                url: `${API_URL}/diary/gpt`,
+                url: `${userStore.API_URL}/diary/gpt`,
                 headers: {
                   Authorization: `Bearer ${userStore.accessToken}`
                 },
-                data: {
-                  gptAnswer: lastMessageForRun.content[0].text.value
-                }
+                data: json
               })
                 .then(res => {
+                  const diaryId = res.data.diaryId;
+                  loadingInstance.close();
+                  vm.$router.push({ name: 'DiaryDetail', params: { id: diaryId } });
                   console.log('gptAnswer')
                 })
                 .catch(err => {
+                  console.log(userStore.accessToken)
                   console.log(err)
                 })
             } else if (
@@ -535,7 +559,9 @@ export default {
 
           } catch (error) {
             console.error(error);
+            loadingInstance.close();
           }
+
         }
         main();
       } catch (error) {
@@ -567,6 +593,20 @@ export default {
 };
 </script>
 <style scoped>
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(255, 255, 255, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  /* 다른 요소 위에 표시되도록 z-index 설정 */
+}
+
 #videoContainer {
   position: relative;
 }

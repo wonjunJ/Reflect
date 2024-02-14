@@ -18,7 +18,9 @@
             <el-form-item>
               <el-button type="primary" @click="login" :disabled="!isFormValid">로그인</el-button>
             </el-form-item>
-            <button class="social-login"><a href="http://localhost:8080/oauth2/authorization/kakao">카카오로 시작하기</a></button>
+            <button class="social-login"><a
+                href="http://localhost:8080/oauth2/authorization/kakao?redirect_uri=http://localhost:5173/signup">카카오로
+                시작하기</a></button>
             <div class="forgot-section">
               <RouterLink :to="{ name: 'forgot' }">forgot ID or password ?</RouterLink>
             </div>

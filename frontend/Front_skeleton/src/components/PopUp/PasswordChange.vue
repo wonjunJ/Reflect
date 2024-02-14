@@ -5,7 +5,6 @@
         <h3>비밀번호 변경</h3>
         <button @click="closeModal">X</button>
       </div>
-
       <div class="modal-body">
         <el-form :model="state.form" :rules="state.rules" ref="changePasswordForm" :label-position="state.formAlign">
           <el-form-item prop="originalPassword" label="현재 비밀번호">
@@ -21,7 +20,7 @@
               show-password></el-input>
           </el-form-item>
           <el-form-item>
-            <el-button type="primary" :disabled="!isFormValid">비밀번호 변경</el-button>
+            <el-button type="primary" :disabled="!isFormValid" @click="changePassword">비밀번호 변경</el-button>
           </el-form-item>
         </el-form>
       </div>
@@ -32,6 +31,11 @@
 
 <script setup>
 import { reactive, computed } from 'vue'
+import { useUserStore } from '@/stores/user'
+import axios from 'axios'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
 const props = defineProps({
   isModal: Boolean
 })
@@ -104,6 +108,7 @@ const state = reactive({
   formAlign: 'left',
 })
 
+// 유효성 검사
 const isFormValid = computed(() => {
   const rules = state.rules
   const form = state.form
@@ -131,6 +136,38 @@ const isFormValid = computed(() => {
   }
   return isValid
 })
+
+// 비밀번호 변경 함수
+const changePassword = function () {
+  axios({
+    method: 'put',
+    url: `${API_URL}/user/changepw`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      current_pw: state.form.originalPassword,
+      new_pw: state.form.password,
+    }
+  })
+    .then(res => {
+      window.alert('비밀번호가 변경되었습니다.')
+      state.form.originalPassword = ''
+      state.form.password = ''
+      state.form.password2 = ''
+      emit('closeModal')
+    })
+    .catch(err => {
+      if (err.response.status === 400) {
+        window.alert('비밀번호가 잘못되었습니다.')
+      } else if (err.response.status === 401) {
+        userStore.refresh()
+        changePassword()
+      } else {
+        window.alert('비밀번호 변경에 실패하였습니다.')
+      }
+    })
+}
 </script>
 
 <style scoped>

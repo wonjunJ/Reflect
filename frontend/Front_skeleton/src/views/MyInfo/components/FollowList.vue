@@ -8,45 +8,54 @@
         <thead>
           <tr>
             <th scope="col">Name</th>
-            <th scope="col">Alike</th>
+            <th scope="col">mbti</th>
+            <th scope="col">interests</th>
             <th scope="col">Online</th>
             <th scope="col">Detail</th>
           </tr>
         </thead>
         <tbody>
-          <tr v-for="follow in follows" :key="follow.id">
-            <td @click="openModal(follow.username)">{{ follow.username }} <img :src="follow.profileimg" alt="img"></td>
-            <td>{{ follow.alike }}</td>
-            <td :style="{ 'color': follow.isonline ? 'green' : 'red' }">{{ follow.isonline ? "online" : "offline" }}</td>
-            <td><button @click="openModal(follow.username)">show</button></td>
+          <tr v-for="follow in follows" :key="follow.userId">
+            <td class="follow-name" @click="openModal(follow.userId)">{{ follow.nickName }}</td>
+            <td>{{ follow.mbti }}</td>
+            <td>{{ follow.interests }}</td>
+            <td :style="{ 'color': follow._online ? 'green' : 'red' }">{{ follow._online ? "online" : "offline" }}</td>
+            <td><button @click="openModal(follow.userId)">show</button></td>
           </tr>
         </tbody>
       </table>
     </div>
+    <v-pagination v-model="page" :length="pagingInfo.totalPage"></v-pagination>
+    <UserInfo v-if="isModal" :is-modal="isModal" :user-id="selectedUserId" @close-modal="closeModal" />
 
-    <UserInfo :is-modal="isModal" :username="selectedUser" @close-modal="closeModal" />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
 import UserInfo from '@/components/PopUp/UserInfo.vue'
 
+const emit = defineEmits(['changePage'])
 const props = defineProps({
-  follows: Object
+  follows: Object,
+  pagingInfo: Object
 })
 
-const selectedUser = ref('')
+const page = ref(1)
+const selectedUserId = ref(0)
 const isModal = ref(false)
 
-const openModal = function (name) {
-  selectedUser.value = name
+const openModal = function (id) {
+  selectedUserId.value = id
   isModal.value = true
 }
 const closeModal = function () {
-  selectedUser.value = ''
   isModal.value = false
 }
+
+watch(page, (newVal, oldVal) => {
+  emit('changePage', newVal)
+})
 </script>
 
 <style scoped>

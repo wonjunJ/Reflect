@@ -1,37 +1,47 @@
 <template>
   <div v-if="isModal" class="modal" @click.self="closeModal">
-    <div class="modal-content">
+    <div class="modal-content" @click.stop>
       <div class="modal-header d-flex flex-row justify-content-between">
         <p>캐릭터 설정</p>
         <button @click="closeModal">X</button>
       </div>
 
-      <div class="modal-body" @click.stop style="max-height: 700px; overflow-y: auto;">
+      <div class="modal-body" style="max-height: 700px; overflow-y: auto;">
         <div class="character-select-section d-flex flex-row ">
           <div class="character" v-for="option in options" :key="option.id">
             <label :for="option.id">{{ option.name }}</label>
             <!-- <input v-if="option.ishave" type="checkbox" :id="option.id" :checked="option.id === selectedCharacter"
               @click="selectCharacter(option.id)"> -->
-            <button v-if="option.ishave" @click="selectCharacter(option.img)">선택</button>
+            <input v-if="option.ishave" type="checkbox" :id="option.id" :checked="option.id === selectedCharacter"
+              @click="selectCharacter(option.id)">
             <button v-else class="btn btn-sm btn-success">구매</button>
-            <img :src=option.img style="width: 150px" />
+            <img :src="getPetImage(option.id)" alt="img" height="50px" width="50px">
           </div>
         </div>
       </div>
-
-
       <button class="btn btn-primary" @click="changeCharacter">저장</button>
     </div>
   </div>
 </template>
-  
+
+
 <script setup>
-import { ref } from "vue"
+import { ref, onMounted } from "vue"
+import { useUserStore } from "@/stores/user"
+import axios from "axios"
+import corgi from '@/img/corgi.gif'
+import slime from '@/img/slime.gif'
+import rabbit from '@/img/rabbit.gif'
+
+const userStore = useUserStore()
+const API_URL = userStore.API_URL
+
 
 const props = defineProps({
   isModal: Boolean,
   characterId: Number,
   characterImg: String,
+
 })
 
 const emit = defineEmits(['closeModal', 'changeCharacter'])
@@ -39,22 +49,91 @@ const closeModal = function () {
   emit('closeModal')
 }
 
+
 const options = ref([
-  { id: 1, name: '슬라임', ishave: true, img: "src/img/slime.gif" },
+  { id: 1, name: '슬라임', ishave: false, img: "src/img/slime.gif" },
   { id: 2, name: '코기', ishave: false, img: 'src/img/corgi.gif' },
-  { id: 3, name: '토끼', ishave: true, img: 'src/img/rabbit.gif' },
+  { id: 3, name: '토끼', ishave: false, img: 'src/img/rabbit.gif' },
 ])
 
-const selectedCharacter = ref(props.characterImg)
+
+// 캐릭터 선택지
+
+const myPets = ref([])
+
+const selectedCharacter = ref(options.value.find(item => item.name === userStore.userInfo.charName).id)  // 선택된 캐릭터 아이디
+// 캐릭터 선택 함수
+
 const selectCharacter = function (num) {
   selectedCharacter.value = num
 }
 
+
+// 캐릭터 변경 emit
 const changeCharacter = function () {
-  emit('changeCharacter', selectedCharacter.value)
+  axios({
+    method: 'put',
+    url: `${API_URL}/pet/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      petId: selectedCharacter.value
+    }
+  })
+    .then(res => {
+      userStore.getUserInfo()
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        changeCharacter()
+      }
+    })
+  emit('changeCharacter')
 }
+
+const getPetImage = function (id) {
+  if (id === 1) {
+    return slime
+  } else if (id === 2) {
+    return corgi
+  } else if (id === 3) {
+    return rabbit
+  }
+}
+
+const getPetInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/pet/`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      myPets.value = res.data
+      options.value.forEach(option => {
+        const petInfo = myPets.value.find(pet => pet.petId === option.id)
+        if (petInfo) {
+          option.ishave = true
+        }
+      })
+    })
+    .catch(err => {
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getPetInfo()
+      }
+    })
+}
+
+onMounted(() => {
+  getPetInfo()
+})
 </script>
-  
+
 <style scoped>
 .modal {
   position: fixed;

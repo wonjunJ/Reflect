@@ -70,19 +70,16 @@
             <ul class="nav nav-underline">
               <!-- 전체 방 목록 -->
               <li class="nav-item">
-                <a class="nav-link all-rooms" aria-current="page" @click="allRooms">전체 <span class="nav-link-badge"
-                    :value="allRoomNum">0</span></a>
+                <a class="nav-link all-rooms" aria-current="page" @click="allRooms">전체 </a>
               </li>
               <!-- 아직 덜 찬 방 목록 -->
               <li class="nav-item waiting-rooms">
-                <a class="nav-link" @click="filteredRooms">사람 구하는중 <span class="nav-link-badge"
-                    :value="waitingRoomNum">0</span></a>
+                <a class="nav-link" @click="waitingRooms">사람 구하는중 </a>
 
               </li>
               <!-- 내가 참여중인 방 목록 -->
               <li class="nav-item my-rooms">
-                <a class="nav-link" @click="filteredRooms">My Rooms <span class="nav-link-badge"
-                    :value="myRoomNum">0</span></a>
+                <a class="nav-link" @click="myRooms">My Rooms </a>
 
               </li>
             </ul>
@@ -92,8 +89,9 @@
           <div class="search-filter">
             <!-- 검색창 -->
             <div class="room-search">
-              <form class="d-flex" role="search">
-                <input class="searchbox" type="search" placeholder="Search" aria-label="Search">
+              <form class="d-flex" role="search" @submit.prevent>
+                <input v-model="searchKey" class="searchbox" type="text" placeholder="Search" aria-label="Search"
+                  @keyup.enter="search">
               </form>
             </div>
 
@@ -102,70 +100,143 @@
               <div class="dropdown">
                 <img class="dropdown-toggle filter-icon" data-bs-toggle="dropdown" aria-expanded="false"
                   data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
-                <form class="dropdown-menu p-4">
+                <form class="dropdown-menu p-4" @submit.prevent>
                   <div class="mb-3">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="hundredFilter">
+                      <input type="checkbox" class="form-check-input" id="hundredFilter"
+                        @click="isHundredFilter = !isHundredFilter">
                       <label class="form-check-label" for="hundredFilter">백문백답</label>
                     </div>
                   </div>
                   <div class="mb-3">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="freeFilter">
+                      <input type="checkbox" class="form-check-input" id="freeFilter"
+                        @click="isFreeFilter = !isFreeFilter">
                       <label class="form-check-label" for="freeFilter">자유주제</label>
                     </div>
                   </div>
                   <div class="mb-3">
                     <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="waitingFilter">
+                      <input type="checkbox" class="form-check-input" id="waitingFilter"
+                        @click="isWaitingFilter = !isWaitingFilter">
                       <label class="form-check-label" for="waitingFilter">모집중</label>
                     </div>
                   </div>
                   <div>
                     <h6>인원수</h6>
                     <div class="member-limit">
-                      <el-slider v-model="limit" range show-stops :min="2" :max="8" />
+                      <el-slider v-model="range" range show-stops :min="2" :max="8" />
                     </div>
                   </div>
                   <button class="btn" @click="submitFilter">적용</button>
                 </form>
               </div>
 
+              <!-- 필터 드롭다운 -->
+              <div class="room-filter">
+                <div class="dropdown">
+                  <img class="dropdown-toggle filter-icon" data-bs-toggle="dropdown" aria-expanded="false"
+                    data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
+                  <form class="dropdown-menu p-4">
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="hundredFilter">
+                        <label class="form-check-label" for="hundredFilter">백문백답</label>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="freeFilter">
+                        <label class="form-check-label" for="freeFilter">자유주제</label>
+                      </div>
+                    </div>
+                    <div class="mb-3">
+                      <div class="form-check">
+                        <input type="checkbox" class="form-check-input" id="waitingFilter">
+                        <label class="form-check-label" for="waitingFilter">모집중</label>
+                      </div>
+                    </div>
+                    <div>
+                      <h6>인원수</h6>
+                      <div class="member-limit">
+                        <el-slider v-model="limit" range show-stops :min="2" :max="8" />
+                      </div>
+                    </div>
+                    <button class="btn" @click="submitFilter">적용</button>
+                  </form>
+                </div>
+
+              </div>
+            </div>
+
+          </div>
+
+
+          <hr>
+          <div class="roomList">
+            <!-- 방 목록 리스트 -->
+            <!-- 전체 방 리스트 -->
+            <div v-if="isAll">
+              <AllRoomList />
+            </div>
+
+            <!-- 사람 구하는 방 리스트 -->
+            <div v-if="isWaiting">
+
+              <FilteredRoomList />
+            </div>
+
+            <!-- 내가 가입한 방 리스트 -->
+            <div v-if="isFiltered">
+
+              <FilteredRoomList />
+            </div>
+
+            <div>
+              <!-- 필터링된 리스트 불러오기 -->
             </div>
           </div>
 
-        </div>
+          <hr>
 
 
-        <hr>
-        <div class="roomList">
-          <!-- 방 목록 리스트 -->
-          <!-- 전체 방 리스트 -->
-          <div v-if="isAll">
-            <AllRoomList />
-          </div>
+          <hr>
+          <div class="roomList">
+            <!-- 방 목록 리스트 -->
+            <!-- 전체 방 리스트 -->
+            <div v-if="isAll">
+              <AllRoomList />
+            </div>
 
-          <!-- 사람 구하는 방 리스트 -->
-          <div v-if="isWaiting">
+            <!-- 사람 구하는 방 리스트 -->
+            <div v-if="isWaiting">
 
-            <FilteredRoomList />
-          </div>
+              <FilteredRoomList :waiting="waiting" :from=2 :to=8 />
+            </div>
 
-          <!-- 내가 가입한 방 리스트 -->
-          <div v-if="isFiltered">
+            <!-- 내가 가입한 방 리스트 -->
+            <div v-if="isMyRoom">
 
-            <FilteredRoomList />
-          </div>
+              <MyRoomList />
+            </div>
 
-          <div>
             <!-- 필터링된 리스트 불러오기 -->
+            <div v-if="isFiltered">
+              <FilteredRoomList :type="type" :waiting="waiting" :from="from" :to="to" />
+            </div>
+
+            <!-- 검색한 리스트 불러오기 -->
+            <div v-if="isSearched">
+              <SearchedRoomList :searchKey="searchKey" />
+            </div>
+
+
           </div>
+
+          <hr>
+
+
         </div>
-
-        <hr>
-
-        <!-- 페이지네이션 -->
-        <RoomPagenation />
       </div>
     </el-scrollbar>
   </div>
@@ -176,57 +247,105 @@
 import { ref, onMounted } from 'vue';
 import AllRoomList from '@/components/Room/AllRoomList.vue'
 import FilteredRoomList from '@/components/Room/FilteredRoomList.vue'
+import MyRoomList from '@/components/Room/MyRoomList.vue'
+import SearchedRoomList from '@/components/Room/SearchedRoomList.vue'
 import RoomCreate from '@/components/PopUp/RoomCreate.vue'
 import RoomRecommend from '@/components/PopUp/RoomRecommend.vue'
 import QuickJoin from '@/components/PopUp/QuickJoin.vue'
-import RoomPagenation from '@/components/Room/RoomPagenation.vue'
 import { useRoomStore } from '@/stores/room'
+import { useRouter } from 'vue-router'
 // import Slider from '@vueform/slider'
 
-
+const router = useRouter()
 const roomStore = useRoomStore()
 const isAll = ref(true)
 const isWaiting = ref(false)
 const isFiltered = ref(false)
+const isMyRoom = ref(false)
+const isSearched = ref(false)
 const isModalOpen = ref(false)
 const isHundredModalOpen = ref(false)
 const isFreeModalOpen = ref(false)
 const isQuickHundredModalOpen = ref(false)
 const isQuickFreeModalOpen = ref(false)
-const limit = ref([2, 8])
-const allRoomNum = ref(0) // 전체 방 개수
-const waitingRoomNum = ref(0) // 모집중인 방 개수
-const myRoomNum = ref(0) //내 방 개수
+const isHundredFilter = ref(false)
+const isFreeFilter = ref(false)
+const isWaitingFilter = ref(false)
+const waiting = ref(null)
+const range = ref([2, 8])
+const from = ref(2)
+const to = ref(8)
+const searchKey = ref(null)
+const type = ref(null)
 
-onMounted(() => {
-  roomStore.getRooms()
-})
-
+const search = () => {
+  // const searchKey = document.getElementsByClassName('searchbox')
+  // console.log('검색 시작')
+  // console.log(searchKey.value)
+  isSearched.value = true
+  isAll.value = false
+  isWaiting.value = false
+  isFiltered.value = false
+  isMyRoom.value = false
+}
 
 const submitFilter = () => {
-  // 필터 선택한 정보 보내주고 불러오기
+
+  from.value = range.value[0]
+  to.value = range.value[1]
+  console.log(from.value)
+  console.log(to.value)
+  if (isHundredFilter.value && !isFreeFilter.value) {
+    type.value = 'BACKMOON'
+  }
+  else if (!isHundredFilter.value && isFreeFilter.value) {
+    type.value = 'FREE'
+  }
+  else {
+    type.value = null
+  }
+  if (isWaitingFilter.value) {
+    waiting.value = 'Waiting'
+  }
+  else {
+    waiting.value = null
+  }
+
+  isAll.value = false
+  isWaiting.value = false
+  isFiltered.value = true
+  isMyRoom.value = false
+  isSearched.value = false
+
 }
 
 const allRooms = () => {
-
   isAll.value = true
   isWaiting.value = false
   isFiltered.value = false
+  isMyRoom.value = false
+  isSearched.value = false
 }
 
 const waitingRooms = () => {
   isAll.value = false
   isWaiting.value = true
   isFiltered.value = false
+  isMyRoom.value = false
+  isSearched.value = false
+  to.value = 8
+  from.value = 2
 
 }
-
-const filteredRooms = () => {
+const myRooms = () => {
   isAll.value = false
   isWaiting.value = false
-  isFiltered.value = true
-
+  isFiltered.value = false
+  isMyRoom.value = true
+  isSearched.value = false //
 }
+
+
 
 
 const openCreateRoomModal = () => {
@@ -469,4 +588,5 @@ div {
 .member-limit .el-slider {
   margin-top: 0;
   margin-left: 12px;
-}</style>
+}
+</style>

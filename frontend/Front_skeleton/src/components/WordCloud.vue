@@ -20,7 +20,7 @@ const generateWordCloud = () => {
     wordcloud(wordCloudCanvas.value, {
       list: wordList,
       weightFactor: function (size) {
-        return size*2.5 // Adjusted weight factor
+        return size*10 // 단어 크기 가중치
       },
       fontFamily: 'Times, serif',
       color: function (word, weight) {

@@ -1,7 +1,7 @@
 <template>
   <div class="d-flex">
     <aside class="aside-container">
-      <Profile :user-info="userInfo" @change-character="changeCharacter" />
+      <Profile :user-info="userInfo" @change-character="changeCharacter" @reload-profile="getUserInfo" />
     </aside>
 
     <body class="body-section d-flex flex-column body">
@@ -16,10 +16,11 @@
         </div>
         <div class="contents-section">
           <div class="following-table-section">
-            <FollowList :follows="followings" />
+            <FollowList :follows="followings" :paging-info="followPagingInfo" @change-page="changeFollowPage" />
           </div>
           <div class="community-table-section">
-            <CommunityList :communitys="communitys" />
+            <CommunityList class="mx-3 text-center" :communitys="communitys" :paging-info="roomPagingInfo"
+              @change-page="changeCommunityPage" />
           </div>
         </div>
       </div>
@@ -42,37 +43,35 @@ import CommunityList from './components/CommunityList.vue'
 const userStore = useUserStore()
 const API_URL = userStore.API_URL
 
-// 사용자 정보 더미데이터
+// 사용자 정보
 const userInfo = ref({})
 
-const emit = defineEmits(['changeCharacter'])
+const emit = defineEmits(['changeCharacter',])
 
-// 팔로워 목록
-const followers = ref([
-  { id: 1, profileimg: null, username: 'test01', alike: '75%', isonline: false },
-  { id: 2, profileimg: null, username: 'test02', alike: '60%', isonline: true },
-  { id: 3, profileimg: null, username: 'test03', alike: '85%', isonline: false }
-])
-
-// 팔로잉 목록
-const followings = ref([
-  { id: 4, profileimg: null, username: 'test04', alike: '73%', isonline: true },
-  { id: 5, profileimg: null, username: 'test05', alike: '52%', isonline: true },
-  { id: 6, profileimg: null, username: 'test06', alike: '46%', isonline: false }
-])
-
-// 가입 커뮤니티 목록
-const communitys = ref([
-  { id: 1, title: 1, people: 6, hashtag: ['soccer', 'movie'] },
-  { id: 2, title: 2, people: 4, hashtag: ['baseball'] },
-])
-
-const changeCharacter = (num) => {
-  userInfo.value.characterId = num
-  emit('changeCharacter', num)
+const followings = ref([])    // 팔로잉 목록
+const followPageNum = ref(1)  // 팔로잉 페이지네이션 번호
+const followPagingInfo = ref({})  // 팔로잉 페이지네이션 정보
+// 페이지 변화 시 새로운 목록 요청
+const changeFollowPage = function (num) {
+  followPageNum.value = num
+  getFollowInfo()
 }
 
-onMounted(() => {
+const communitys = ref([])  // 커뮤니티 목록
+const roomPageNum = ref(1)  // 커뮤니티 페이지네이션 번호
+const roomPagingInfo = ref({})  // 커뮤니티 페이지네이션 정보
+// 페이지 변화 시 새로운 목록 요청
+const changeCommunityPage = function (num) {
+  roomPageNum.value = num
+  getCommunitysInfo()
+}
+
+const changeCharacter = () => {
+  emit('changeCharacter')
+}
+
+// 사용자 정보 요청 함수
+const getUserInfo = function () {
   axios({
     method: 'get',
     url: `${API_URL}/user/`,
@@ -84,13 +83,67 @@ onMounted(() => {
       userInfo.value = res.data
     })
     .catch(err => {
-      // console.log(err)
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getUserInfo()
+      }
     })
+}
+
+// 커뮤니티 목록 요청 함수
+const getCommunitysInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/room/mine?page=${roomPageNum.value}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      communitys.value = res.data.data
+      roomPagingInfo.value = res.data.pagingInfo
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getCommunitysInfo()
+      }
+    })
+}
+
+// 팔로워 목록 요청 함수
+const getFollowInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/follow?page=${followPageNum.value}`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      followings.value = res.data.data
+      followPagingInfo.value = res.data.pagingInfo
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getFollowInfo()
+      }
+    })
+}
+
+onMounted(() => {
+  getUserInfo()
+  getCommunitysInfo()
+  getFollowInfo()
 })
 </script>
 
 <style scoped>
-.aside-container {
+.aside {
   background-color: #AAD9BB;
   padding: 20px;
   box-shadow: 5px 5px 10px rgb(197, 196, 196);

@@ -62,7 +62,7 @@ import { OpenVidu } from "openvidu-browser";
 import UserVideo from "../../components/RoomVideo/UserVideo.vue"
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
-const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:5000/';
+const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080/';
 
 export default {
   name: "App",
@@ -209,14 +209,14 @@ export default {
     },
 
     async createSession(sessionId) {
-      const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions', { customSessionId: sessionId }, {
+      const response = await axios.post(APPLICATION_SERVER_URL + 'sessions', { customSessionId: sessionId }, {
         headers: { 'Content-Type': 'application/json', },
       });
       return response.data; // The sessionId
     },
 
     async createToken(sessionId) {
-      const response = await axios.post(APPLICATION_SERVER_URL + 'api/sessions/' + sessionId + '/connections', {}, {
+      const response = await axios.post(APPLICATION_SERVER_URL + 'sessions/' + sessionId + '/connections', {}, {
         headers: { 'Content-Type': 'application/json', },
       });
       return response.data; // The token

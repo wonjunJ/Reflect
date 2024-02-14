@@ -15,6 +15,7 @@ import RoomWaitingView from '@/views/Room/RoomWaitingView.vue'
 import DiaryListVue from '@/components/Diary/DiaryList.vue'
 import DiaryDetailVue from '@/views/Diary/DiaryDetail.vue'
 import QnA from '@/views/MyInfo/QnAView.vue'
+import Social from '@/views/User/SocialView.vue'
 
 
 const router = createRouter({
@@ -41,7 +42,7 @@ const router = createRouter({
       component: Diary
     },
     {
-      path: '/DiaryDetail',
+      path: '/DiaryDetail/:id',
       name: 'DiaryDetail',
       component: DiaryDetail,
       props: true,
@@ -73,7 +74,7 @@ const router = createRouter({
       component: Interests,
     },
     {
-      path: '/rooms',
+      path: '/room',
       name: 'roomlist',
       component: RoomListView,
       // meta: { requresAuth: true},
@@ -94,6 +95,11 @@ const router = createRouter({
       path: '/100QnA',
       name: '100QnA',
       component: QnA,
+    },
+    {
+      path: '/social',
+      name: 'social',
+      component: Social
     }
   ]
 })

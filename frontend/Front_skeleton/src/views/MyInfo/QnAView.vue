@@ -22,9 +22,6 @@
             </div>
           </div>
         </div>
-
-
-
       </div>
 
       <div class="main-section " style="overflow:scroll; height:800px">
@@ -63,6 +60,7 @@ const userStore = useUserStore()
 const API_URL = userStore.API_URL
 const questionsStore = useQuestionsStore()
 
+// 답변한 질문 목록
 const completedQuestions = ref([])
 
 // const contents = document.querySelectorAll(".content")
@@ -95,8 +93,18 @@ const createArray = function () {
   return emptyArray
 }
 
+// 전체 답변 배열
 const answerList = ref(createArray())
 
+// 전체 답변 배열과 답변한 질문 동기화 
+const refreshAnswerList = function () {
+  completedQuestions.value.forEach((element) => {
+    answerList.value[element.questionId - 1].answer = element.answer
+    answerList.value[element.questionId - 1].initAnswer = element.answer
+  })
+}
+
+// 답변 수정 및 작성 중계 함수
 const submitAnswer = function (id) {
   if (answerList.value[id - 1].initAnswer) {
     putAnswer(answerList.value[id - 1])
@@ -105,6 +113,7 @@ const submitAnswer = function (id) {
   }
 }
 
+// 답변 수정 함수
 const putAnswer = function (obj) {
   axios({
     method: 'put',
@@ -118,13 +127,21 @@ const putAnswer = function (obj) {
     }
   })
     .then(res => {
+      const id = res.data.questionId
       completedQuestions.value.find(item => item.questionId === res.data.questionId).answer = res.data.answer
+      answerList.value[id - 1].answer = res.data.answer
+      answerList.value[id - 1].initAnswer = res.data.answer
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        putAnswer(obj)
+      }
     })
 }
 
+// 답변 작성 함수
 const postAnswer = function (obj) {
   axios({
     method: 'post',
@@ -139,12 +156,21 @@ const postAnswer = function (obj) {
   })
     .then(res => {
       completedQuestions.value.push(res.data)
+      const id = res.data.questionId
+      completedQuestions.value.find(item => item.questionId === res.data.questionId).answer = res.data.answer
+      answerList.value[id - 1].answer = res.data.answer
+      answerList.value[id - 1].initAnswer = res.data.answer
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        postAnswer(obj)
+      }
     })
 }
 
+// 답변 삭제 함수
 const deleteAnswer = function (id) {
   axios({
     method: 'delete',
@@ -161,14 +187,20 @@ const deleteAnswer = function (id) {
       if (idx !== -1) {
         completedQuestions.value.splice(idx, 1)
       }
+      answerList.value[id - 1].answer = ''
+      answerList.value[id - 1].initAnswer = ''
     })
     .catch(err => {
       console.log(err)
+      if (err.response.status == 401) {
+        userStore.refresh()
+        deleteAnswer(id)
+      }
     })
 }
 
-
-onMounted(() => {
+// 답변한 질문 목록 요청 함수
+const getAnswers = function () {
   axios({
     method: 'get',
     url: `${API_URL}/question/`,
@@ -178,18 +210,28 @@ onMounted(() => {
   })
     .then(res => {
       completedQuestions.value = res.data
+      refreshAnswerList()
     })
     .catch(err => {
       console.log(err)
+      userStore.refresh()
+      getAnswers()
     })
-})
+}
 
+//여기 이상할 수 있음
 watch(completedQuestions, (newCompletedQuestions) => {
   newCompletedQuestions.forEach((element) => {
     answerList.value[element.questionId - 1].answer = element.answer
     answerList.value[element.questionId - 1].initAnswer = element.answer
   })
 }, { deep: true })
+
+//여기 까지 
+
+onMounted(() => {
+  getAnswers()
+})
 
 const questionlist = questionsStore.questions
 </script>
@@ -213,5 +255,22 @@ const questionlist = questionsStore.questions
   display: flex;
   flex-direction: row;
   justify-content: center;
+}
+
+.sticky {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background-color: #80bcbd;
+}
+
+.question {
+  width: 80%;
+}
+
+input[type="text"] {
+  width: 80%;
+  border: 1px solid #aad9bb;
+  background-color: #d5f0c1;
 }
 </style>

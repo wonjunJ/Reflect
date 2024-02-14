@@ -6,13 +6,14 @@
 
     <el-row class="row rounded-4">
       <el-col class="col1">
-        <div class="list" v-for="entry in filteredDiaryEntries" :key="entry.date" @click="selectDate(entry.date)">
+        <div class="list" v-for="entry in responseData.data" :key="entry.diaryId" @click="selectDate(entry.diaryId)">
           <div class="entry">
-            <span class="date">{{ entry.emotion }} {{ formatDate(entry.date) }}</span>
+            <span class="date"> {{ formatDate(entry.createDate) }}</span>
             <div class="keywords">
-              <span v-for="keyword in entry.keywords" :key="keyword">#{{ keyword }} </span>
+              <span v-for="word in entry.keyword" :key="word">{{ word }} </span>
             </div>
           </div>
+
         </div>
       </el-col>
     </el-row>
@@ -20,27 +21,28 @@
 </template>
   
 <script setup>
-import { ref, computed } from 'vue';
-// import {useDiaryStore} from '@/stores/diary.js'
-// const store = useDiaryStore();
+import { ref, computed, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router';
+import { defineProps } from 'vue'; // defineProps import
+const router = useRouter();
+// props를 정의
 
-const diaryEntries = ref([
-  { date: '2024-01-01', emotion: '😄', keywords: ['행복', '가족', '기쁨'] },
-  { date: '2024-01-02', emotion: '😄', keywords: ['사랑', '친구', '즐거움'] },
-  { date: '2024-01-03', emotion: '😃', keywords: ['운동', '건강', '활동'] },
-  { date: '2024-01-04', emotion: '😀', keywords: ['공부', '성취', '목표'] },
-  { date: '2024-01-05', emotion: '😀', keywords: ['여행', '경험', '새로움'] },
-  { date: '2024-01-06', emotion: '😀', keywords: ['미술', '창의성', '아름다움'] },
-  { date: '2024-01-07', emotion: '😀', keywords: ['음악', '휴식', '평화'] },
-]);
-
-const filteredDiaryEntries = computed(() => {
-  return diaryEntries.value.filter(entry => entry.date);
+// props를 정의
+const props = defineProps({
+  responseData: Array // responseData prop은 Array 형식으로 정의
 });
 
+// responseData를 reactive로 선언
+const responseData = reactive({
+  data: props.responseData
+});
+
+
 const selectDate = (date) => {
-  store.selectedDate(date);
   console.log(date)
+  router.push({ name: 'DiaryDetail', params: { id: date } });
+  this.$forceUpdate();
+  //window.location.reload();
 };
 
 const formatDate = (date) => {
@@ -104,8 +106,6 @@ const formatDate = (date) => {
 }
 
 .list {
-
-
   height: 75.233px;
   flex-shrink: 0;
   background: #F9F2E4;
