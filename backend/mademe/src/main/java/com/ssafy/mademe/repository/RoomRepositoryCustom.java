@@ -11,5 +11,5 @@ import java.util.List;
 
 public interface RoomRepositoryCustom {
     Page<RoomListResponse> findTotalRoomList(List<String> filter, String searchWord, int from, int to, Pageable pageable);
-    List<RoomDetailResponse> findRecommendedRoom(User user, List<InterestResponse> myInterests);
+    List<RoomDetailResponse> findRecommendedRoom(List<InterestResponse> myInterests);
 }

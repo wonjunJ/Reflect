@@ -17,9 +17,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -69,8 +67,15 @@ public class RoomService {
 
     public List<RoomDetailResponse> recommendRoom(User user){
         List<InterestResponse> myInterests = interestRepository.findInterestList(user, 5, Preference.LIKE);
-
-        return null;
+        List<RoomDetailResponse> tmpList = roomRepository.findRecommendedRoom(myInterests);
+        if(tmpList.size() > 5){
+            Random random = new Random();
+            while (tmpList.size() > 5) {
+                int randomNumber = random.nextInt(tmpList.size());
+                tmpList.remove(randomNumber);
+            }
+        }
+        return tmpList;
     }
 
     public void joinRoom(User user, Room room){

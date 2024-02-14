@@ -114,8 +114,7 @@ public class RoomController {
 
     @GetMapping("/recommend")
     public List<RoomDetailResponse> recommendRoom(@AuthenticationPrincipal User user){
-
-        return null;
+        return roomService.recommendRoom(user);
     }
 
     //방 탈퇴하기(방 참가 상태(채팅 화면)에서 탈퇴하기를 누를때)

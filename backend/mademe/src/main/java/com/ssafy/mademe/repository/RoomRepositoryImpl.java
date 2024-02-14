@@ -10,10 +10,7 @@ import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.dto.response.RoomDetailResponse;
 import com.ssafy.mademe.dto.response.RoomListResponse;
-import com.ssafy.mademe.entity.Room;
-import com.ssafy.mademe.entity.RoomMode;
-import com.ssafy.mademe.entity.RoomType;
-import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.entity.*;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -45,7 +42,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         room.thumbnail,
                         room.title,
                         room.intro,
-                        room.question.id
+                        room.question
                 )
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
@@ -98,34 +95,48 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     }
 
     @Override
-    public List<RoomDetailResponse> findRecommendedRoom(User user, List<InterestResponse> myInterests) {
-        return null;
-//        return jpaQueryFactory
-//                .select(
-//
-//                )
-//                .from(room)
-//                .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
-//                .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
-//                .where(
-//                        conditionHashName(myInterests).or(conditionIntro(myInterests))
-//                )
-//                .fetch();
+    public List<RoomDetailResponse> findRecommendedRoom(List<InterestResponse> myInterests) {
+        return jpaQueryFactory
+                .select(
+                        room.id,
+                        room.type,
+                        room.title,
+                        room.intro,
+                        room.thumbnail,
+                        room.question.id
+                )
+                .from(room)
+                .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
+                .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
+                .where(
+                        conditionHashName(myInterests)
+                )
+                .groupBy(room.id)
+                .fetch()
+                .stream()
+                .map(this::mapToRoomDetail)
+                .collect(Collectors.toList());
     }
 
     private BooleanExpression conditionHashName(List<InterestResponse> myInterests){
-        return null;
-//        if(myInterests.isEmpty()){
-//            System.out.println("비였다.");
-//            return null;
-//        }
-//        BooleanBuilder builder = new BooleanBuilder();
-//        for (InterestResponse ir : myInterests) {
-//            if (hashCode.hashName.contains(ir.getInterestName())) {
-//                builder.or(hashCode.hashName.contains(ir.getInterestName()));
-//            }
-//        }
-//        return builder.getValue();
+        //return null;
+        if(myInterests.isEmpty()){
+            System.out.println("비였다.");
+            return null;
+        }
+        BooleanExpression expression = null;
+        for(InterestResponse ir : myInterests){
+            expression = hashCode.hashName.contains(ir.getInterestName());
+            if (expression != null) {
+                return expression;
+//                if (expression != null) {
+//                    expression = expression.or(filterExpression);
+//                } else {
+//                    expression = filterExpression;
+//                }
+            }
+        }
+        return conditionIntro(myInterests);
     }
 
     private BooleanExpression conditionIntro(List<InterestResponse> myInterests){
@@ -135,12 +146,9 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
         }
         BooleanExpression expression = null;
         for(InterestResponse ir : myInterests){
-            BooleanExpression filterExpression = null;
-            filterExpression = room.intro.contains(ir.getInterestName());
+            expression = room.intro.contains(ir.getInterestName());
             if (expression != null) {
-                expression = expression.or(filterExpression);
-            } else {
-                expression = filterExpression;
+                return expression;
             }
         }
         return expression;
@@ -189,20 +197,15 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .build();
     }
 
-    private RoomDetailResponse mapToRoomDetail(Room room, List<FollowingResponse> participants,
-                                               List<String> hashTags, List<RoomMode> modes){
+    private RoomDetailResponse mapToRoomDetail(Tuple tuple){
+        QuestionCode code = tuple.get(5, QuestionCode.class);
         return RoomDetailResponse.builder()
-                .roomId(room.getId())
-                .createDate(room.getCreateDate().toLocalDate())
-                .type(room.getType())
-                .mode(modes)
-                .ownerId(room.getOwnerId().getId())
-                .title(room.getTitle())
-                .intro(room.getIntro())
-                .thumbnail(room.getThumbnail())
-                .qId(room.getQuestion() == null ? null : room.getQuestion().getId())
-                .participants(participants)
-                .hashTags(hashTags)
+                .roomId(tuple.get(0, Long.class))
+                .type(tuple.get(1, RoomType.class))
+                .title(tuple.get(2, String.class))
+                .intro(tuple.get(3, String.class))
+                .thumbnail(tuple.get(4, String.class))
+                .qId(code == null ? null : code.getId())
                 .build();
     }
 }
