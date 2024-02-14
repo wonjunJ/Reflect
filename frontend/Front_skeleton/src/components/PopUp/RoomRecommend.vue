@@ -1,5 +1,6 @@
 <template>
-    <div v-if="isHundredModalOpen || isFreeModalOpen" class="modal">
+    <!-- <div v-if="isHundredModalOpen || isFreeModalOpen" class="modal"> -->
+    <div v-if="isRecommendModalOpen" class="modal">
         <div class="modal-content">
         <!-- 방 추천 팝업 -->
 
@@ -80,9 +81,14 @@ const isEnterRoom = ref(false)
 
 const props = defineProps({
     recRooms: Object,
-    isHundredModalOpen: Boolean,
-    isFreeModalOpen: Boolean
+    isRecommendModalOpen: Boolean,
+
 });
+// const props = defineProps({
+//     recRooms: Object,
+//     isHundredModalOpen: Boolean,
+//     isFreeModalOpen: Boolean
+// });
 
 
 const emit = defineEmits()

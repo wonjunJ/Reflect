@@ -12,7 +12,10 @@
         <div class="d-inline-flex gap-1 room-btn-group">
 
           <!-- 방 추천 드롭다운 -->
-          <div class="btn-dropdown">
+          <div>
+            <button @click="openRecommendModal" type="button" class="btn btn-recommend">Recommend</button>
+          </div>
+          <!-- <div class="btn-dropdown">
             <button type="button" class="btn dropdown-toggle btn-recommend" data-bs-toggle="dropdown"
               aria-expanded="false">
               Recommend
@@ -23,46 +26,43 @@
 
             </ul>
 
+        </div> -->
+
+        <!-- 방 추천 모달 내용 -->
+        <div>
+          <!-- <RoomRecommend :recRooms="recRooms" :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" /> -->
+          <RoomRecommend :recRooms="recRooms" :isRecommendModalOpen="isRecommendModalOpen" @closeModal="closeModal" />
         </div>
 
 
+        <!-- 빠른참여 버튼 -->
+        <button @click="openQuickModal" type="button" class="btn btn-recommend">Quick Join</button>
 
-          <!-- 방 추천 모달 내용 -->
-          <div>
-            <RoomRecommend :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen"
-              @closeModal="closeModal" />
-          </div>
-
-
-          <!-- 빠른참여 버튼 -->
-          <div class="btn-dropdown">
+        <!-- <div class="btn-dropdown">
             <button type="button" class="btn dropdown-toggle btn-quick" data-bs-toggle="dropdown" aria-expanded="false">
-              Quick Join
+                Quick Join
             </button>
             <ul class="dropdown-menu">
-              <li><a class="dropdown-item" @click="openQuickHundredModal">100문 100답</a></li>
-              <li><a class="dropdown-item" @click="openQuickFreeModal">자유주제</a></li>
+                <li><a class="dropdown-item" @click="openQuickHundredModal">100문 100답</a></li>
+                <li><a class="dropdown-item" @click="openQuickFreeModal">자유주제</a></li>     
             </ul>
-          </div>
+        </div> -->
 
-          <!-- 모달 내용 -->
-          <div>
-            <QuickJoin :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen"
-              @closeModal="closeModal" />
-          </div>
+        <!-- 모달 내용 -->
+        <div>
+          <QuickJoin :recRooms="recRooms" :isQuickModalOpen="isQuickModalOpen" @closeModal="closeModal" />
+          <!-- <QuickJoin :recRooms="recRooms" :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen" @closeModal="closeModal" /> -->
+        </div>
 
-          <!-- 방 만들기 버튼 -->
-          <!-- <button type="button" class="btn btn-primary create-btn" @click="openCreateRoomModal">+ Create</button> -->
-          <button class="btn btn-primary btn-create" @click="openCreateRoomModal">
-            <div class="inline-flex items-center space-x-2">
-              <div>+ Create</div>
-            </div>
+        <!-- 방 만들기 버튼 -->
+        <!-- <button type="button" class="btn btn-primary create-btn" @click="openCreateRoomModal">+ Create</button> -->
+        <button class="btn btn-primary btn-create" @click="openCreateRoomModal">
+          <div class="inline-flex items-center space-x-2">
+            <div>+ Create</div>
+          </div>
           </button>
-          <!-- 모달 내용 -->
-          <div>
-            <RoomCreate :isModalOpen="isModalOpen" @closeModal="closeModal" />
-          </div>
 
+       
         </div>
       </div>
 
@@ -98,47 +98,51 @@
               </form>
             </div>
 
-
-
-              <!-- 필터 드롭다운 -->
-              <div class="room-filter">
-                <div class="dropdown">
-                  <img class="dropdown-toggle filter-icon" data-bs-toggle="dropdown" aria-expanded="false"
-                    data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
-                  <form class="dropdown-menu p-4">
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="hundredFilter">
-                        <label class="form-check-label" for="hundredFilter">백문백답</label>
-                      </div>
+            <!-- 필터 드롭다운 -->
+            <div class="room-filter">
+              <div class="dropdown">
+                <img class="dropdown-toggle filter-icon" data-bs-toggle="dropdown" aria-expanded="false"
+                  data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
+                <form class="dropdown-menu p-4" @submit.prevent>
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="hundredFilter"
+                        @click="isHundredFilter = !isHundredFilter">
+                      <label class="form-check-label" for="hundredFilter">백문백답</label>
                     </div>
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="freeFilter">
-                        <label class="form-check-label" for="freeFilter">자유주제</label>
-                      </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="freeFilter"
+                        @click="isFreeFilter = !isFreeFilter">
+                      <label class="form-check-label" for="freeFilter">자유주제</label>
                     </div>
-                    <div class="mb-3">
-                      <div class="form-check">
-                        <input type="checkbox" class="form-check-input" id="waitingFilter">
-                        <label class="form-check-label" for="waitingFilter">모집중</label>
-                      </div>
+                  </div>
+                  <div class="mb-3">
+                    <div class="form-check">
+                      <input type="checkbox" class="form-check-input" id="waitingFilter"
+                        @click="isWaitingFilter = !isWaitingFilter">
+                      <label class="form-check-label" for="waitingFilter">모집중</label>
                     </div>
-                    <div>
-                      <h6>인원수</h6>
-                      <div class="member-limit">
-                        <el-slider v-model="limit" range show-stops :min="2" :max="8" />
-                      </div>
+                  </div>
+                  <div>
+                    <h6>인원수</h6>
+                    <div class="member-limit">
+                      <el-slider v-model="range" range show-stops :min="2" :max="8" />
                     </div>
-                    <button class="btn" @click="submitFilter">적용</button>
-                  </form>
-                </div>
-
+                  </div>
+                  <button class="btn" @click="submitFilter">적용</button>
+                </form>
               </div>
+
+ 
+
+            </div>
 
           </div>
 
 
+          <hr>
 
 
 
@@ -209,6 +213,8 @@ const isFiltered = ref(false)
 const isMyRoom = ref(false)
 const isSearched = ref(false)
 const isModalOpen = ref(false)
+const isRecommendModalOpen = ref(false)
+const isQuickModalOpen = ref(false)
 const isHundredModalOpen = ref(false)
 const isFreeModalOpen = ref(false)
 const isQuickHundredModalOpen = ref(false)
@@ -318,34 +324,51 @@ const openCreateRoomModal = () => {
 
 const closeModal = () => {
   isModalOpen.value = false
-  isHundredModalOpen.value = false
-  isFreeModalOpen.value = false
-  isQuickFreeModalOpen.value = false
-  isQuickHundredModalOpen.value = false
+  isRecommendModalOpen.value = false
+  isQuickModalOpen.value = false
+  // isHundredModalOpen.value = false
+  // isFreeModalOpen.value = false
+  // isQuickFreeModalOpen.value = false
+  // isQuickHundredModalOpen.value = false
 }
 
-const openHundredModal = () => {
+
+
+const openRecommendModal = () => {
   // 방 추천 요청을 먼저 보내고, 응답을 받은 후에 recRooms를 업데이트합니다.
   roomRecommend().then(() => {
-    isHundredModalOpen.value = true;
+    isRecommendModalOpen.value = true;
     console.log(recRooms.value);
   });
 }
+// const openHundredModal = () => {
+//   // 방 추천 요청을 먼저 보내고, 응답을 받은 후에 recRooms를 업데이트합니다.
+//   roomRecommend().then(() => {
+//     isHundredModalOpen.value = true;
+//     console.log(recRooms.value);
+//   });
+// }
 
-const openFreeModal = () => {
-  isFreeModalOpen.value = true
-  roomRecommend()
-  console.log(recRooms.value)
+// const openFreeModal = () => {
+//   isFreeModalOpen.value = true
+//   roomRecommend()
+//   console.log(recRooms.value)
 
+// }
+
+const openQuickModal = () => {
+  roomRecommend().then(() => {
+    isQuickModalOpen.value = true
+    console.log(recRooms.value);
+  });
 }
+// const openQuickHundredModal = () => {
+//   isQuickHundredModalOpen.value = true
+// }
 
-const openQuickHundredModal = () => {
-  isQuickHundredModalOpen.value = true
-}
-
-const openQuickFreeModal = () => {
-  isQuickFreeModalOpen.value = true
-}
+// const openQuickFreeModal = () => {
+//   isQuickFreeModalOpen.value = true
+// }
 
 
 

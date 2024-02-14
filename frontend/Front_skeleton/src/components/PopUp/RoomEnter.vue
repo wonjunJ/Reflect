@@ -16,7 +16,7 @@ import axios from 'axios';
 const roomStore = useRoomStore()
 const props = defineProps({
   isEnterRoom: Boolean,
-  waitingId: Number
+  id: Number
 });
 const emit = defineEmits();
 
@@ -41,8 +41,8 @@ const participateRoom = (id) => {
 }
 
 const participate = () => {
-  participateRoom(props.waitingId)
-  router.push({ name: 'waiting', params:{id:props.waitingId}})
+  participateRoom(props.id)
+  router.push({ name: 'waiting', params:{id:props.id}})
 }
 
 const closeModal = () => {
