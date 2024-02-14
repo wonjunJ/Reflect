@@ -1,6 +1,10 @@
 package com.ssafy.mademe.controller;
 
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
+import com.ssafy.mademe.dto.gpt.request.DiaryWriteDto;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.User;
@@ -16,6 +20,7 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
+import java.io.IOException;
 import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
@@ -65,12 +70,12 @@ public class DiaryController {
 
     //일기 작성(GPT 분석 데이터까지 함께 저장)
     @PostMapping("/gpt")
-    public Map<String, Long> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, Object> data){
-        DiaryGPTRequest request = (DiaryGPTRequest) data.get("data");
+    public Map<String, Long> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody DiaryWriteDto dto) {
+        DiaryGPTRequest request = dto.getData();
         //request.getDailyData().getKeywords().forEach(s -> System.out.println("data는 " + s));
         Diary diaryId = diaryService.addDiaryGPTLog(user, request);
         //비디오 url 저장
-        String videoUrl = (String) data.get("video");
+        String videoUrl = dto.getVideo();
         diaryId.setVideo(videoUrl);
         diaryRepository.save(diaryId);
         //칭호 획득 관련 처리 추가
