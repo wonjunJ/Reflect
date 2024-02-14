@@ -10,15 +10,39 @@
 <script setup>
 import { ref, defineProps, defineEmits } from 'vue';
 import router from '@/router';
+import { useRoomStore } from '@/stores/room';
+import axios from 'axios';
 
+const roomStore = useRoomStore()
 const props = defineProps({
   isEnterRoom: Boolean,
   waitingId: Number
 });
 const emit = defineEmits();
 
+const participateRoom = (id) => {
+  const roomId = id
+    axios({
+      method: 'post',
+      url: `${roomStore.API_URL}/room/attend`,
+      headers : {
+        Authorization: `Bearer ${roomStore.token}`
+      },
+      data : {id:roomId}
+    })
+    .then((res) => {
+        console.log(res.data)
+        console.log('방 참가 완료')
+      })
+    .catch((err) => {
+      console.log(err)
+      console.log('방 참가 실패')
+    })
+}
+
 const participate = () => {
-  router.push({path: `/waiting/${props.waitingId}`, params:{id:waitingId}})
+  participateRoom(props.waitingId)
+  router.push({ name: 'waiting', params:{id:props.waitingId}})
 }
 
 const closeModal = () => {

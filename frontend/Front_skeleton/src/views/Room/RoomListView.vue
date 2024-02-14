@@ -25,7 +25,7 @@
 
         <!-- 방 추천 모달 내용 -->
         <div>
-          <RoomRecommend :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" />
+          <RoomRecommend :recRooms="recRooms" :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" />
         </div>
 
 
@@ -275,6 +275,26 @@ const myRooms = () => {
   isSearched.value = false //
 }
 
+const recRooms = ref([])
+
+const roomRecommend = () => {
+    axios({
+      method: 'get',
+      url: `${API_URL}/room/recommend`,
+      headers : {
+        Authorization: `Bearer ${roomStore.token}`
+      }
+    })
+      .then((res) => {
+        console.log(res.data)
+        recRooms.value = res.data
+        return recRooms
+      })
+      .catch((err) => 
+        console.log(err))
+}
+
+
 
 
 
@@ -292,10 +312,12 @@ const closeModal = () => {
 
 const openHundredModal = () => {
   isHundredModalOpen.value = true
+  roomRecommend()
 }
 
 const openFreeModal = ()=> {
   isFreeModalOpen.value = true
+  roomRecommend()
 }
 
 const openQuickHundredModal = () => {

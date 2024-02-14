@@ -18,7 +18,7 @@
                             
                             <!-- 방1 -->
                             <div class="carousel-item active">
-                                <div class="col" v-for="room in randomRooms" :key="room.room_id">
+                                <div class="col" v-for="room in rooms" :key="room.room_id">
                                     <div class="card h-100">
                                         <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
                                         <div class="card-body">
@@ -77,47 +77,14 @@ import { useRoomStore } from '@/stores/room'
 
 const roomStore = useRoomStore()
 const isEnterRoom = ref(false)
-const rooms = ref([])
 const randomRooms = ref([])
-const from =2
-const to = 8
-const page = 0
+
 const roomId = ref(null)
 
-const { isHundredModalOpen, isFreeModalOpen } = defineProps(['isHundredModalOpen', 'isFreeModalOpen']);
+const { isHundredModalOpen, isFreeModalOpen, rooms } = defineProps({isHundredModalOpen: Boolean, isFreeModalOpen:Boolean, recRooms:Object});
 const emit = defineEmits()
 
-const shuffleArray = (array) => {
-    for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]]; // ES6 구조 분해 할당을 사용한 요소 교환
-    }
-};
 
-const participate =() => {
-    if (isFreeModalOpen){
-        rooms.value = roomStore.getFilteredRooms(['FREE','Waiting'], from, to, page)
-    }
-    else if (isHundredModalOpen){
-        rooms.value = roomStore.getFilteredRooms(['BACKMOON', 'Waiting'], from, to, page)
-    }
-    // 방 목록이 비어있지 않은지 확인
-    if (rooms.value && rooms.value.length > 0) {
-        // 방 목록 셔플
-        shuffleArray(rooms.value);
-
-        // 셔플된 배열에서 최대 5개의 방 선택
-        randomRooms.value = rooms.value.slice(0, Math.min(5, rooms.value.length));
-
-        // 선택된 방의 ID를 사용하여 처리
-        // 예: 선택된 방을 콘솔에 출력
-        console.log("선택된 랜덤 방:", randomRooms.value);
-    } else {
-        // 적절한 처리 또는 경고 메시지 표시
-        console.log("사용 가능한 방이 없습니다.");
-        window.alert("사용 가능한 방이 없습니다.");
-    }
-};
 
 
 const openEnterModalOpen = () => {
