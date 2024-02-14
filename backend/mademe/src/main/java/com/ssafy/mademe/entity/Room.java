@@ -42,7 +42,7 @@ public class Room {
     private String intro;
 
     @Lob
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String thumbnail;
 
     @ManyToOne(fetch = FetchType.LAZY)

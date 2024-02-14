@@ -47,7 +47,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 //.leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
-                        //roomModeList.id.roomMode.ne(RoomMode.SECRET),
                         room.id.notIn(
                                 JPAExpressions
                                         .select(roomModeList.id.room.id)
@@ -69,12 +68,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
 
         JPAQuery<Long> count = jpaQueryFactory
                 .select(
-                        room.count()
+                        room.countDistinct()
                 )
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
-                //.leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
                         room.id.notIn(
@@ -86,8 +84,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         ),
                         conditionFiltering(filter),
                         searchWords(searchWord)
-                )
-                .groupBy(room.id);
+                );
 
         //System.out.println(count);
 

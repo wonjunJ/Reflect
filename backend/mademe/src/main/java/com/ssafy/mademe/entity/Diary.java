@@ -32,8 +32,10 @@ public class Diary {
     private String content;
 
     @Lob
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String diaryImg;
+
+    private String video;
 
     private int diaryScore;
 
