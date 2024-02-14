@@ -25,35 +25,7 @@
 
         </div>
 
-        <!-- 방 추천 모달 내용 -->
-        <div>
-          <RoomRecommend :recRooms="recRooms" :isHundredModalOpen="isHundredModalOpen" :isFreeModalOpen="isFreeModalOpen" @closeModal="closeModal" />
-        </div>
 
-
-        <!-- 빠른참여 버튼 -->
-        <div class="btn-dropdown">
-            <button type="button" class="btn dropdown-toggle btn-quick" data-bs-toggle="dropdown" aria-expanded="false">
-                Quick Join
-            </button>
-            <ul class="dropdown-menu">
-                <li><a class="dropdown-item" @click="openQuickHundredModal">100문 100답</a></li>
-                <li><a class="dropdown-item" @click="openQuickFreeModal">자유주제</a></li>     
-            </ul>
-        </div>
-
-        <!-- 모달 내용 -->
-        <div>
-          <QuickJoin :recRooms="recRooms" :isQuickHundredModalOpen="isQuickHundredModalOpen" :isQuickFreeModalOpen="isQuickFreeModalOpen" @closeModal="closeModal" />
-        </div>
-
-        <!-- 방 만들기 버튼 -->
-        <!-- <button type="button" class="btn btn-primary create-btn" @click="openCreateRoomModal">+ Create</button> -->
-        <button class="btn btn-primary btn-create" @click="openCreateRoomModal">
-          <div class="inline-flex items-center space-x-2">
-            <div>+ Create</div>
-          </div>
-          </button>
 
           <!-- 방 추천 모달 내용 -->
           <div>
@@ -126,42 +98,7 @@
               </form>
             </div>
 
-            <!-- 필터 드롭다운 -->
-            <div class="room-filter">
-              <div class="dropdown">
-                <img class="dropdown-toggle filter-icon" data-bs-toggle="dropdown" aria-expanded="false"
-                  data-bs-auto-close="outside" src="@/assets/filter.png" alt="필터 아이콘">
-                <form class="dropdown-menu p-4" @submit.prevent>
-                  <div class="mb-3">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="hundredFilter"
-                        @click="isHundredFilter = !isHundredFilter">
-                      <label class="form-check-label" for="hundredFilter">백문백답</label>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="freeFilter"
-                        @click="isFreeFilter = !isFreeFilter">
-                      <label class="form-check-label" for="freeFilter">자유주제</label>
-                    </div>
-                  </div>
-                  <div class="mb-3">
-                    <div class="form-check">
-                      <input type="checkbox" class="form-check-input" id="waitingFilter"
-                        @click="isWaitingFilter = !isWaitingFilter">
-                      <label class="form-check-label" for="waitingFilter">모집중</label>
-                    </div>
-                  </div>
-                  <div>
-                    <h6>인원수</h6>
-                    <div class="member-limit">
-                      <el-slider v-model="range" range show-stops :min="2" :max="8" />
-                    </div>
-                  </div>
-                  <button class="btn" @click="submitFilter">적용</button>
-                </form>
-              </div>
+
 
               <!-- 필터 드롭다운 -->
               <div class="room-filter">
@@ -198,37 +135,11 @@
                 </div>
 
               </div>
-            </div>
 
           </div>
 
 
-          <hr>
-          <div class="roomList">
-            <!-- 방 목록 리스트 -->
-            <!-- 전체 방 리스트 -->
-            <div v-if="isAll">
-              <AllRoomList />
-            </div>
 
-            <!-- 사람 구하는 방 리스트 -->
-            <div v-if="isWaiting">
-
-              <FilteredRoomList />
-            </div>
-
-            <!-- 내가 가입한 방 리스트 -->
-            <div v-if="isFiltered">
-
-              <FilteredRoomList />
-            </div>
-
-            <div>
-              <!-- 필터링된 리스트 불러오기 -->
-            </div>
-          </div>
-
-          <hr>
 
 
           <hr>

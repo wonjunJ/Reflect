@@ -18,7 +18,7 @@
                             
                             <!-- 방1 -->
                             <div class="carousel-item active">
-                                <div class="col" v-for="room in props.recRooms" :key="room.room_id">
+                                <div class="col" v-for="room in props.recRooms" :key="room.roomId">
                                     <div class="card h-100">
                                         <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
                                         <div class="card-body">
