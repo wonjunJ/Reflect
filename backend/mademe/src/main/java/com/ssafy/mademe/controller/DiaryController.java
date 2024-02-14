@@ -4,6 +4,7 @@ import com.ssafy.mademe.dto.gpt.request.DiaryGPTRequest;
 import com.ssafy.mademe.dto.response.*;
 import com.ssafy.mademe.entity.Diary;
 import com.ssafy.mademe.entity.User;
+import com.ssafy.mademe.repository.DiaryRepository;
 import com.ssafy.mademe.service.DiaryService;
 import com.ssafy.mademe.service.RoomService;
 import lombok.RequiredArgsConstructor;
@@ -28,6 +29,7 @@ import java.util.stream.Collectors;
 public class DiaryController {
     private final DiaryService diaryService;
     private final RoomService roomService;
+    private final DiaryRepository diaryRepository;
 
     //이 달의 총괄 상태
     @GetMapping("")
@@ -63,10 +65,14 @@ public class DiaryController {
 
     //일기 작성(GPT 분석 데이터까지 함께 저장)
     @PostMapping("/gpt")
-    public Map<String, Long> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, DiaryGPTRequest> data){
-        DiaryGPTRequest request = data.get("data");
+    public Map<String, Long> addDiaryGPTLog(@AuthenticationPrincipal User user, @RequestBody Map<String, Object> data){
+        DiaryGPTRequest request = (DiaryGPTRequest) data.get("data");
         //request.getDailyData().getKeywords().forEach(s -> System.out.println("data는 " + s));
         Diary diaryId = diaryService.addDiaryGPTLog(user, request);
+        //비디오 url 저장
+        String videoUrl = (String) data.get("video");
+        diaryId.setVideo(videoUrl);
+        diaryRepository.save(diaryId);
         //칭호 획득 관련 처리 추가
         Map<String, Long> state = new HashMap<>();
         //state.put("state", "success");

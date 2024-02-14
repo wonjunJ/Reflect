@@ -44,6 +44,8 @@ public class QDiary extends EntityPathBase<Diary> {
 
     public final QUser user;
 
+    public final StringPath video = createString("video");
+
     public QDiary(String variable) {
         this(Diary.class, forVariable(variable), INITS);
     }

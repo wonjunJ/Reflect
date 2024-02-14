@@ -38,7 +38,7 @@ public class User implements UserDetails {
     private Gender gender;
 
     @Lob
-    @Column(columnDefinition = "text")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String profileImg;
 
     @Temporal(value = TemporalType.TIMESTAMP)
