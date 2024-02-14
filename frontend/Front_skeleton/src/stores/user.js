@@ -6,7 +6,7 @@ import Stomp from 'webstomp-client'
 import axios from 'axios'
 
 export const useUserStore = defineStore('user', () => {
-  const API_URL = import.meta.env.API_URL
+  const API_URL = 'http://localhost:8080'
   const router = useRouter()
   const accessToken = ref(null)
   const refreshToken = ref(null)

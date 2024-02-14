@@ -3,8 +3,8 @@
         <div class="row row-cols-1 row-cols-md-5 g-4">
         <div class="col" v-for="room in rooms" :key="room.roomId">
             <div class="card h-100">
-                <div class="room-img" v-if="room.thumbnail">
-                    <img :src="room.thumbnail" alt="방 이미지" class="card-img-top" />
+                <div class="room-img" v-if="room.thumnail">
+                    <img :src="room.thumnail" alt="방 이미지" class="card-img-top" />
                 </div>
                 <div v-else>
                     <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" class="card-img-top" />
