@@ -59,21 +59,14 @@ export default {
       attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
-      IdleImage: ref(''),
-      WalkImage: ref(''),
-      HitImage: ref(''),
-      AttackImage: ref(''),
+      IdleImage: corgi,
+      WalkImage: corgiWalk,
+      HitImage: corgiClick,
+      AttackImage: corgiEnd,
     };
   },
   mounted() {
     const petStore = usePositionStore();
-    const userStore = useUserStore()
-
-    const charName = userStore.userInfo.charName
-    this.IdleImage = (charName === "코기" ? corgi : (charName === '토끼' ? rabbit : slime))
-    this.WalkImage = (charName === "코기" ? corgiWalk : (charName === '토끼' ? rabbitWalk : slimeWalk))
-    this.HitImage = (charName === "코기" ? corgiClick : (charName === '토끼' ? rabbitClick : slimeClick))
-    this.AttackImage = (charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd))
     
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
