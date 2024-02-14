@@ -102,6 +102,11 @@ public class RoomService {
         myRoomRepository.save(myRoom);
     }
 
+    @Transactional
+    public void increaseNumById(Long roomId){
+        roomRepository.increaseNumById(roomId);
+    }
+
     public void changeOwner(User origin, Long roomId, Long owner){
         Room room = roomRepository.findFirstByIdAndOwnerId(roomId, origin);
         if(room != null){

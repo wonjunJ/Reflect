@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Slf4j
@@ -65,7 +66,12 @@ public class RoomController {
                                                 @RequestParam("from") int from, @RequestParam("to") int to,
                                                 @PageableDefault(size = 10) Pageable pageable){
         Page<RoomListResponse> roomInfos = roomService.getTotalRoomList(filter, searchWord, from, to, pageable);
+//        List<Room> tmp2 = roomRepository.findAll();
+//        for(Room rm : tmp2){
+//            System.out.println("방 타입은 " + rm.getType());
+//        }
         for(RoomListResponse tmp : roomInfos){
+            System.out.println("여기는 없다ㅠㅠ");
             tmp.setMode(roomService.getRoomModes(tmp.getRoomId()));
             tmp.setHashTags(roomService.getHashTagList(tmp.getRoomId()));
         }
@@ -85,7 +91,7 @@ public class RoomController {
     @PostMapping("/attend")
     public Map<String, String> joinRoom(@AuthenticationPrincipal User user, @RequestBody Room room){ //방 아이디만 받는다.
         roomService.joinRoom(user, room);
-        roomRepository.increaseNumById(room.getId());
+        roomService.increaseNumById(room.getId());
         Map<String, String> json = new HashMap<>();
         json.put("state", "success");
         return json;

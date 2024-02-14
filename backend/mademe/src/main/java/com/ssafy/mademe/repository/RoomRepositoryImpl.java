@@ -1,12 +1,10 @@
 package com.ssafy.mademe.repository;
 
-import com.querydsl.core.BooleanBuilder;
 import com.querydsl.core.Tuple;
 import com.querydsl.core.types.dsl.BooleanExpression;
 import com.querydsl.jpa.JPAExpressions;
 import com.querydsl.jpa.impl.JPAQuery;
 import com.querydsl.jpa.impl.JPAQueryFactory;
-import com.ssafy.mademe.dto.response.FollowingResponse;
 import com.ssafy.mademe.dto.response.InterestResponse;
 import com.ssafy.mademe.dto.response.RoomDetailResponse;
 import com.ssafy.mademe.dto.response.RoomListResponse;
@@ -42,12 +40,11 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         room.thumbnail,
                         room.title,
                         room.intro,
-                        room.question
+                        room.question.id
                 )
                 .from(room)
                 .leftJoin(room.hashTags, hashTag)     // HashTag 조인을 추가
                 .leftJoin(hashTag.id.hashCode, hashCode)  // HashCode 조인을 추가
-                //.leftJoin(room.roomModes, roomModeList)
                 .where(
                         room.totalNum.between(from, to),
                         room.id.notIn(
@@ -65,10 +62,10 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .limit(pageable.getPageSize())
                 .fetch()
                 .stream()
-                //.distinct()
                 .map(this::mapToRoomList)
-                .toList();
+                .collect(Collectors.toList());
 
+        //System.out.println("크기는 " + data.size());
         JPAQuery<Long> count = jpaQueryFactory
                 .select(
                         room.countDistinct()
@@ -89,7 +86,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                         searchWords(searchWord)
                 );
 
-        //System.out.println(count);
+        //System.out.println("카운트는 " + count.fetchOne());
 
         return PageableExecutionUtils.getPage(data, pageable, count::fetchOne);
     }
@@ -205,7 +202,6 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
     }
 
     private RoomListResponse mapToRoomList(Tuple tuple){
-        QuestionCode code = tuple.get(8, QuestionCode.class);
         return RoomListResponse.builder()
                 .roomId(tuple.get(0, Long.class))
                 .createDate(Objects.requireNonNull(tuple.get(1, LocalDateTime.class)).toLocalDate())
@@ -215,19 +211,18 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .thumnail(tuple.get(5, String.class))
                 .title(tuple.get(6, String.class))
                 .intro(tuple.get(7, String.class))
-                .qId(code == null ? null : code.getId())
+                .qId(tuple.get(8, Long.class))
                 .build();
     }
 
     private RoomDetailResponse mapToRoomDetail(Tuple tuple){
-        QuestionCode code = tuple.get(5, QuestionCode.class);
         return RoomDetailResponse.builder()
                 .roomId(tuple.get(0, Long.class))
                 .type(tuple.get(1, RoomType.class))
                 .title(tuple.get(2, String.class))
                 .intro(tuple.get(3, String.class))
                 .thumbnail(tuple.get(4, String.class))
-                .qId(code == null ? null : code.getId())
+                .qId(tuple.get(5, Long.class))
                 .build();
     }
 }
