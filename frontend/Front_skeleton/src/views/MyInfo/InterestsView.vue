@@ -1,77 +1,110 @@
 <template>
-  <h1>Interest</h1>
   <div class="d-flex">
-    <div class="d-flex flex-column left-item">
-      <div>
-        <h2>관심사</h2>
-        <WordCloud v-if="isWordCloud" :data="wordCloudData"/>
-      </div>
-      <div>
-        <h2>MBTI</h2>
-        <h5>당신의 MBTI는 {{ mbti }}입니다.</h5>
-        <div>
-          <ChartRadar :chart-data="radarChartData"/>
+    <!--aside 화면 -->
+    <div class=" aside-section">
+      <!--관심사 section-->
+      <div class="content-section">
+        <div class="sub-title-section">
+          <p>관심사</p>
+        </div>
+
+        <div class="body-section">
+          <WordCloud v-if="isWordCloud" :data="wordCloudData" />
         </div>
       </div>
-      <div>
-        <h3>다른 사람이 본 나의 MBTI</h3>
-        <div>
-          <ChartBar :chart-data="barChartData"/>
+      <!--mbti section-->
+      <div class="content-section">
+        <div class="sub-title-section">
+          <p>MBTI</p>
+        </div>
+        <div class="body-section">
+          <h5>당신의 MBTI는 {{ mbti }}입니다.</h5>
+          <div>
+            <ChartRadar :chart-data="radarChartData" />
+          </div>
+        </div>
+      </div>
+      <!--남bti section-->
+      <div class="content-section">
+        <div class="sub-title-section">
+          <p>다른 사람이 본 나의 MBTI</p>
+        </div>
+        <div class="body-section">
+          <ChartBar :chart-data="barChartData" />
         </div>
       </div>
     </div>
-    <div class="d-flex flex-column right-item">
-      <div>
-        <h2>관심사 목록</h2>
-        <div class="border">
-          <form @submit.prevent="addInterest">
-            <input type="text" v-model="interestForm.name">
-            <select name="emotion" v-model="interestForm.emotion">
-              <option value="LIKE">LIKE</option>
-              <option value="UNLIKE">UNLIKE</option>
-            </select>
-            <button>submit</button>
-          </form>
+
+    <!--main 화면-->
+    <div class="main-section">
+      <!--관심사 목록-->
+      <div class="content-section">
+        <div class="title-section">
+          <p>관심사 목록</p>
         </div>
-        <div class="d-flex">
-          <div class="d-flex flex-column">
-            <h3>긍정</h3>
-            <div 
-              v-for="(interest, index) in interestsPositive"
-              :key="interest.interestId"
-            >
-              <p>{{ index + 1 }}. {{ interest.interestName }} <button @click="deleteInterests(interest.interestId)">🗑</button></p>
-            </div>
+
+        <div class="body-section">
+          <div class="form-section">
+            <form @submit.prevent="addInterest">
+              <div>
+                <input type="text" v-model="interestForm.name">
+              </div>
+
+              <select name="emotion" v-model="interestForm.emotion">
+                <option value="LIKE">LIKE</option>
+                <option value="UNLIKE">UNLIKE</option>
+              </select>
+              <button class="option-btn">submit</button>
+            </form>
           </div>
-          <div class="d-flex flex-column">
-            <h3>부정</h3>
-            <div 
-              v-for="(interest, index) in interestsNegative" 
-              :key="interest.interestId"
-            >
-              <p>{{index + 1}}. {{ interest.interestName }}<button @click="deleteInterests(interest.interestId)">🗑</button></p>
+
+          <div class="d-flex flex-row justify-content-around">
+            <div class="positive-section">
+              <div class="sub-title-section">
+                <p>긍정</p>
+              </div>
+              <div v-for="(interest, index) in interestsPositive" :key="interest.interestId">
+                <p>
+                  {{ index + 1 }}. {{ interest.name }}
+                  <button @click="deleteInterests(interest.interestId)">🗑</button>
+                </p>
+              </div>
+            </div>
+            <div class="negative-section">
+              <div class="sub-title-section">
+                <p>부정</p>
+              </div>
+              <div v-for="(interest, index) in interestsNegative" :key="interest.interestId">
+                <p>
+                  {{ index + 1 }}. {{ interest.name }}
+                  <button @click="deleteInterests(interest.interestId)">🗑</button>
+                </p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-      <div>
-        <h2>MBTI Detail</h2>
-        <div class="d-flex">
-          <button 
-            class="btn btn-primary"
-            v-for="(label, code) in mbtiCodes"
-            :key="code"
-            :disabled="selectedMbti === Number(code)"
-            @click="selectMbti(Number(code))"
-          >
-            {{ label }}
-          </button>
+
+      <!--MBTI 목록-->
+      <div class="content-section">
+        <div class="title-section">
+          <p>MBTI Detail</p>
         </div>
-        <div>
-          <!-- 일기 목록 -->
-          <DiaryDetailList :diarys="filteredDiarys"/>
+        <div class="body-section">
+          <div class="button-section">
+            <button class="option-btn" v-for="(label, code) in mbtiCodes" :key="code"
+              :disabled="selectedMbti === Number(code)" @click="selectMbti(Number(code))">
+              {{ label }}
+            </button>
+          </div>
+          <div class="body-section">
+            <DiaryDetailList :diarys="filteredDiarys" />
+          </div>
         </div>
       </div>
+
+
+
     </div>
   </div>
 </template>
@@ -105,17 +138,17 @@ const radarChartData = ref({
   labels: ['I', 'N', 'T', 'P', 'E', 'S', 'F', 'J'],
   datasets: [
     {
-    label: 'MBTI',
-    backgroundColor: 'rgba(255, 99, 132, 0.2)',
-    borderColor: 'rgba(255, 99, 132, 1)',
-    pointBackgroundColor: 'rgba(255, 99, 132, 1)',
-    data: [80, 75, 50, 70, 20, 25, 50, 30]
+      label: 'MBTI',
+      backgroundColor: 'rgba(255, 99, 132, 0.2)',
+      borderColor: 'rgba(255, 99, 132, 1)',
+      pointBackgroundColor: 'rgba(255, 99, 132, 1)',
+      data: [80, 75, 50, 70, 20, 25, 50, 30]
     }
   ]
 })
 
 const mbtiCodes = ref({   // 버튼 용 MBTI 속성 목록
-  1:'I', 2:'N', 3:'T', 4:'P', 5:'E', 6:'S', 7:'F', 8:'J'
+  1: 'I', 2: 'N', 3: 'T', 4: 'P', 5: 'E', 6: 'S', 7: 'F', 8: 'J'
 })
 
 const filteredDiarys = ref([])  // props로 일기 목록에 전해줄 일기
@@ -165,7 +198,7 @@ const mbtiOthers = ref({
 const barChartData = computed(() => {
   const filteredData = Object.keys(mbtiOthers.value)
     .filter(key => mbtiOthers.value[key] > 0)
-    .map(key => ({ label: key, data: mbtiOthers.value[key]}))
+    .map(key => ({ label: key, data: mbtiOthers.value[key] }))
   filteredData.sort((a, b) => b.data - a.data)
 
   const labels = filteredData.map(item => item.label)
@@ -199,17 +232,17 @@ const dummyDiarys = [
 
 // 관심사 목록 더미데이터
 const interests = ref([
-  { id: 1, weight: 20, emotion: 1, name: '1', },
-  { id: 2, weight: 17, emotion: 0, name: '2', },
-  { id: 3, weight: 15, emotion: 0, name: '3', },
-  { id: 4, weight: 13, emotion: 1, name: '4', },
-  { id: 5, weight: 11, emotion: 0, name: '5', },
-  { id: 6, weight: 11, emotion: 1, name: '6', },
-  { id: 7, weight: 9, emotion: 0, name: '7', },
-  { id: 8, weight: 8, emotion: 1, name: '8', },
-  { id: 9, weight: 6, emotion: 1, name: '9', },
-  { id: 10, weight: 4, emotion: 0, name: '10', },
-  { id: 11, weight: 3, emotion: 1, name: '11' },
+  { id: 1, weight: 20, emotion: 1, name: '축구', preference: 'UNLIKE' },
+  { id: 2, weight: 17, emotion: 0, name: '농구', preference: 'LIKE' },
+  { id: 3, weight: 15, emotion: 0, name: '수영', preference: 'LIKE' },
+  { id: 4, weight: 13, emotion: 1, name: '야구', preference: 'LIKE' },
+  { id: 5, weight: 11, emotion: 0, name: '노래방', preference: 'LIKE' },
+  { id: 6, weight: 11, emotion: 1, name: '개발', preference: 'UNLIKE' },
+  { id: 7, weight: 9, emotion: 0, name: '영화보기', preference: 'LIKE' },
+  { id: 8, weight: 8, emotion: 1, name: '산책하기', preference: 'UNLIKE' },
+  { id: 9, weight: 6, emotion: 1, name: '잠자기', preference: 'LIKE' },
+  { id: 10, weight: 4, emotion: 0, name: '맛집 탐방', preference: 'LIKE' },
+  { id: 11, weight: 3, emotion: 1, name: '카페 투어', preference: 'LIKE' },
 ])
 
 // 긍정 관심사 걸러내기
@@ -249,13 +282,13 @@ const addInterest = function () {
       headers: {
         Authorization: `Bearer ${userStore.accessToken}`
       },
-      data : {
+      data: {
         name: interestForm.value.name,
-        preference : interestForm.value.emotion
+        preference: interestForm.value.emotion
       }
     })
       .then(res => {
-        interests.value.push({...res.data})
+        interests.value.push({ ...res.data })
         interestForm.value.name = ''
         interestForm.value.emotion = 'LIKE'
       })
@@ -271,11 +304,11 @@ const deleteInterests = function (num) {
   axios({
     method: 'delete',
     url: `${API_URL}/interest/`,
-    headers : {
+    headers: {
       Authorization: `Bearer ${userStore.accessToken}`
     },
-    data : {
-      id : num
+    data: {
+      id: num
     }
   })
     .then(res => {
@@ -310,12 +343,6 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.left-item {
-  background-color: #F9F7C9;
-  padding: 20px;
-}
-
-.right-item {
-  background-color: #AAD9BB;
-}
+@import '../../css/section.css';
+@import "../../css/component.css";
 </style>

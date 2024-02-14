@@ -6,18 +6,21 @@ import { usePositionStore } from '@/stores/pet.js';
 import Navbar from './components/Navbar.vue';
 import Footer from './components/Footer.vue';
 
+import { VueperSlides, VueperSlide } from 'vueperslides';
+import 'vueperslides/dist/vueperslides.css';
+
+
 // const positionStore = usePositionStore();
 // positionStore.setPosition(100, 200);
 </script>
 
 <template>
-
   <div id="app">
-    <Navbar/>
-    <RouterView/>
-    <img id="pet" class="pet" :src="getPetImage" alt="Pet"/>
+    <Navbar />
+    <RouterView />
+    <img id="pet" class="pet" :src="getPetImage" alt="Pet" />
     <!-- 조건부 렌더링으로 /Diary 경로일 때만 Diary 컴포넌트를 표시 -->
-    <Footer/>
+    <Footer />
   </div>
 </template>
 
@@ -27,7 +30,9 @@ import HitImage from './img/corgiClick.gif';
 import IdleImage from './img/corgi.gif';
 import AttackImage from './img/corgiEnd.gif'
 import { usePositionStore } from '@/stores/pet.js';
+
 export default {
+  components: { VueperSlides, VueperSlide },
   data() {
     return {
       isDiaryRoute: false,
@@ -48,7 +53,7 @@ export default {
   },
   mounted() {
     const petStore = usePositionStore();
-    
+
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
       petStore.setPosition(newPosition.x, newPosition.y);
@@ -57,7 +62,7 @@ export default {
     });
 
     // 기존에 정의된 mounted 로직...
-  
+
     this.pet = document.getElementById('pet');
 
     this.pet.onclick = () => {
@@ -88,8 +93,8 @@ export default {
         return HitImage;
       } else if (this.isIdle) {
         return IdleImage;
-      // } else if (this.isIdle) {
-      //   return AttackImage;
+        // } else if (this.isIdle) {
+        //   return AttackImage;
       } else {
         return WalkImage; // Modify this according to your requirements
       }
@@ -101,7 +106,7 @@ export default {
     // },
     // setup() {
     //   const route = useRoute();
-      
+
     //   const isDiaryRoute = computed(() => {
     //     return route.path === '/Diary'; // '/diary'는 Diary 컴포넌트가 활성화될 경로
     //   });
@@ -124,7 +129,7 @@ export default {
     catchUpState() {
       if (this.walk.current === 0) {
         // this.pet.src = './img/Walk.gif';
-        
+
         this.walk.current++;
       } else if (this.walk.current < this.walk.max) {
         this.pet.style.transform = `rotateZ(${this.deg}deg) rotateY(${this.deg_y}deg)`;
@@ -139,18 +144,18 @@ export default {
 
         this.pet.style.left = `${this.position.x}px`;
         this.pet.style.top = `${this.position.y}px`;
-        
+
         this.count++;
         this.walk.current++;
       } else if (this.walk.current >= this.walk.max) {
         this.walk.current = 0;
-        
+
         // this.pet.src = './img/Walk.gif';
       }
     },
     attackState() {
       if (this.attack.current === 0) {
-        this.pet.style.width = '150px';        
+        this.pet.style.width = '150px';
         this.attack.current++;
       } else if (this.attack.current < this.attack.max) {
         this.attack.current++;
@@ -160,20 +165,20 @@ export default {
         this.attack.current = 0;
         this.pet.style.width = '150px';
         // this.pet.src = './img/Idle.gif';
-        
+
       }
     },
     clickState() {
       if (this.click.current === 0) {
         //this.pet.src = './img/Hit.gif';
-        
+
         this.click.current++;
       } else if (this.click.current < this.click.max) {
         this.click.current++;
       } else if (this.click.current >= this.click.max) {
         this.click.current = 0;
         // this.pet.src = './img/Walk.gif';
-        
+
         this.isClick = false;
         this.isIdle = false;
       }
@@ -184,15 +189,34 @@ export default {
 
 <style scoped>
 @import "https://unpkg.com/@yaireo/tagify/dist/tagify.css";
-.pet {
-    width: 150px;
-    height: 165px;
-    position: fixed;
-    left: 850px; /* X 좌표 */
-    top: 400px; /* Y 좌표 */
-    background-size: cover;
-    z-index: 1000;
+
+@font-face {
+  font-family: 'YJ_Obang';
+  src: url('assets/fonts/YJ_Obang_TTF.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
 }
+
+@font-face {
+  font-family: 'Yeongdeok Sea';
+  src: url('assets/fonts/Yeongdeok Sea.ttf') format('woff');
+  font-weight: normal;
+  font-style: normal;
+}
+
+
+.pet {
+  width: 150px;
+  height: 165px;
+  position: fixed;
+  left: 850px;
+  /* X 좌표 */
+  top: 400px;
+  /* Y 좌표 */
+  background-size: cover;
+  z-index: 1000;
+}
+
 #app {
   display: flex;
   flex-direction: column;

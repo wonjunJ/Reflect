@@ -2,45 +2,79 @@
   <div v-if="isModal" class="modal" @click.self="closeModal">
     <div class="modal-dialog modal-dialog-scrollable">
       <div class="modal-content" @click.stop style="max-height: 700px; overflow-y: auto;">
-        <div class="d-flex justify-content-between">
-          <h3>프로필 수정</h3>
-          <button class="btn btn-danger" @click="closeModal">X</button>
+
+        <div class="modal-header d-flex flex-row justify-content-between">
+          <p>프로필 수정</p>
+          <button @click="closeModal">X</button>
         </div>
-        <div>
-          <!-- 프로필 사진 수정 -->
-          <div class="d-flex justify-content-between">
-            <h5>프로필 사진</h5>
-            <button class="btn btn-primary">수정</button>
+
+        <div class="modal-body">
+          <div class="profile-img-section">
+            <p class="sub-title"> 내 사진 </p>
+            <img class="profile-img" v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image"
+              style="width : 100%;">
+            <img class="profile-img" v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 100%;">
+            <button class="profile-edit-button btn btn-primary">사진 변경</button>
           </div>
-          <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image" style="width : 300px;">
-          <img v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 300px;">
-          <!-- 캐릭터 수정 -->
-          <div class="d-flex justify-content-between">
-            <h5>캐릭터 설정</h5>
-            <button class="btn btn-primary" @click="openCharacterModal">수정</button>
+
+          <div class="character-section">
+            <p class="sub-title"> 캐릭터 설정</p>
+            <img class="profile-img" v-if="userInfo.characterId" :src="userInfo.characterId" alt="Profile image"
+              style="width : 100%;">
+            <img class="profile-img" v-else src="@/assets/defaultRoom.jpg" alt="Default image" style="width : 100%;">
+            <button class="character-edit-button btn btn-primary" @click="openCharacterModal">캐릭터 수정</button>
           </div>
-          <p>{{ userInfo.characterId }}</p>
-          <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
-            <el-form-item prop="email" label="이메일" :label-width="state.labelWidth">
-              <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
-            </el-form-item>
-            <!-- 다른 항목 더 넣기 -->
-            <el-form-item>
-              <button class="btn btn-primary" :disabled="!isFormValid">저장</button>
-            </el-form-item>
-          </el-form>
+
+
+          <div class="form-section">
+            <div class="name-section">
+              <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
+                <el-form-item prop="nickname" label="이름" :label-width="state.labelWidth">
+                  <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+                </el-form-item>
+
+              </el-form>
+            </div>
+            <div class="email-section">
+              <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
+                <el-form-item prop="email" label="이메일" :label-width="state.labelWidth">
+                  <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+                </el-form-item>
+
+              </el-form>
+            </div>
+            <div class="introduction-section">
+              <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
+                <el-form-item prop="introduction" label="한줄 소개" :label-width="state.labelWidth">
+                  <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+                </el-form-item>
+
+              </el-form>
+            </div>
+            <div class="pwd-section">
+              <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
+                <el-form-item prop="pwd" label="비밀번호" :label-width="state.labelWidth">
+                  <el-button class="btn btn-primary" @click="openPasswordModal">비밀번호 변경</el-button>
+                </el-form-item>
+
+                <!-- 다른 항목 더 넣기 -->
+              </el-form>
+            </div>
+
+          </div>
+
+          <div class="button-section">
+            <button class="btn btn-primary" :disabled="!isFormValid">저장</button>
+            <button class="btn btn-danger" @click="deleteUser">탈퇴하기</button>
+          </div>
         </div>
-        <div>
-          <button class="btn btn-primary" @click="openPasswordModal">비밀번호 변경</button>
-          <button class="btn btn-danger" @click="deleteUser">탈퇴하기</button>
-        </div>
+
+
       </div>
     </div>
-    <CharacterSetting :is-modal="isCharacterModal" 
-      :character-id="userInfo.characterId" 
-      @change-character="changeCharacter"
-      @close-modal="closeCharacterModal"/>
-    <PasswordChange :is-modal="isPasswordModal" @close-modal="closePasswordModal"/>
+    <CharacterSetting :is-modal="isCharacterModal" :character-id="userInfo.characterId"
+      @change-character="changeCharacter" @close-modal="closeCharacterModal" />
+    <PasswordChange :is-modal="isPasswordModal" @close-modal="closePasswordModal" />
   </div>
 </template>
 
@@ -55,7 +89,7 @@ const props = defineProps({
 
 const emit = defineEmits(['closeModal', 'changeCharacter'])
 const closeModal = () => {
-    emit('closeModal')
+  emit('closeModal')
 }
 
 const state = reactive({
@@ -79,7 +113,7 @@ const state = reactive({
 
 watchEffect(() => {
   if (props.isModal) {
-    state.form = {... props.userInfo}
+    state.form = { ...props.userInfo }
   }
 })
 
@@ -126,18 +160,18 @@ const deleteUser = function () {
 // 모달 관련
 const isCharacterModal = ref(false)
 const openCharacterModal = function () {
-    isCharacterModal.value = true
+  isCharacterModal.value = true
 }
 const closeCharacterModal = function () {
-    isCharacterModal.value = false
+  isCharacterModal.value = false
 }
 
 const isPasswordModal = ref(false)
 const openPasswordModal = function () {
-    isPasswordModal.value = true
+  isPasswordModal.value = true
 }
 const closePasswordModal = function () {
-    isPasswordModal.value = false
+  isPasswordModal.value = false
 }
 
 const changeCharacter = (num) => {
@@ -158,7 +192,52 @@ const changeCharacter = (num) => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
-  width : 350px;
+  width: 500px;
+}
+
+.modal-header {
+  background-color: rgb(151, 150, 150, 0.5);
+  box-shadow: 5px 5px 5px 5px "black";
+  font-family: "YJ_Obang";
+  font-size: 25px;
+}
+
+.modal-body {
+  padding: 30px;
+}
+
+
+.profile-edit-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  /* transform: translate(50%, 50%); */
+}
+
+.profile-img-section {
+  position: relative;
+  width: 100%;
+}
+
+.character-section {
+  position: relative;
+  padding-top: 20px;
+}
+
+.character-edit-button {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+}
+
+.sub-title {
+  font-size: 20px;
+  font-weight: bold;
+}
+
+.form-section {
+  margin-top: 50px;
 }
 </style>

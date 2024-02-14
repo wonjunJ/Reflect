@@ -1,6 +1,6 @@
 <template>
   <div>
-    <h4>Diary</h4>
+
     <table>
       <tr>
         <th scope="col">Date</th>
@@ -18,10 +18,10 @@
 
 <script setup>
 const props = defineProps({
-    diarys: Object
+  diarys: Object
 })
 </script>
 
 <style scoped>
-
+@import '../../../css/table.css';
 </style>

@@ -1,24 +1,31 @@
 <template>
   <div v-if="isModal" class="modal" @click.self="closeModal">
     <div class="modal-content" @click.stop>
-      <div class="d-flex justify-content-between">
+      <div class="modal-header d-flex justify-content-between">
         <h3>비밀번호 변경</h3>
-        <button class="btn btn-danger" @click="closeModal">X</button>
+        <button @click="closeModal">X</button>
       </div>
-      <el-form :model="state.form" :rules="state.rules" ref="changePasswordForm" :label-position="state.formAlign">
-        <el-form-item prop="originalPassword" label="현재 비밀번호" :label-width="state.formLabelWidth">
-          <el-input v-model="state.form.originalPassword" :rules="state.rules.originalPassword" autocomplete="off" show-password></el-input>
-        </el-form-item>
-        <el-form-item prop="password" label="새로운 비밀번호" :label-width="state.formLabelWidth">
-          <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off" show-password></el-input>
-        </el-form-item>
-        <el-form-item prop="password2" label="비밀번호 확인" :label-width="state.formLabelWidth">
-          <el-input v-model="state.form.password2" :rules="state.rules.password2" autocomplete="off" show-password></el-input>
-        </el-form-item>
-        <el-form-item>
-          <el-button type="primary" :disabled="!isFormValid">비밀번호 변경</el-button>
-        </el-form-item>
-      </el-form>
+
+      <div class="modal-body">
+        <el-form :model="state.form" :rules="state.rules" ref="changePasswordForm" :label-position="state.formAlign">
+          <el-form-item prop="originalPassword" label="현재 비밀번호">
+            <el-input v-model="state.form.originalPassword" :rules="state.rules.originalPassword" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <el-form-item prop="password" label="새로운 비밀번호">
+            <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <el-form-item prop="password2" label="비밀번호 확인">
+            <el-input v-model="state.form.password2" :rules="state.rules.password2" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" :disabled="!isFormValid">비밀번호 변경</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+
     </div>
   </div>
 </template>
@@ -45,37 +52,43 @@ const state = reactive({
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' }
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      }
     ],
     password: [
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' }
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      }
     ],
     password2: [
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' },
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      },
       {
         validator: (rule, value, callback) => {
           if (value !== state.form.password) {
@@ -121,18 +134,14 @@ const isFormValid = computed(() => {
 </script>
 
 <style scoped>
-.modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.5);
-display: flex;
-justify-content: center;
-align-items: center;
-}
 .modal-content {
-width : 400px;
+  width: 500px;
+}
+
+.modal-header {
+  background-color: rgb(151, 150, 150, 0.5);
+  box-shadow: 5px 5px 5px 5px "black";
+  font-family: "YJ_Obang";
+  font-size: 25px;
 }
 </style>

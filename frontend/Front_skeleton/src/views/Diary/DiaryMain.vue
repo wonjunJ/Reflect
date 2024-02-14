@@ -1,20 +1,24 @@
 <template>
   <div v-if="displayMessage" class="message-container" :style="bubbleStyle">
-        <div id="displayText" class="speech-bubble">{{ displayText }}</div>
+    <div id="displayText" class="speech-bubble">{{ displayText }}</div>
   </div>
-  <div ref="snowContainer" class="snow-background">
-    <div class="greeting-box">
-      <p>{{ talk }}</p>
-      <button @click="startListening(); startRecording()">일기 쓰기</button>
-      <button @click="stopListening(); stopRecording(); toggleVideoStream();">일기 종료</button>
-      <br>
-      <div id="videoContainer" >
-        <video ref="videoElement"  width="640" height="480" autoplay muted @play="onPlay"></video>
+  <div class="snow-background">
+    <div class="camera-box">
+      <div id="videoContainer">
+        <video ref="videoElement" width="640" height="480" autoplay muted @play="onPlay"></video>
         <canvas id="videoCanvas" width="720" height="560"></canvas>
       </div>
-      
-      <!-- 비디오 스트림 켜기/끄기 버튼 -->
-      <button @click="toggleVideoStream">{{ isVideoStreamOn ? '비디오 켜기' : '비디오 끄기' }}</button>
+    </div>
+    <div class="talk-section">
+      <div class="talk">
+        <p>{{ talk }}</p>
+      </div>
+      <div class="buttons">
+        <button @click="startListening(); startRecording()">일기 쓰기</button>
+        <button @click="stopListening(); stopRecording(); toggleVideoStream();">일기 종료</button>
+        <!-- 비디오 스트림 켜기/끄기 버튼 -->
+        <button @click="toggleVideoStream">{{ isVideoStreamOn ? '비디오 켜기' : '비디오 끄기' }}</button>
+      </div>
     </div>
     <!-- 모달 창 -->
     <div v-if="isModalVisible" class="modal">
@@ -22,7 +26,7 @@
         <h1> 오늘의 일기 확인 </h1>
         <textarea v-model="transcribedText" style="width: 900px; height: 500px;"></textarea>
         <div style="width: 150px; justify-content: center;">
-        <el-button type="success" @click="closeModal" size="large" >완료</el-button>
+          <el-button type="success" @click="closeModal" size="large">완료</el-button>
         </div>
       </div>
     </div>
@@ -38,22 +42,22 @@ import OpenAI from 'openai';
 import AWS from 'aws-sdk';
 
 const detectionOptions = {
-    withLandmarks: true,
-    withDescriptors: true,
-    minConfidence: 0.7,
-    MODEL_URLS: {
-      Mobilenetv1Model:
-        "https://raw.githubusercontent.com/ml5js/ml5-data-and-models/main/models/faceapi/ssd_mobilenetv1_model-weights_manifest.json",
-      FaceExpressionModel:
-        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_expression_model-weights_manifest.json",
-      TinyFaceLandmarkModel:
-        // "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
-        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json",
-      FaceLandmark68TinyNet:
-        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
-      FaceRecognitionModel:
-        "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_recognition_model-weights_manifest.json",
-    },
+  withLandmarks: true,
+  withDescriptors: true,
+  minConfidence: 0.7,
+  MODEL_URLS: {
+    Mobilenetv1Model:
+      "https://raw.githubusercontent.com/ml5js/ml5-data-and-models/main/models/faceapi/ssd_mobilenetv1_model-weights_manifest.json",
+    FaceExpressionModel:
+      "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_expression_model-weights_manifest.json",
+    TinyFaceLandmarkModel:
+      // "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+      "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/tiny_face_detector_model-weights_manifest.json",
+    FaceLandmark68TinyNet:
+      "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_landmark_68_model-weights_manifest.json",
+    FaceRecognitionModel:
+      "https://raw.githubusercontent.com/justadudewhohacks/face-api.js/master/weights/face_recognition_model-weights_manifest.json",
+  },
 };
 
 export default {
@@ -78,27 +82,22 @@ export default {
         left: `${this.position.x - 40}px`,
         top: `${this.position.y - 70}px`, // 펫의 위에 위치하도록 조정
         position: 'fixed', // 필요에 따라 추가
-        
+
         // 기타 스타일 설정
       };
     },
   },
   setup() {
     const userInfo = ref({})
-    const snowContainer = ref(null);
     const API_URL = ref('')
 
     onMounted(() => {
-      const Snow = new SnowCanvas();
-      Snow.createSnowFlakes(1000);
 
-      const canvas = Snow.getCanvas(); // return HTMLCanvasElement
-      snowContainer.value.appendChild(canvas);
       const userStore = useUserStore()
       API_URL.value = userStore.API_URL
     });
-    
-    return { snowContainer, userInfo, API_URL };
+
+    return { userInfo, API_URL };
   },
   mounted() {
     this.videoElement = this.$refs.videoElement; // DOM이 준비된 후 videoElement를 참조
@@ -151,7 +150,7 @@ export default {
           detectionOptions.MODEL_URLS.FaceExpressionModel
         ),
       ]);
-    this.setupVideoRecorder();
+      this.setupVideoRecorder();
     },
 
     async setupVideoRecorder() {
@@ -193,23 +192,23 @@ export default {
         // faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
 
         // 각 얼굴의 표정에 대한 정보를 가져오고 가장 높은 확률의 표정을 출력합니다.
-      resizedDetections.forEach((face) => {
-        const expressions = face.expressions;
-        const dominantExpression = this.getDominantExpression(expressions);
+        resizedDetections.forEach((face) => {
+          const expressions = face.expressions;
+          const dominantExpression = this.getDominantExpression(expressions);
 
-        // 이전에 감지된 표정과 다를 경우에만 출력
-        if (dominantExpression !== previousExpression) {
-          console.log(`Dominant Expression: ${dominantExpression}`);
-          previousExpression = dominantExpression;
-          if(this.displayMessage===false){
-            this.displayTextBasedOnExpression(dominantExpression);
+          // 이전에 감지된 표정과 다를 경우에만 출력
+          if (dominantExpression !== previousExpression) {
+            console.log(`Dominant Expression: ${dominantExpression}`);
+            previousExpression = dominantExpression;
+            if (this.displayMessage === false) {
+              this.displayTextBasedOnExpression(dominantExpression);
+            }
+
           }
-        
-        }
-      
-      });
-    }, 333);
-  },
+
+        });
+      }, 333);
+    },
     postAnswer() {
       axios({
         method: 'post',
@@ -221,14 +220,14 @@ export default {
           videoUrl: this.fileUrl // 업로드된 파일의 URL을 전송합니다.
         }
       })
-      .then(res => {
-        console.log('complete', res)
-      })
-      .catch(err => {
-        console.log(err)
-      })
+        .then(res => {
+          console.log('complete', res)
+        })
+        .catch(err => {
+          console.log(err)
+        })
     },
-// 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
+    // 주어진 표정 객체에서 가장 높은 확률을 가진 표정의 이름을 반환하는 메서드
     getDominantExpression(expressions) {
       let dominantExpression = "";
       let maxProbability = 0;
@@ -274,8 +273,8 @@ export default {
           this.displayMessage = false;
           console.log('noText')
           break
-    }
-    if (this.displayMessage) {
+      }
+      if (this.displayMessage) {
         // 5초 후 메시지 숨기기
         this.messageTimeout = setTimeout(() => {
           this.displayMessage = false;
@@ -290,7 +289,7 @@ export default {
         }, 10000);  // 5초 후 메시지 숨김
       }
     },
-    
+
     // 메모리 누수 방지를 위해 컴포넌트 제거 시 타이머 제거
     beforeDestroy() {
       if (this.messageTimeout) {
@@ -416,154 +415,154 @@ export default {
       }
     },
     async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
-        try {
+      try {
         const openai = new OpenAI({
-            apiKey: import.meta.env.VITE_API_URL,
-            dangerouslyAllowBrowser: true
+          apiKey: import.meta.env.VITE_API_URL,
+          dangerouslyAllowBrowser: true
         });
 
         async function main() {
-        try {
+          try {
             const assistantId = "asst_oodV12lRGyeVQ5Qk0Jd9AxI6";
             const assistantFilePath = "./assistant.json";
             const assistant = await openai.beta.assistants.retrieve(assistantId);
             console.log(
-            `Hello there, I'm your personal assistant.Id:\n${assistantId}\n`
+              `Hello there, I'm your personal assistant.Id:\n${assistantId}\n`
             );
 
             const thread = await openai.beta.threads.create();
 
-        let continueAskingQuestion = true;
-    
-          const userQuestion = text;
+            let continueAskingQuestion = true;
 
-          await openai.beta.threads.messages.create(thread.id, {
-            role: "user",
-            content: userQuestion,
-          });
+            const userQuestion = text;
 
-          const run = await openai.beta.threads.runs.create(thread.id, {
-            assistant_id: assistantId,
-          });
+            await openai.beta.threads.messages.create(thread.id, {
+              role: "user",
+              content: userQuestion,
+            });
 
-          // Imediately fetch run-status, which will be "in_progress"
-          let runStatus = await openai.beta.threads.runs.retrieve(
-            thread.id,
-            run.id
-          );
+            const run = await openai.beta.threads.runs.create(thread.id, {
+              assistant_id: assistantId,
+            });
 
-          while (runStatus.status !== "completed") {
-            await new Promise((resolve) => setTimeout(resolve, 1000));
-            runStatus = await openai.beta.threads.runs.retrieve(
+            // Imediately fetch run-status, which will be "in_progress"
+            let runStatus = await openai.beta.threads.runs.retrieve(
               thread.id,
               run.id
             );
 
-            if (runStatus.status === "requires_action") {
-              const toolCalls =
-                runStatus.required_action.submit_tool_outputs.tool_calls;
-              const toolOutputs = [];
-
-              for (const toolCall of toolCalls) {
-                const functionName = toolCall.function.name;
-
-                console.log(
-                  `This question requires us to call a function: ${functionName}`
-                );
-
-                const args = JSON.parse(toolCall.function.arguments);
-
-                const argsArray = Object.keys(args).map((key) => args[key]);
-
-                // Dynamically call the function with arguments
-                const output = await global[functionName].apply(null, [args]);
-
-                toolOutputs.push({
-                  tool_call_id: toolCall.id,
-                  output: output,
-                });
-              }
-              // Submit tool outputs
-              await openai.beta.threads.runs.submitToolOutputs(
+            while (runStatus.status !== "completed") {
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+              runStatus = await openai.beta.threads.runs.retrieve(
                 thread.id,
-                run.id,
-                { tool_outputs: toolOutputs }
+                run.id
               );
-              continue; // Continue polling for the final response
-            }
 
-            // Check for failed, cancelled, or expired status
-            if (["failed", "cancelled", "expired"].includes(runStatus.status)) {
-              console.log(
-                `Run status is '${runStatus.status}'. Unable to complete the request.`
-              );
-              break; 
-            }
-          }
+              if (runStatus.status === "requires_action") {
+                const toolCalls =
+                  runStatus.required_action.submit_tool_outputs.tool_calls;
+                const toolOutputs = [];
 
-          // Get the last assistant message from the messages array
-          const messages = await openai.beta.threads.messages.list(thread.id);
-          const lastMessageForRun = messages.data
-            .filter(
-              (message) =>
-                message.run_id === run.id && message.role === "assistant"
-            )
-            .pop();
-          console.log(messages)
-          if (lastMessageForRun) {
-            console.log(`${lastMessageForRun.content[0].text.value} \n`);
-            axios({
-              method: 'post',
-              url: `${API_URL}/diary/gpt`,
-              headers: {
-                Authorization: `Bearer ${userStore.accessToken}`
-              },
-              data: {
-                gptAnswer: lastMessageForRun.content[0].text.value
+                for (const toolCall of toolCalls) {
+                  const functionName = toolCall.function.name;
+
+                  console.log(
+                    `This question requires us to call a function: ${functionName}`
+                  );
+
+                  const args = JSON.parse(toolCall.function.arguments);
+
+                  const argsArray = Object.keys(args).map((key) => args[key]);
+
+                  // Dynamically call the function with arguments
+                  const output = await global[functionName].apply(null, [args]);
+
+                  toolOutputs.push({
+                    tool_call_id: toolCall.id,
+                    output: output,
+                  });
+                }
+                // Submit tool outputs
+                await openai.beta.threads.runs.submitToolOutputs(
+                  thread.id,
+                  run.id,
+                  { tool_outputs: toolOutputs }
+                );
+                continue; // Continue polling for the final response
               }
-            })
-            .then(res => {
-              console.log('gptAnswer')
-            })
-            .catch(err => {
-              console.log(err)
-            })
-          } else if (
-            !["failed", "cancelled", "expired"].includes(runStatus.status)
-          ) {
-            console.log("No response received from the assistant.");
-          }
-          
-        } catch (error) {
+
+              // Check for failed, cancelled, or expired status
+              if (["failed", "cancelled", "expired"].includes(runStatus.status)) {
+                console.log(
+                  `Run status is '${runStatus.status}'. Unable to complete the request.`
+                );
+                break;
+              }
+            }
+
+            // Get the last assistant message from the messages array
+            const messages = await openai.beta.threads.messages.list(thread.id);
+            const lastMessageForRun = messages.data
+              .filter(
+                (message) =>
+                  message.run_id === run.id && message.role === "assistant"
+              )
+              .pop();
+            console.log(messages)
+            if (lastMessageForRun) {
+              console.log(`${lastMessageForRun.content[0].text.value} \n`);
+              axios({
+                method: 'post',
+                url: `${API_URL}/diary/gpt`,
+                headers: {
+                  Authorization: `Bearer ${userStore.accessToken}`
+                },
+                data: {
+                  gptAnswer: lastMessageForRun.content[0].text.value
+                }
+              })
+                .then(res => {
+                  console.log('gptAnswer')
+                })
+                .catch(err => {
+                  console.log(err)
+                })
+            } else if (
+              !["failed", "cancelled", "expired"].includes(runStatus.status)
+            ) {
+              console.log("No response received from the assistant.");
+            }
+
+          } catch (error) {
             console.error(error);
-        }
+          }
         }
         main();
-        } catch(error) {
-          console.error('ChatGPT 요청 오류:', error);
-        }
-      },
-      startVideoRecording() {
+      } catch (error) {
+        console.error('ChatGPT 요청 오류:', error);
+      }
+    },
+    startVideoRecording() {
       if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'inactive') {
         this.videoMediaRecorder.start();
         this.isVideoRecording = true;
       }
-     },
-     stopVideoRecording() {
-    if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'recording') {
-      // 녹화 중지
-      this.videoMediaRecorder.stop();
-      this.isVideoRecording = false;
+    },
+    stopVideoRecording() {
+      if (this.videoMediaRecorder && this.videoMediaRecorder.state === 'recording') {
+        // 녹화 중지
+        this.videoMediaRecorder.stop();
+        this.isVideoRecording = false;
 
-      // 비디오 스트림의 모든 트랙을 중지
-      if (this.videoElement && this.videoElement.srcObject) {
-        const tracks = this.videoElement.srcObject.getTracks();
-        tracks.forEach(track => track.stop());
+        // 비디오 스트림의 모든 트랙을 중지
+        if (this.videoElement && this.videoElement.srcObject) {
+          const tracks = this.videoElement.srcObject.getTracks();
+          tracks.forEach(track => track.stop());
+        }
+      } else {
+        console.log('비디오 녹화가 이미 중지되었거나 시작되지 않았습니다.');
       }
-    } else {
-      console.log('비디오 녹화가 이미 중지되었거나 시작되지 않았습니다.');
-    }
-  },
+    },
   },
 };
 </script>
@@ -572,16 +571,19 @@ export default {
   position: relative;
 }
 
-#video, #videoCanvas {
+#video,
+#videoCanvas {
   position: absolute;
   top: 0px;
   left: 0px;
 }
+
 .message-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100px; /* 필요에 따라 조정 */
+  height: 100px;
+  /* 필요에 따라 조정 */
   z-index: 1000;
 }
 
@@ -590,7 +592,8 @@ export default {
   background: #f0f0f0;
   border-radius: .4em;
   padding: 10px;
-  max-width: 300px; /* 필요에 따라 조정 */
+  max-width: 300px;
+  /* 필요에 따라 조정 */
   text-align: center;
 }
 
@@ -607,21 +610,25 @@ export default {
   margin-left: -15px;
   margin-bottom: -15px;
 }
+
 .snow-background {
-  background-image: url('@/img/winter2.png');
+  height: 90vh;
+  background-image: url('@/img/back6.png');
   background-size: cover;
   background-position: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
 }
 
-.greeting-box {
-  position: absolute;
-  top: 10%;
-  left: 50%;
-  transform: translateX(-50%);
+.camera-box {
+  width: 45%;
   background-color: rgba(255, 255, 255, 0.5);
   padding: 20px;
   border-radius: 10px;
   text-align: center;
+  margin: 0 auto;
+  /* 가운데 정렬을 위한 margin 추가 */
 }
 
 .greeting-box p {
@@ -638,12 +645,12 @@ export default {
   border-radius: 5px;
   background-color: #f9f9f9;
   cursor: pointer;
-  transition: background-color 0.3s;
 }
 
 .greeting-box button:hover {
   background-color: #e0e0e0;
 }
+
 .modal {
   position: fixed;
   top: 0;
@@ -664,5 +671,40 @@ export default {
   text-align: center;
   background-color: #F9F7C9;
   align-items: center;
+}
+
+.talk-section {
+  width: 70%;
+  height: 23%;
+  margin-top: 10px;
+  padding: 10px 20px;
+  border: none;
+  border-radius: 5px;
+  background-color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.talk {
+  font-family: "YJ_Obang";
+  font-size: 40px;
+}
+
+.buttons {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.buttons button {
+  font-weight: bold;
+  height: 50px;
+  margin: 2px;
+  padding: 10px;
+  border-radius: 10px;
+  background-color: #F9F7C9;
 }
 </style>

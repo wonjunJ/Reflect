@@ -1,44 +1,56 @@
 <template>
-  <h1>Forgot Something?</h1>
-  <el-button @click="isId=true" :disabled="isId ? true :false">아이디 찾기</el-button>
-  <el-button @click="isId=false" :disabled="isId ? false :true">비밀번호 찾기</el-button>
-  <div v-if="isId">
-    <h3>아이디 찾기</h3>
-    <el-form :model="state.idForm" :rules="state.idRules" :label-position="state.align">
-      <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
-        <el-input v-model="state.idForm.email" :rules="state.idRules.email"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" :disabled="!isIdFormValid" @click="findId">아이디 찾기</el-button>
-      </el-form-item>
-    </el-form>
-  </div>
-  <div v-else>
-    <h3>비밀번호 찾기</h3>
-    <el-form :model="state.passwordForm" :rules="state.passwordRules" :label-position="state.align">
-      <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
-        <el-input v-model="state.passwordForm.email" :rules="state.passwordForm.email"></el-input>
-      </el-form-item>
-      <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
-        <el-input v-model=state.passwordForm.id :rules="state.passwordRules.id"></el-input>
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" :disabled="!isPasswordFormValid" @click="sendEmail">비밀번호 찾기</el-button>
-      </el-form-item>
-    </el-form>
-    <div v-if="state.isEmailSend">
-      <el-input v-model="state.emailCode" autocomplete="off"></el-input>
-      <el-button @click="validateEmail">이메일 인증</el-button>
+  <div class="background-div">
+    <div class="login">
+      <div class="title-section">
+        <p class="title">Forgot Something?</p>
+      </div>
+      <div class="section">
+        <div class="select-section">
+          <el-button @click="isId = true" :disabled="isId ? true : false">아이디 찾기</el-button>
+          <el-button @click="isId = false" :disabled="isId ? false : true">비밀번호 찾기</el-button>
+        </div>
+
+        <div v-if="isId">
+          <h3>아이디 찾기</h3>
+          <el-form :model="state.idForm" :rules="state.idRules" :label-position="state.align">
+            <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
+              <el-input v-model="state.idForm.email" :rules="state.idRules.email"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :disabled="!isIdFormValid" @click="findId">아이디 찾기</el-button>
+            </el-form-item>
+          </el-form>
+        </div>
+        <div v-else>
+          <h3>비밀번호 찾기</h3>
+          <el-form :model="state.passwordForm" :rules="state.passwordRules" :label-position="state.align">
+            <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
+              <el-input v-model="state.passwordForm.email" :rules="state.passwordForm.email"></el-input>
+            </el-form-item>
+            <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
+              <el-input v-model=state.passwordForm.id :rules="state.passwordRules.id"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-button type="primary" :disabled="!isPasswordFormValid" @click="sendEmail">비밀번호 찾기</el-button>
+            </el-form-item>
+          </el-form>
+          <div v-if="state.isEmailSend">
+            <el-input v-model="state.emailCode" autocomplete="off"></el-input>
+            <el-button @click="validateEmail">이메일 인증</el-button>
+          </div>
+          <div v-if="state.isEmailCheck">
+            <el-form :model="state.newPwForm" :rules="state.newPwRules" ref="newpassword" :label-position="state.align">
+              <el-form-item prop="password" label="새로운 비밀번호" :label-width="state.formLabelWidth">
+                <el-input v-model="state.newPwForm.password" :rules="state.newPwRules.password" autocomplete="off"
+                  show-password></el-input>
+              </el-form-item>
+            </el-form>
+            <button class="btn btn-success" @click="changePassword" :disabled="!isNewPwValid">비밀번호 변경</button>
+          </div>
+          <div v-if="state.emailValidationMessage">{{ state.emailValidationMessage }}</div>
+        </div>
+      </div>
     </div>
-    <div v-if="state.isEmailCheck">
-      <el-form :model="state.newPwForm" :rules="state.newPwRules" ref="newpassword" :label-position="state.align">
-        <el-form-item prop="password" label="새로운 비밀번호" :label-width="state.formLabelWidth">
-          <el-input v-model="state.newPwForm.password" :rules="state.newPwRules.password" autocomplete="off" show-password></el-input>
-        </el-form-item>
-      </el-form>
-      <button class="btn btn-success" @click="changePassword" :disabled="!isNewPwValid">비밀번호 변경</button>
-    </div>
-    <div v-if="state.emailValidationMessage">{{ state.emailValidationMessage }}</div>
   </div>
 </template>
   
@@ -101,13 +113,15 @@ const state = reactive({
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' }
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      }
     ],
   },
   align: 'left',
@@ -118,13 +132,13 @@ const state = reactive({
   emailValidationMessage: '',
   isEmailCheck: false,
 })
-  
+
 const isIdFormValid = computed(() => {
   const rules = state.idRules
   const form = state.idForm
   // 다 맞는지 확인하는 변수
   let isValid = true
-  
+
   // 각 항목의 규칙들 살펴보기
   for (const key in rules) {
     if (rules[key]) {
@@ -147,13 +161,13 @@ const isIdFormValid = computed(() => {
   }
   return isValid
 })
-  
+
 const isPasswordFormValid = computed(() => {
   const rules = state.passwordRules
   const form = state.passwordForm
   // 다 맞는지 확인하는 변수
   let isValid = true
-  
+
   // 각 항목의 규칙들 살펴보기
   for (const key in rules) {
     if (rules[key]) {
@@ -182,7 +196,7 @@ const isNewPwValid = computed(() => {
   const form = state.newPwForm
   // 다 맞는지 확인하는 변수
   let isValid = true
-  
+
   // 각 항목의 규칙들 살펴보기
   for (const key in rules) {
     if (rules[key]) {
@@ -211,7 +225,7 @@ const findId = function () {
     method: 'get',
     url: `${API_URL}/user/findid`,
     params: {
-      email : state.idForm.email
+      email: state.idForm.email
     }
   })
     .then(res => {
@@ -231,7 +245,7 @@ const sendEmail = function () {
   axios({
     method: 'post',
     url: `${API_URL}/user/send`,
-    data : {
+    data: {
       email: state.passwordForm.email,
       siteId: state.passwordForm.id,
     }
@@ -257,12 +271,12 @@ const sendEmail = function () {
 const validateEmail = function () {
   clearInterval(emailValidationTimer)
   axios({
-    method : 'post',
+    method: 'post',
     url: `${API_URL}/user/code`,
-    data : {
+    data: {
       email: state.passwordForm.email,
-      code : state.emailCode,
-      siteId : state.passwordForm.id
+      code: state.emailCode,
+      siteId: state.passwordForm.id
     }
   })
     .then((res) => {
@@ -288,7 +302,7 @@ const changePassword = function () {
   })
     .then(res => {
       window.alert('비밀번호가 변경되었습니다. \n로그인 페이지로 이동합니다.')
-      router.push({name: 'login'})
+      router.push({ name: 'login' })
     })
     .catch(err => {
       window.alert('비밀번호 변경에 실패했습니다.')
@@ -296,6 +310,64 @@ const changePassword = function () {
 }
 </script>
   
-<style>
-  
+<style scoped>
+.background-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 30px;
+  width: 70%;
+}
+
+
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 50px;
+  padding: 50px;
+  width: 70%;
+  height: 80%;
+  border-radius: 50px;
+  background-color: #F9F7C9;
+  box-shadow: 5px 5px 10px rgb(197, 196, 196);
+}
+
+.title {
+  font-size: 50px;
+  color: black;
+  font-weight: bold;
+}
+
+.social-login {
+  background-color: #F7E600;
+}
+
+button {
+
+  font-size: 15px;
+  width: 300px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+a {
+  color: black;
+  font-weight: bold;
+
+  font-size: 15px;
+}
+
+/* .el-button {
+
+  background-color: aqua;
+} */
 </style>

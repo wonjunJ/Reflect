@@ -52,9 +52,9 @@ const router = createRouter({
       component: MyPage,
       beforeEnter: (to, from) => {
         const userStore = useUserStore()
-        if (!userStore.isLogin) {
-          return {name: 'index'}
-        }
+        // if (!userStore.isLogin) {
+        //   return {name: 'index'}
+        // }
       }
     },
     {
@@ -79,13 +79,13 @@ const router = createRouter({
       // meta: { requresAuth: true},
     },
     {
-      path: '/roomdetail/:id',
+      path: '/roomdetail',
       name: 'roomdetail',
       component: RoomDetailView,
       // meta: { requresAuth: true},
     },
     {
-      path: '/waiting/:id',
+      path: '/waiting',
       name: 'waiting',
       component: RoomWaitingView,
       // meta: { requresAuth: true},  

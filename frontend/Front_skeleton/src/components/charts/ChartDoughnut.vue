@@ -21,12 +21,12 @@ const chartOptions = ref({
   maintainAspectRatio: false
 })
 
+
+
 watch(() => props.chartData, (newChartData) => {
   internalChartData.value = newChartData
-},{deep: true})
+}, { deep: true })
 </script>
 
 
-<style scoped>
-
-</style>
+<style scoped></style>

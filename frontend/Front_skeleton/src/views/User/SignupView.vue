@@ -1,61 +1,66 @@
 <template>
-  <div>
-    <h1>SignUp Page</h1>
-    <el-form :model="state.form" :rules="state.rules" ref="signupForm" :label-position="state.form.align">
-      <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.id" :rules="state.rules.id" autocomplete="off"></el-input>
-        <el-button @click="idCheck" :disabled="state.isIdCheck">아이디 중복 확인</el-button>
-        <div v-if="state.idValidationMessage" :class="state.isIdCheck ? 'green': 'red'">{{ state.idValidationMessage }}</div>
-      </el-form-item>
-      <el-form-item prop="password" label="비밀번호" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off" show-password></el-input>
-      </el-form-item>
-      <el-form-item prop="password2" label="비밀번호 확인" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.password2" :rules="state.rules.password2" autocomplete="off" show-password></el-input>
-      </el-form-item>
-      <el-form-item prop="nickname" label="닉네임" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.nickname" :rules="state.rules.nickname" autocomplete="off"></el-input>
-        <el-button @click="nicknameCheck" :disabled="state.isNicknameCheck">닉네임 중복 확인</el-button>
-        <div v-if="state.nicknameValidationMessage" :class="state.isNicknameCheck ? 'green': 'red'">{{ state.nicknameValidationMessage }}</div>
-      </el-form-item>
-      <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
-        <el-button @click="sendEmail" :disabled="!isEmailValid">이메일 인증 요청</el-button>
-          <el-form-item v-if="state.isEmailsend" prop="emailCode">
-            <el-input v-model="state.emailCode" autocomplete="off"></el-input>
-            <el-button @click="validateEmail" :disabled="state.isEmailCheck">이메일 인증</el-button>
+  <div class="background-div">
+    <div class="signup">
+      <div class="title-section">
+        <p class="title">SIGN UP</p>
+      </div>
+      <div class="section">
+        <el-form :model="state.form" :rules="state.rules" ref="signupForm" :label-position="state.form.align">
+          <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.id" :rules="state.rules.id" autocomplete="off"></el-input>
+            <el-button @click="idCheck" :disabled="state.isIdCheck">아이디 중복 확인</el-button>
+            <div v-if="state.idValidationMessage" :class="state.isIdCheck ? 'green' : 'red'">
+              {{ state.idValidationMessage }}
+            </div>
           </el-form-item>
-        <div v-if="state.emailValidationMessage" :class="state.isEmailCheck ? 'green': 'red'">{{ state.emailValidationMessage }}</div>
-      </el-form-item>
-      <el-form-item prop="name" label="이름" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.name" :rules="state.rules.name" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item prop="age" label="나이" :label-width="state.formLabelWidth">
-        <el-input v-model="state.form.age" autocomplete="off"></el-input>
-      </el-form-item>
-      <el-form-item label="성별">
-        <el-select
-          v-model="state.form.gender"
-          placeholder="성별"
-          clearable
-        >
-          <el-option label="남성" value="male" />
-          <el-option label="여성" value="female" />
-          <el-option label="기타" value="etc" />
-        </el-select>
-      </el-form-item>
-      <el-form-item label="생년월일">
-        <el-date-picker
-          v-model="state.form.birthday"
-          type="date"
-          placeholder="생년월일을 선택하세요"
-          clearable
-        />
-      </el-form-item>
-      <el-form-item>
-        <el-button type="primary" :disabled="!isFormValid" @click="signup">signup</el-button>
-      </el-form-item>
-    </el-form>
+          <el-form-item prop="password" label="비밀번호" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <el-form-item prop="password2" label="비밀번호 확인" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.password2" :rules="state.rules.password2" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <el-form-item prop="nickname" label="닉네임" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.nickname" :rules="state.rules.nickname" autocomplete="off"></el-input>
+            <el-button @click="nicknameCheck" :disabled="state.isNicknameCheck">닉네임 중복 확인</el-button>
+            <div v-if="state.nicknameValidationMessage" :class="state.isNicknameCheck ? 'green' : 'red'">
+              {{ state.nicknameValidationMessage }}
+            </div>
+          </el-form-item>
+          <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+            <el-button @click="sendEmail" :disabled="!isEmailValid">이메일 인증 요청</el-button>
+            <el-form-item v-if="state.isEmailsend" prop="emailCode">
+              <el-input v-model="state.emailCode" autocomplete="off"></el-input>
+              <el-button @click="validateEmail" :disabled="state.isEmailCheck">이메일 인증</el-button>
+            </el-form-item>
+            <div v-if="state.emailValidationMessage" :class="state.isEmailCheck ? 'green' : 'red'">
+              {{ state.emailValidationMessage }}
+            </div>
+          </el-form-item>
+          <el-form-item prop="name" label="이름" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.name" :rules="state.rules.name" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item prop="age" label="나이" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.age" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="성별">
+            <el-select v-model="state.form.gender" placeholder="성별" clearable>
+              <el-option label="남성" value="male" />
+              <el-option label="여성" value="female" />
+              <el-option label="기타" value="etc" />
+            </el-select>
+          </el-form-item>
+          <el-form-item label="생년월일">
+            <el-date-picker v-model="state.form.birthday" type="date" placeholder="생년월일을 선택하세요" clearable />
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" :disabled="!isFormValid" @click="signup">signup</el-button>
+          </el-form-item>
+        </el-form>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -96,25 +101,29 @@ const state = reactive({
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' }
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      }
     ],
     password2: [
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-      { validator: (rule, value, callback) => {
-        if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-          callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-        } else {
-          callback()
-        }
-      }, trigger: 'change' },
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
+      },
       {
         validator: (rule, value, callback) => {
           if (value !== state.form.password) {
@@ -163,7 +172,7 @@ const state = reactive({
   idValidationMessage: '',    // 아이디 중복검사 메세지
   isNicknameCheck: false,         // 닉네임 중복검사 여부
   nicknameValidationMessage: '',  // 닉네임 중복검사 메세지
-  isEmailsend : false,            // 이메일 인증 요청을 한 경우
+  isEmailsend: false,            // 이메일 인증 요청을 한 경우
   emailCode: '',
   emailValidationMessage: '',     // 이메일 인증 요청 메세지
   isEmailCheck: false,
@@ -255,7 +264,7 @@ const sendEmail = function () {
   axios({
     method: 'post',
     url: `${API_URL}/user/send`,
-    data : {
+    data: {
       email: state.form.email
     }
   })
@@ -284,11 +293,11 @@ const sendEmail = function () {
 const validateEmail = function () {
   clearInterval(emailValidationTimer)
   axios({
-    method : 'post',
+    method: 'post',
     url: `${API_URL}/user/code`,
-    data : {
+    data: {
       email: state.form.email,
-      code : state.emailCode
+      code: state.emailCode
     }
   })
     .then((res) => {
@@ -308,7 +317,7 @@ const signup = function () {
   axios({
     method: 'post',
     url: `${API_URL}/user/join`,
-    data : {
+    data: {
       siteId: state.form.id,
       pw: state.form.password,
       nickName: state.form.nickname,
@@ -319,7 +328,7 @@ const signup = function () {
   })
     .then(res => {
       window.alert('회원가입이 완료되었습니다. \n로그인 페이지로 이동합니다.')
-      router.push({name: 'login'})
+      router.push({ name: 'login' })
     })
     .catch(err => {
       window.alert('회원가입 중 오류가 발생했습니다.')
@@ -340,6 +349,48 @@ watch(() => state.form.nickname, (newId) => {
 </script>
 
 <style scoped>
+.background-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  color: #80BCBD;
+}
+
+.section {
+  margin: 50px;
+  width: 70%;
+}
+
+.signup {
+  margin: 50px;
+  padding: 50px;
+  width: 70%;
+  height: 80%;
+  border-radius: 50px;
+  background-color: #F9F7C9;
+}
+
+.title {
+  font-size: 50px;
+  color: black;
+  font-weight: bold;
+}
+
+.el-form-item {
+  display: flex;
+  align-items: center;
+  /* 세로 중앙 정렬 */
+  width: 70%;
+  margin-bottom: 20px;
+  /* 각 항목 사이의 간격 조절 */
+}
+
+.el-form-item>.el-input,
+.el-form-item>.el-button {
+  margin-right: 10px;
+  /* 입력 요소 간의 간격 조절 */
+}
+
 .red {
   color: red;
 }

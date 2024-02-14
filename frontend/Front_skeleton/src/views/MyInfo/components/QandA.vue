@@ -1,23 +1,26 @@
 <template>
-  <div class="d-flex">
-    <h2>100문 100답</h2>
-    <button @click="router.push({name: '100QnA'})">Detail</button>
-  </div>
-  <div v-for="row in rows" :key="row" class="d-flex flex-row">
-    <div v-for="column in columns" :key="row*20 + column">
-      <div :class="{ 'box': true, 'green': isCompleted(row * 20 + column + 1)}"
-        @click="openModal(row*20 + column + 1)"
-      ></div>
+  <div class="qna-section">
+    <div class="subtitle-section">
+      <p class="subtitle"> 100문 100답 </p>
+      <button @click="router.push({ name: '100QnA' })">Detail</button>
     </div>
+
+    <div class="box-section">
+      <div v-for="row in rows" :key="row" class="row-section ">
+        <div v-for="column in columns" :key="row * 25 + column">
+          <div :class="{ 'box': true, 'green': isCompleted(row * 25 + column + 1) }"
+            @click="openModal(row * 25 + column + 1)">
+          </div>
+        </div>
+      </div>
+    </div>
+
+
   </div>
-  <QnA 
-    :is-modal="isModal" 
-    :question="questionlist[selectedNumber - 1]" 
-    :answer="isCompleted(selectedNumber) ? selectedAnswer.answer : ''"
-    @add-answer="addAnswer"
-    @edit-answer="editAnswer"
-    @delete-answer="deleteAnswer"
-    @close-modal="closeModal"/>
+
+  <QnA :is-modal="isModal" :question="questionlist[selectedNumber - 1]"
+    :answer="isCompleted(selectedNumber) ? selectedAnswer.answer : ''" @add-answer="addAnswer" @edit-answer="editAnswer"
+    @delete-answer="deleteAnswer" @close-modal="closeModal" />
 </template>
 
 <script setup>
@@ -35,8 +38,8 @@ const router = useRouter()
 
 const completedQuestions = ref([])
 
-const rows = [0, 1, 2, 3, 4]
-const columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19]
+const rows = [0, 1, 2, 3]
+const columns = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24]
 
 const isModal = ref(false)
 const selectedNumber = ref(0)
@@ -94,16 +97,46 @@ onMounted(() => {
 </script>
 
 <style scoped>
+.subtitle-section {
+  font-weight: bold;
+  display: flex;
+  align-content: center;
+
+}
+
+.subtitle {
+  font-size: 30px;
+  font-family: "YJ_Obang";
+}
+
 .box {
-  border: 1px black solid;
-  height: 20px;
-  width: 20px;
-  margin: 2px;
+  height: 45px;
+  width: 45px;
+  margin: 5px;
   border-radius: 20%;
   background-color: rgb(210, 210, 210);
 }
 
 .green {
   background-color: greenyellow;
+}
+
+button {
+  font-size: 20px;
+  width: 100px;
+  border-radius: 10px;
+  margin: 10px;
+  background-color: #F9F7C9;
+}
+
+.box-section {
+  margin-top: 30px;
+  margin-bottom: 30px;
+}
+
+.row-section {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
 }
 </style>

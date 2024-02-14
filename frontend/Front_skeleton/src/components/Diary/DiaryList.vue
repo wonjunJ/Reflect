@@ -1,22 +1,22 @@
 <template>
-    <div class="container">
-      <div class="d2">
-        <h3 class="h3-1">My Diary</h3>
-      </div>
-      
-      <el-row class="row rounded-4">
-        <el-col class="col1">
-        <div  class="list" v-for="entry in filteredDiaryEntries" :key="entry.date" @click="selectDate(entry.date)">
+  <div class="container">
+    <div class="d2">
+      <h3 class="h3-1">My Diary</h3>
+    </div>
+
+    <el-row class="row rounded-4">
+      <el-col class="col1">
+        <div class="list" v-for="entry in filteredDiaryEntries" :key="entry.date" @click="selectDate(entry.date)">
           <div class="entry">
             <span class="date">{{ entry.emotion }} {{ formatDate(entry.date) }}</span>
-             <div class="keywords">
+            <div class="keywords">
               <span v-for="keyword in entry.keywords" :key="keyword">#{{ keyword }} </span>
-              </div>
-           </div>
+            </div>
+          </div>
         </div>
-       </el-col>
-      </el-row>
-    </div>
+      </el-col>
+    </el-row>
+  </div>
 </template>
   
 <script setup>
@@ -51,41 +51,43 @@ const formatDate = (date) => {
 
 <style scoped>
 .h3-1 {
-  
+
   height: 60px;
   flex-shrink: 0;
   color: #000;
   text-align: center;
-  font-family: "ZCOOL KuaiLe";
+  font-family: "YJ_Obang";
   font-size: 40px;
   font-style: normal;
   font-weight: 400;
-  background-color: #D5F0C1;
   border-radius: 20px;
 }
+
 .d1 {
 
   width: 415px;
   height: 74px;
   flex-shrink: 0;
   border-radius: 20px;
-  background: #D5F0C1;
+  background: #F9F7C9;
 }
+
 .col1 {
   padding: 10px;
   width: 415.805px;
-  
+
   flex-shrink: 0;
   border-radius: 20px;
   align-content: center;
 }
+
 .container {
   flex-shrink: 0;
   padding-bottom: 50px;
   padding-top: 50px;
   /* 일기목록 배경 */
 
-  position:relative;
+  position: relative;
   width: 90%;
   height: 785.77px;
   left: 30px;
@@ -95,13 +97,15 @@ const formatDate = (date) => {
   border-radius: 20px;
   margin-right: 100px;
 }
+
 .row {
   border: 1;
   background-color: #F9F7C9;
 }
+
 .list {
-  
-  
+
+
   height: 75.233px;
   flex-shrink: 0;
   background: #F9F2E4;
@@ -109,33 +113,33 @@ const formatDate = (date) => {
 }
 
 .sidebar {
-    width: 300px;
-    background-color: #f0f0f0;
-    padding: 20px;
-    cursor: pointer;
-  }
-  
-  .entry {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .entry:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .date {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-  }
-  
-  .keywords span {
-    margin-right: 5px;
-    display: inline-block;
-  }
+  width: 300px;
+  background-color: #f0f0f0;
+  padding: 20px;
+  cursor: pointer;
+}
+
+.entry {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.entry:hover {
+  background-color: #e0e0e0;
+}
+
+.date {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.keywords span {
+  margin-right: 5px;
+  display: inline-block;
+}
 </style>

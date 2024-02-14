@@ -1,21 +1,36 @@
 <template>
-  <h1>Login Page</h1>
+  <div class="background-div">
+    <div class="login">
+      <div class="title-section">
+        <p class="title">LOGIN</p>
+      </div>
+      <div class="section">
+        <el-form :model="state.form" :rules="state.rules" ref="loginForm" :label-position="state.form.align">
+          <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.id" :rules="state.rules.id" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item prop="password" label="비밀번호" :label-width="state.formLabelWidth">
+            <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off"
+              show-password></el-input>
+          </el-form-item>
+          <div class="button-section">
+
+            <el-form-item>
+              <el-button type="primary" @click="login" :disabled="!isFormValid">로그인</el-button>
+            </el-form-item>
+            <button class="social-login"><a href="http://localhost:8080/oauth2/authorization/kakao">카카오로 시작하기</a></button>
+            <div class="forgot-section">
+              <RouterLink :to="{ name: 'forgot' }">forgot ID or password ?</RouterLink>
+            </div>
+          </div>
+
+        </el-form>
+      </div>
+    </div>
+  </div>
+
+
   <!-- 입력 폼 -->
-  <el-form :model="state.form" :rules="state.rules" ref="loginForm" :label-position="state.form.align">
-    <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
-      <el-input v-model="state.form.id" :rules="state.rules.id" autocomplete="off"></el-input>
-    </el-form-item>
-    <el-form-item prop="password" label="비밀번호" :label-width="state.formLabelWidth">
-      <el-input v-model="state.form.password" :rules="state.rules.password" autocomplete="off" show-password></el-input>
-    </el-form-item>
-    <RouterLink :to="{name: 'forgot'}">forgot ID or password ?</RouterLink>
-    <el-form-item>
-      <el-button type="primary" @click="login" :disabled="!isFormValid">login</el-button>
-    </el-form-item>
-  </el-form>
-  <button class="btn btn-warning"><a href="http://localhost:8080/oauth2/authorization/kakao">카카오로 로그인</a></button>
-  <button class="btn btn-warning" @click="socialLogin">카카오 로그인</button>
-  <button @click="test">test</button>
 </template>
 
 <script setup>
@@ -43,16 +58,18 @@ const state = reactive({
       { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
     ],
     password: [
-    { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
-    { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
-    { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
-    { validator: (rule, value, callback) => {
-      if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
-        callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
-      } else {
-        callback()
+      { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
+      { min: 9, message: '최소 9자를 입력 해야합니다.', trigger: 'change' },
+      { max: 16, message: '최대 16자까지 입력 가능합니다.', trigger: 'change' },
+      {
+        validator: (rule, value, callback) => {
+          if (!/(?=.*[a-z])(?=.*\d)(?=.*\W)/.test(value)) {
+            callback(new Error('비밀번호는 영문, 숫자, 특수문자가 조합되어야합니다.'))
+          } else {
+            callback()
+          }
+        }, trigger: 'change'
       }
-    }, trigger: 'change' }
     ]
   },
   // 라벨 너비
@@ -107,15 +124,15 @@ const isFormValid = computed(() => {
 // }
 
 // async function socialLogin() {
-  
+
 // }
 
 const socialLogin = function () {
   axios({
     method: 'get',
     url: `${API_URL}/oauth2/authorization/kakao`,
-    params : {
-      redirect_url : 'http://localhost:5173',
+    params: {
+      redirect_url: 'http://localhost:5173',
     }
   })
     .then(res => {
@@ -136,5 +153,70 @@ function login() {
 </script>
 
 <style scoped>
+.background-div {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
 
+.login {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 50px;
+  padding: 50px;
+  width: 70%;
+  height: 80%;
+  border-radius: 50px;
+  background-color: #F9F7C9;
+  box-shadow: 5px 5px 10px rgb(197, 196, 196);
+}
+
+
+.title {
+  font-size: 50px;
+  color: black;
+  font-weight: bold;
+}
+
+.section {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: 30px;
+  width: 70%;
+}
+
+.button-section {
+  margin-top: 10px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+}
+
+
+.social-login {
+  background-color: #F7E600;
+}
+
+button {
+  font-size: 15px;
+  width: 300px;
+  height: 50px;
+  border-radius: 10px;
+}
+
+.forgot-section {
+  margin-top: 20px;
+}
+
+a {
+  color: black;
+  font-weight: bold;
+
+  font-size: 15px;
+}
 </style>

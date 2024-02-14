@@ -1,16 +1,17 @@
 <template>
   <div v-if="isModal" class="modal" @click.self="closeModal">
     <div class="modal-content" @click.stop>
-      <div class="d-flex justify-content-between">
-        <h3>문제 {{ question.id }}번</h3>
-        <button class="btn btn-danger" @click="closeModal">X</button>
+      <div class="modal-header d-flex flex-row justify-content-between">
+        <p>문제 {{ question.id }}번</p>
+        <button @click="closeModal">X</button>
       </div>
+
       <div>
         <p>Q. {{ question.question }}</p>
         <form @submit.prevent="submitAnswer">
           <label for="ans">A.</label>
           <input type="text" id="ans" v-model="ans">
-          <button class="btn btn-success" :disabled="answer===ans.trim()">{{ answer.length > 0 ? '수정' : '작성' }}</button>
+          <button class="btn btn-success" :disabled="answer === ans.trim()">{{ answer.length > 0 ? '수정' : '작성' }}</button>
         </form>
         <button class="btn btn-danger" v-if="answer" @click="deleteAnswer">삭제</button>
       </div>
@@ -37,7 +38,7 @@ const ans = ref('')
 
 const closeModal = function () {
   if (props.answer !== ans.value) {
-    if(window.confirm('답변에 변경사항이 있습니다. 저장하지 않고 나가시겠습니까?')) {
+    if (window.confirm('답변에 변경사항이 있습니다. 저장하지 않고 나가시겠습니까?')) {
       emit('closeModal')
     }
   } else {
@@ -67,7 +68,7 @@ const postAnswer = function () {
       method: 'post',
       url: `${API_URL}/question/`,
       headers: {
-        Authorization : `Bearer ${userStore.accessToken}`
+        Authorization: `Bearer ${userStore.accessToken}`
       },
       data: {
         questionId: props.question.id,
@@ -92,7 +93,7 @@ const putAnswer = function () {
       method: 'put',
       url: `${API_URL}/question/`,
       headers: {
-        Authorization : `Bearer ${userStore.accessToken}`
+        Authorization: `Bearer ${userStore.accessToken}`
       },
       data: {
         questionId: props.question.id,
@@ -134,17 +135,25 @@ const deleteAnswer = function () {
   
 <style scoped>
 .modal {
-position: fixed;
-top: 0;
-left: 0;
-width: 100%;
-height: 100%;
-background: rgba(0, 0, 0, 0.5);
-display: flex;
-justify-content: center;
-align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
+
 .modal-content {
-width : 800px;
+  width: 800px;
+}
+
+.modal-header {
+  background-color: rgb(151, 150, 150, 0.5);
+  box-shadow: 5px 5px 5px 5px "black";
+  font-family: "YJ_Obang";
+  font-size: 25px;
 }
 </style>
