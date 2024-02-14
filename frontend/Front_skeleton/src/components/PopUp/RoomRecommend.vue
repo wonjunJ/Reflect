@@ -96,10 +96,10 @@ const shuffleArray = (array) => {
 
 const participate =() => {
     if (isFreeModalOpen){
-        rooms.value = roomStore.getFilteredRooms('FREE', from, to, page)
+        rooms.value = roomStore.getFilteredRooms(['FREE','Waiting'], from, to, page)
     }
     else if (isHundredModalOpen){
-        rooms.value = roomStore.getFilteredRooms('BACKMOON', from, to, page)
+        rooms.value = roomStore.getFilteredRooms(['BACKMOON', 'Waiting'], from, to, page)
     }
     // 방 목록이 비어있지 않은지 확인
     if (rooms.value && rooms.value.length > 0) {
