@@ -6,12 +6,11 @@
       
       <el-row class="row rounded-4">
         <el-col class="col1">
-          <div>{{ responseData }}</div>
-        <div  class="list" v-for="entry in responseData" :key="entry.create_date" @click="selectDate(create_date)">
+        <div  class="list" v-for="entry in responseData.data" :key="entry.diaryId" @click="selectDate(entry.diaryId)">
           <div class="entry">
-            <span class="date">{{ entry.emotion }} {{ formatDate(entry.create_date) }}</span>
+            <span class="date">{{ formatDate(entry.createDate) }}</span>
              <div class="keywords">
-              <span v-for="keyword in entry.keywords" :key="keyword">#{{ keyword }} </span>
+              <span v-for="word in entry.keyword" :key="word">{{ word }} </span>
               </div>
            </div>
         </div>
@@ -22,8 +21,9 @@
   
 <script setup>
 import { ref, computed, onMounted, reactive } from 'vue';
+import { useRouter } from 'vue-router';
 import { defineProps } from 'vue'; // defineProps import
-
+const router = useRouter();
 // props를 정의
 
 // props를 정의
@@ -35,23 +35,13 @@ const props = defineProps({
 const responseData = reactive({
   data: props.responseData
 });
-const diaryEntries = ref([
-  { date: '2024-01-01', emotion: '😄', keywords: ['행복', '가족', '기쁨'] },
-  { date: '2024-01-02', emotion: '😄', keywords: ['사랑', '친구', '즐거움'] },
-  { date: '2024-01-03', emotion: '😃', keywords: ['운동', '건강', '활동'] },
-  { date: '2024-01-04', emotion: '😀', keywords: ['공부', '성취', '목표'] },
-  { date: '2024-01-05', emotion: '😀', keywords: ['여행', '경험', '새로움'] },
-  { date: '2024-01-06', emotion: '😀', keywords: ['미술', '창의성', '아름다움'] },
-  { date: '2024-01-07', emotion: '😀', keywords: ['음악', '휴식', '평화'] },
-]);
 
-const filteredDiaryEntries = computed(() => {
-  return diaryEntries.value.filter(entry => entry.date);
-});
 
 const selectDate = (date) => {
-  store.selectedDate(date);
   console.log(date)
+  router.push({ name: 'DiaryDetail', params: { id: date } });
+  this.$forceUpdate();
+  //window.location.reload();
 };
 
 const formatDate = (date) => {
@@ -74,14 +64,7 @@ const formatDate = (date) => {
   background-color: #D5F0C1;
   border-radius: 20px;
 }
-.d1 {
 
-  width: 415px;
-  height: 74px;
-  flex-shrink: 0;
-  border-radius: 20px;
-  background: #D5F0C1;
-}
 .col1 {
   padding: 10px;
   width: 415.805px;
@@ -113,40 +96,34 @@ const formatDate = (date) => {
 .list {
   
   
-  height: 75.233px;
+  height: auto;
   flex-shrink: 0;
   background: #F9F2E4;
-  margin: 20px;
+  margin: 30px;
 }
 
-.sidebar {
-    width: 300px;
-    background-color: #f0f0f0;
-    padding: 20px;
-    cursor: pointer;
-  }
-  
-  .entry {
-    margin-bottom: 15px;
-    padding: 10px;
-    border: 1px solid #ccc;
-    border-radius: 5px;
-    cursor: pointer;
-    transition: background-color 0.3s;
-  }
-  
-  .entry:hover {
-    background-color: #e0e0e0;
-  }
-  
-  .date {
-    font-weight: bold;
-    margin-bottom: 5px;
-    display: block;
-  }
-  
-  .keywords span {
-    margin-right: 5px;
-    display: inline-block;
-  }
+ 
+.entry {
+  margin-bottom: 15px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s;
+}
+
+.entry:hover {
+  background-color: #e0e0e0;
+}
+
+.date {
+  font-weight: bold;
+  margin-bottom: 5px;
+  display: block;
+}
+
+.keywords span {
+  margin-right: 2px;
+  display: inline-block;
+}
 </style>
