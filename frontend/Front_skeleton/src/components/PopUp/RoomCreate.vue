@@ -54,12 +54,12 @@
           <!-- 방 제목 -->
           <div class="room-title">
               <label for="title-label">방 제목</label>
-              <input type="text" v-model.trim="roomTitle" class="room-input">
+              <input type="text" v-model.trim="roomTitle" class="room-input" required>
           </div>
           <!-- 방 한줄 설명 -->
           <div class="room-describe">
               <label for="describe-label">한 줄 설명</label>
-              <input type="text" v-model.trim="roomDescribe" class="room-input">
+              <input type="text" v-model.trim="roomDescribe" class="room-input" required>
           </div>
           <!-- 자유주제/100문100답에 따라 다르게 나옴 -->
           
@@ -71,7 +71,7 @@
           <!-- 백문백답 --><!-- 질문선택-->
           <div v-if="isHundred" class="select-hundred" >
               <label for="questions" class="qestions-label">질문  </label>
-              <select class="question-select" id="questions" required="required" v-model="questionId">
+              <select class="question-select" id="questions" required v-model="questionId">
                 <option value="" selected disabled hidden>질문을 선택해주세요.</option>
                 <option v-for="question in questionlist" :key="question.pk" :value="question.pk">
                   {{ question.id }}
