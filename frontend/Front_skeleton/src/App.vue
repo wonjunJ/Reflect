@@ -79,7 +79,7 @@ export default {
     this.WalkImage = charId === 2 ? corgiWalk : (charId === 3 ? rabbitWalk : slimeWalk)
     this.HitImage = charId === 2 ? corgiClick : (charId === 3 ? rabbitClick : slimeClick)
     this.AttackImage = charId === 2 ? corgiEnd : (charId === 3 ? rabbitEnd : slimeEnd)
-    
+
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
       petStore.setPosition(newPosition.x, newPosition.y);

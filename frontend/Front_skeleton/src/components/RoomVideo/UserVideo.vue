@@ -4,6 +4,8 @@
             <div class="detailCameraTitle">
                 <img class="myInfoImg" src="@\assets\cmh (1).jpg" alt="profileimg">
                 <p class="nickname">{{ clientData }}</p>
+
+                <button @click=followFriend>친구 추가 하기 </button>
                 <font-awesome-icon icon="fa-solid fa-star fa-5x" />
             </div>
             <ov-video :stream-manager="streamManager" />
@@ -14,9 +16,19 @@
     
 <script>
 import OvVideo from './OvVideo.vue';
+import axios from "axios";
+import { useUserStore } from '@/stores/user.js';
 
 export default {
     name: 'UserVideo',
+
+    data() {
+        return {
+            userNickname: null,
+            userImg: null,
+            thisdata: null
+        };
+    },
 
     components: {
         OvVideo,
@@ -29,6 +41,8 @@ export default {
     computed: {
         clientData() {
             const { clientData } = this.getConnectionData();
+            this.thisdata = clientData;
+            console.log(this.thisdata)
             return clientData;
         },
     },
@@ -37,8 +51,28 @@ export default {
         getConnectionData() {
             const { connection } = this.streamManager.stream;
             console.log(connection.session.sessionId);
+            console.log("sessionID는 이것입니다. " + connection.session.sessionId)
             return JSON.parse(connection.data);
         },
+
+        followFriend() {
+            console.log("=========================" + this.thisdata)
+            axios({
+                method: 'post',
+                url: `${useUserStore().API_URL}/follow`,
+                headers: {
+                    Authorization: `Bearer ${useUserStore().accessToken}`
+                },
+                data: {
+                    nickName: this.thisdata
+                }
+            })
+                .then(res => {
+                    console.log("성공?")
+                })
+        },
+
+
     },
 };
 </script>

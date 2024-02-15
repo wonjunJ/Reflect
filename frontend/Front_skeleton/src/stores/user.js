@@ -1,7 +1,8 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
-import SockJS from 'sockjs-client/dist/sockjs.min.js'
+// import SockJS from 'sockjs-client/dist/sockjs.min.js'
+import SockJS from "sockjs-client/dist/sockjs";
 import Stomp from 'webstomp-client'
 import axios from 'axios'
 

@@ -60,7 +60,7 @@
                 <option value="LIKE">LIKE</option>
                 <option value="UNLIKE">UNLIKE</option>
               </select>
-              <button class="option-btn">submit</button>
+              <button>submit</button>
             </form>
           </div>
 
@@ -417,5 +417,13 @@ onMounted(() => {
   padding-left: 20px;
   padding-right: 20px;
   border-radius: 30px;
+}
+
+.positive-section {
+  padding: 40px;
+}
+
+.negative-section {
+  padding: 40px;
 }
 </style>

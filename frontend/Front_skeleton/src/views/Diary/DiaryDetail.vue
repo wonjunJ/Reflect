@@ -1,12 +1,9 @@
 <template>
   <div style="background-color: #80BCBD;">
-
     <el-row>
       <el-col :span="8" class="sidebar">
-
         <div class="d2">
           <div class="d1">
-
           </div>
           <div class="container">
             <div>
@@ -25,7 +22,6 @@
               </el-col>
             </el-row>
           </div>
-
         </div>
 
       </el-col>
@@ -79,20 +75,18 @@
 </template>
 
 <script setup>
-// import {useDiaryStore} from '@/stores/diary.js'
-import DiaryList from "@/components/Diary/DiaryList.vue";
 import axios from 'axios';
 import { useUserStore } from '@/stores/user.js'
 import { ref, watch, onMounted, computed, onUpdated } from "vue";
 import { useRoute, useRouter } from 'vue-router'
+import { ElLoading } from 'element-plus'
 
 const route = useRoute()
 const router = useRouter()
-const transcribedText = ref("오늘은 참으로 활기찬 하루였다.햇살이 따스하게 내리쬐는 오후, 나는 오랜만에 마음먹고 집 근처의 공원으로 반려견 웰시코기 루키와 함께 산책을 나섰다.루키는 이미 문밖으로 나서는 순간부터 흥분을 감추지 못하고, 꼬리를 흔들며 기쁨을 표현했다.공원에 도착하자마자, 루키는 마치 오랫동안 기다려온 듯 자유롭게 뛰어다니기 시작했다.나도 그 모습을 보며 자연스레 미소가 지어졌다.")
 const getimgUrl = ref(null);
 const previewUrl = ref(null);
 const imageUrl = ref(null);
-const videoUrl = ref('@/img/my_recording.webm');
+const videoUrl = ref('');
 const selectMenu = ref(false);
 const selectVideo = ref(false);
 const imgSelect = ref(null);
@@ -103,9 +97,6 @@ const API_URL = userStore.API_URL
 let responseData = ref([])
 const userInfo = ref({})
 const userImg = ref({})
-//console.log(responseData.value)
-// const diaryStore = useDiaryStore();
-// 텍스트에서 마침표 뒤에 줄바꿈을 추가하는 함수
 
 const addNewLines = (text) => {
   return text.replace(/\.(\S)/g, '.\n$1');
@@ -153,7 +144,7 @@ async function fetchDiaryData() {
       console.log(err)
     })
   // 컴포넌트가 마운트되었을 때 초기 텍스트 처리
-  transcribedText.value = addNewLines(transcribedText.value);
+  userInfo.content = addNewLines(userInfo.content);
 }
 onMounted(async () => {
   console.log(route.params.id);
@@ -247,7 +238,7 @@ function navigateToDetailPage(diaryId) {
         if (data.diaryId == diaryId) {
           userInfo.value = data;
           location.reload();
-          console.log(userInfo.value);
+          // console.log(userInfo.value);
           break; // 일치하는 데이터를 찾았으면 루프를 중단합니다.
         }
       }
@@ -262,6 +253,7 @@ function navigateToDetailPage(diaryId) {
 
 const getImageResponse = async () => {
   try {
+    const loadingInstance = ElLoading.service({ fullscreen: true, text: 'AI 이미지 생성 중 입니다.' });
     const prompt = `${userInfo.value.content} 이 일기 내용을 바탕으로 그림을 그려줘.`;
     const response = await axios.post('https://api.openai.com/v1/images/generations', {
       model: "dall-e-3",
@@ -275,6 +267,7 @@ const getImageResponse = async () => {
     });
 
     imageUrl.value = response.data.data[0].url; // 응답에서 이미지 URL을 추출하고 저장
+    loadingInstance.close();
     console.log('DALL-E 결과: ', imageUrl.value);
     console.log(prompt)
   } catch (error) {
@@ -283,7 +276,6 @@ const getImageResponse = async () => {
 
   }
 };
-
 </script>
 
 <style scoped>
@@ -329,7 +321,6 @@ const getImageResponse = async () => {
 
 .sidebar {
   text-align: center;
-
 }
 
 .content {
@@ -374,14 +365,14 @@ const getImageResponse = async () => {
 
 @media (max-width: 1048px) {
   .textarea1 {
-    width: 400px;
+    width: 520px;
     /* 브라우저 크기가 768px 이하일 때 너비를 반으로 줄임 */
   }
 }
 
 @media (max-width: 648px) {
   .textarea1 {
-    width: 300px;
+    width: 420px;
     /* 브라우저 크기가 768px 이하일 때 너비를 반으로 줄임 */
   }
 }
@@ -418,7 +409,6 @@ const getImageResponse = async () => {
 }
 
 .h3-1 {
-
   height: 60px;
   flex-shrink: 0;
   color: #000;
@@ -434,7 +424,6 @@ const getImageResponse = async () => {
 .col1 {
   padding: 10px;
   width: 415.805px;
-
   flex-shrink: 0;
   border-radius: 20px;
   align-content: center;
@@ -445,7 +434,6 @@ const getImageResponse = async () => {
   padding-bottom: 50px;
   padding-top: 50px;
   /* 일기목록 배경 */
-
   position: relative;
   width: 90%;
   height: 785.77px;
@@ -463,14 +451,11 @@ const getImageResponse = async () => {
 }
 
 .list {
-
-
   height: auto;
   flex-shrink: 0;
   background: #F9F2E4;
   margin: 30px;
 }
-
 
 .entry1 {
   margin-bottom: 15px;

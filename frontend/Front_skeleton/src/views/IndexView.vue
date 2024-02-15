@@ -8,7 +8,7 @@
           <div class="slider">
             <div class="title">일기쓰기</div>
             <div class="sub-title">나의 하루를 음성으로 편하게 남겨 보아요</div>
-            <div class="img-section"> <img src="@/img/일기쓰기페이지.png" alt="로고"></div>
+            <div class="img-section"> <img src="../img/diary.PNG" alt="로고"></div>
           </div>
         </template>
       </vueper-slide>
@@ -17,7 +17,7 @@
           <div class="slider">
             <div class="title">일기확인</div>
             <div class="sub-title">기록된 일기를 확인하고 분석된 나를 알아보아요</div>
-            <div class="img-section"> <img src="@/img/메인제품소개.png" alt="로고"></div>
+            <div class="img-section"> <img src="../img/mypage.PNG" alt="로고"></div>
           </div>
         </template>
       </vueper-slide>
@@ -26,7 +26,7 @@
           <div class="slider">
             <div class="title">커뮤니티</div>
             <div class="sub-title">다른 사람들과 함께 대화하며 나를 알아가보아요</div>
-            <div class="img-section"> <img src="@/img/커뮤니티페이지.png" alt="로고"></div>
+            <div class="img-section"> <img src="../img/community.PNG" alt="로고"></div>
           </div>
         </template>
       </vueper-slide>
@@ -35,7 +35,7 @@
           <div class="slider">
             <div class="title">다양한 캐릭터</div>
             <div class="sub-title">다양한 캐릭터를 모으고 소통해 보아요</div>
-            <div class="img-section"> <img src="@/img/펫고르기.png" alt="로고"></div>
+            <div class="img-section"> <img src="../img/character.PNG" alt="로고"></div>
           </div>
         </template>
       </vueper-slide>

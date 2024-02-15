@@ -1,29 +1,37 @@
 <template>
   <div class="d-flex">
-    <aside class="aside-container">
-      <Profile :user-info="userInfo" @change-character="changeCharacter" @reload-profile="getUserInfo" />
+    <aside class="aside-section">
+      <div class="content-section">
+        <Profile :user-info="userInfo" @change-character="changeCharacter" @reload-profile="getUserInfo" />
+      </div>
+
     </aside>
 
-    <body class="body-section d-flex flex-column body">
-
-      <Calendar />
-
-      <QandA />
-
-      <div class="community-section">
-        <div class="subtitle-section ">
-          <p>커뮤니티</p>
-        </div>
-        <div class="contents-section">
-          <div class="following-table-section">
-            <FollowList :follows="followings" :paging-info="followPagingInfo" @change-page="changeFollowPage" />
+    <body class="main-section d-flex flex-column body">
+      <div class="content-section">
+        <Calendar />
+      </div>
+      <div class="content-section">
+        <QandA />
+      </div>
+      <div class="content-section">
+        <div class="community-section">
+          <div class="subtitle-section ">
+            <p>커뮤니티</p>
           </div>
-          <div class="community-table-section">
-            <CommunityList class="mx-3 text-center" :communitys="communitys" :paging-info="roomPagingInfo"
-              @change-page="changeCommunityPage" />
+          <div class="contents-section">
+            <div class="following-table-section">
+              <FollowList :follows="followings" :paging-info="followPagingInfo" @change-page="changeFollowPage" />
+            </div>
+            <div class="community-table-section">
+              <CommunityList class="mx-3 text-center" :communitys="communitys" :paging-info="roomPagingInfo"
+                @change-page="changeCommunityPage" />
+            </div>
           </div>
         </div>
       </div>
+
+
 
 
     </body>
@@ -143,15 +151,10 @@ onMounted(() => {
 </script>
 
 <style scoped>
-.aside {
-  background-color: #AAD9BB;
-  padding: 20px;
-  box-shadow: 5px 5px 10px rgb(197, 196, 196);
-}
+@import '../../css/section.css';
 
-.body-section {
-  padding: 35px;
-}
+
+
 
 .subtitle-section {
   font-size: 30px;

@@ -5,7 +5,7 @@
                 <div class="roomInfoContent">
                     <div class="roomSubTitle">
                         <div class="topic">
-                            <p v-if="roomType == 'FREE'">Free Topic</p>
+                            <p v-if="this.roomType == 'FREE'">Free Topic</p>
                             <p v-else>100문 100답</p>
                         </div>
                         <div class="people">
@@ -117,6 +117,7 @@ export default {
             roomId: null,
             roomTitle: null,
             userNickname: null,
+            userId: null,
             profileImg: null,
             intro: null,
             roomType: null,
@@ -131,7 +132,9 @@ export default {
         this.previewContainer = this.$refs.previewContainer;
         this.setupCameraPreview();
         this.roomId = this.$route.params.id;
-        console.log(this.userNickname)
+
+        console.log(this.userNickname);
+
         this.getRoomInfo()
         this.getUserInfo()
 
@@ -155,6 +158,7 @@ export default {
                 this.roomTitle = res.data.title
                 this.intro = res.data.intro
                 this.hashtags = res.data.hashTags
+                this.roomType = res.data.type
                 console.log(res.data)
                 console.log(this.roomTitle)
             })
@@ -168,7 +172,6 @@ export default {
 
 
         getUserInfo() {
-
             axios({
                 method: 'get',
                 url: `${useUserStore().API_URL}/user/`,
@@ -177,9 +180,11 @@ export default {
                 }
             })
                 .then(res => {
+                    this.userId = res.data.id
                     this.userNickname = res.data.nickName
                     this.profileImg = res.data.profileImg
                     this.roomType = res.data.type
+                    console.log(this.userId)
                     console.log(res.data)
                     console.log(this.userNickname)
                 })
@@ -192,7 +197,7 @@ export default {
         },
         enterRoom() {
             console.log('룸 아이디는 ', this.roomId);
-            this.$router.push({ name: 'roomdetail', params: { roomId: this.roomId }, query: { userNickname: this.userNickname, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
+            this.$router.push({ name: 'roomdetail', params: { roomId: this.roomId }, query: { userId: this.userId, userNickname: this.userNickname, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn, roomTitle: this.roomTitle } });
         },
         setupOpenViduSession() {
             this.openviduSession = new OpenVidu();

@@ -13,23 +13,23 @@
       <div class="collapse navbar-collapse justify-content-end" id="navbarNav">
         <ul class="navbar-nav" v-if="userStore.isLogin">
           <li class="nav-item">
-            <RouterLink :to="{ name: 'mypage' }">mypage</RouterLink>
+            <RouterLink :to="{ name: 'mypage' }">MY PAGE</RouterLink>
           </li>
           &nbsp;
           <li class="nav-item">
-            <RouterLink :to="{ name: 'Diary' }">Diary</RouterLink>
+            <RouterLink :to="{ name: 'Diary' }">DIARY</RouterLink>
           </li>
           &nbsp;
           <li class="nav-item">
-            <RouterLink :to="{ name: 'roomlist' }">roomlist</RouterLink>
+            <RouterLink :to="{ name: 'roomlist' }">COMMUNITY</RouterLink>
           </li>
           &nbsp;
           <li class="nav-item">
-            <div>{{ userStore.userInfo.point }}</div>
+            <div>{{ userStore.userInfo.point }} 포인트 </div>
           </li>
           &nbsp;
           <li class="nav-item">
-            <div><img src="@/img/bell-solid.svg" alt="">{{ userStore.userInfo.alrams.length }}</div>
+            <div class="alarm"><img src="@/img/bell-solid.svg" alt="">{{ userStore.userInfo.alrams.length }}</div>
           </li>
           &nbsp;
           <li class="nav-item">
@@ -37,7 +37,7 @@
           </li>
           &nbsp;
           <li class="nav-item" @click="userStore.logout()">
-            <button type="button" class="btn">log out</button>
+            <button type="button" class="navbar-nav">LOG OUT</button>
           </li>
         </ul>
         <ul class="navbar-nav" v-else>
@@ -99,10 +99,23 @@ li {
   align-items: center;
 }
 
+.nav-item {
+  color: black;
+  font-weight: bold;
+  text-decoration: none;
+  font-size: 20px;
+}
+
 .logo {
   margin-left: 10px;
   width: 40px;
   height: 50px;
+}
+
+.alarm {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
 }
 
 .logo_text {

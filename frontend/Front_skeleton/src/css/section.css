@@ -43,9 +43,15 @@
 .button-section{
     margin: 20px;
     display: flex;
+    flex-direction: row;
+    align-content: center;
     justify-content: center;
 }
 
 .form-section{
     border: none;
+}
+
+.sub-title{
+    padding: 20px;
 }

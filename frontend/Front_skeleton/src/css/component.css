@@ -8,6 +8,16 @@
         color: black;
 }
 
+.option-btn:disabled{
+  margin: 10px;
+  width: 80px;
+  height: 50px;
+  border-radius: 10px;
+  font-size: 15px;
+  background-color: #cac9a6;
+  color: black;
+}
+
 button:disabled {
     color: black;
     background-color: #F9F7C9;
@@ -15,6 +25,8 @@ button:disabled {
     border: none;
     font-weight: bold;
 }
+
+
 
 
   form{

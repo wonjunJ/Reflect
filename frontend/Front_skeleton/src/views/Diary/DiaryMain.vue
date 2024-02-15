@@ -426,7 +426,7 @@ export default {
     },
     async sendToChatGPT(text) { // ChatGPT API 요청을 위한 메소드
       const vm = this;
-      const loadingInstance = ElLoading.service({ fullscreen: true, text: '일기 내용 GPT 분석중...' });
+      const loadingInstance = ElLoading.service({ fullscreen: true, text: 'AI가 일기를 분석하고 있습니다.' });
       try {
         const openai = new OpenAI({
           apiKey: import.meta.env.VITE_API_URL,

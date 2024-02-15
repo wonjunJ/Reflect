@@ -25,6 +25,7 @@ const userStore = useUserStore()
 const props = defineProps({
   isModal: Boolean,
   userName: String,
+  userId: Number
 })
 
 const msg = ref("")
@@ -42,7 +43,7 @@ function send() {
   var message = {
     type: 1,
     sender: userStore.userId,
-    toId: props.sendUserId,
+    toId: props.userId,
     msg: msg.value
   }
   const headers = {

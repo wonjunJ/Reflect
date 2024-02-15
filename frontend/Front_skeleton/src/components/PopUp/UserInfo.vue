@@ -22,7 +22,7 @@
         <button class="btn btn-primary" @click="submitFollow">{{ userData._follow ? 'Unfollow' : 'Follow' }}</button>
       </div>
     </div>
-    <SendMessage v-if="isMessageModal" :is-modal="isMessageModal" :user-name="userData.nickName"
+    <SendMessage v-if="isMessageModal" :is-modal="isMessageModal" :user-name="userData.nickName" :user-id="props.userId"
       @close-modal="closeMessageModal">
     </SendMessage>
   </div>
