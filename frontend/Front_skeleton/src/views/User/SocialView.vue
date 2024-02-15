@@ -221,6 +221,7 @@ onMounted(() => {
     userStore.accessToken = queryParams.AccessToken
     userStore.refreshToken = queryParams.RefreshToken
     userStore.userId = queryParams.userId
+    userStore.getUserInfo()
     router.push({name: 'mypage'})
   }
 })

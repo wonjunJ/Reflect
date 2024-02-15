@@ -42,6 +42,13 @@ import { ref } from 'vue'
 export default {
   components: { VueperSlides, VueperSlide },
 
+  setup() {
+    const userStore = useUserStore()
+    const charId = computed(() => userStore.userInfo.charId)
+    return {
+      userStore, charId
+    }
+  },
   data() {
     return {
       isDiaryRoute: false,
@@ -58,15 +65,21 @@ export default {
       attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
-      IdleImage: corgi,
-      WalkImage: corgiWalk,
-      HitImage: corgiClick,
-      AttackImage: corgiEnd,
+      IdleImage: ref(''),
+      WalkImage: ref(''),
+      HitImage: ref(''),
+      AttackImage: ref(''),
     };
   },
   mounted() {
     const petStore = usePositionStore();
-
+    const userStore = useUserStore()
+    const charId = userStore.userInfo.charId
+    this.IdleImage = charId === 2 ? corgi : (charId === 3 ? rabbit : slime)
+    this.WalkImage = charId === 2 ? corgiWalk : (charId === 3 ? rabbitWalk : slimeWalk)
+    this.HitImage = charId === 2 ? corgiClick : (charId === 3 ? rabbitClick : slimeClick)
+    this.AttackImage = charId === 2 ? corgiEnd : (charId === 3 ? rabbitEnd : slimeEnd)
+    
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
       petStore.setPosition(newPosition.x, newPosition.y);
@@ -99,29 +112,22 @@ export default {
     setInterval(this.updatePet, 10);
   },
   computed: {
-    userStore() {
-      return useUserStore()
-    },
-    charName() {
-      return this, this.userStore.userInfo.charName
-    },
-    IdleImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgi : (charName === '토끼' ? rabbit : slime);
-    },
-    WalkImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiWalk : (charName === '토끼' ? rabbitWalk : slimeWalk);
-    },
-    HitImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiClick : (charName === '토끼' ? rabbitClick : slimeClick);
-    },
-    AttackImage() {
-      const charName = this.charName;
-      return charName === "코기" ? corgiEnd : (charName === '토끼' ? rabbitEnd : slimeEnd);
-    },
-
+    // IdleImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgi : (charName === 'rabbit' ? rabbit : slime)
+    // },
+    // WalkImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiWalk : (charName === 'rabbit' ? rabbitWalk : slimeWalk)
+    // },
+    // HitImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiClick : (charName === 'rabbit' ? rabbitClick : slimeClick)
+    // },
+    // AttackImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiEnd : (charName === 'rabbit' ? rabbitEnd : slimeEnd)
+    // },
     getPetImage() {
       const { isCatchUp, isClick, isIdle, IdleImage, WalkImage, HitImage, AttackImage } = this
       if (isCatchUp) {

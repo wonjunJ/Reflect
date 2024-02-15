@@ -31,7 +31,7 @@
             <div class="name-section">
               <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
                 <el-form-item prop="nickname" label="이름" :label-width="state.labelWidth">
-                  <el-input v-model="state.form.name" autocomplete="off"></el-input>
+                  <el-input v-model="state.form.name" :rules="state.rules.name" autocomplete="off"></el-input>
                 </el-form-item>
 
               </el-form>
@@ -87,8 +87,6 @@
             <button class="btn btn-danger" @click="deleteUser">탈퇴하기</button>
           </div>
         </div>
-
-
       </div>
     </div>
     <CharacterSetting :is-modal="isCharacterModal" :character-id="userInfo.characterId"
@@ -119,6 +117,10 @@ const closeModal = () => {
 const state = reactive({
   form: {},
   rules: {
+    name: [
+      { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
+      { max: 30, message: '최대 30자까지 입력 가능합니다.', trigger: 'change' },
+    ],
     email: [
       { required: true, message: '필수 입력 항목입니다.', trigger: 'change' },
       {

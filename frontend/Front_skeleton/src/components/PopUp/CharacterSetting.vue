@@ -9,16 +9,18 @@
       <div class="modal-body" style="max-height: 700px; overflow-y: auto;">
         <div class="character-select-section d-flex flex-row ">
           <div class="character" v-for="option in options" :key="option.id">
-            <label :for="option.id">{{ option.name }}</label>
+            <label :for="option.id">{{ option.petName }}</label>
             <!-- <input v-if="option.ishave" type="checkbox" :id="option.id" :checked="option.id === selectedCharacter"
               @click="selectCharacter(option.id)"> -->
             <input v-if="option.ishave" type="checkbox" :id="option.id" :checked="option.id === selectedCharacter"
               @click="selectCharacter(option.id)">
-            <button v-else class="btn btn-sm btn-success">구매</button>
+            <button v-else class="btn btn-sm btn-success" 
+              @click="buyPet(option.id)" 
+              :disabled="(option.price > userStore.userInfo.point)">구매</button>
             <img :src="getPetImage(option.id)" alt="img" height="50px" width="50px">
           </div>
         </div>
-      </div>
+
       <button class="btn btn-primary" @click="changeCharacter">저장</button>
     </div>
   </div>
@@ -61,7 +63,7 @@ const options = ref([
 
 const myPets = ref([])
 
-const selectedCharacter = ref(options.value.find(item => item.name === userStore.userInfo.charName) ? options.value.find(item => item.name === userStore.userInfo.charName).id : 1)  // 선택된 캐릭터 아이디
+const selectedCharacter = ref(userStore.userInfo.charId)  // 선택된 캐릭터 아이디
 // 캐릭터 선택 함수
 
 const selectCharacter = function (num) {
@@ -104,7 +106,52 @@ const getPetImage = function (id) {
   }
 }
 
+const buyPet = function (id) {
+  console.log(id)
+  axios({
+    method: 'post',
+    url: `${API_URL}/pet/buy`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    },
+    data: {
+      petId: id
+    }
+  })
+    .then(res => {
+      options.value.find(item => item.id === id).ishave = true
+      userStore.getUserInfo()
+    })
+    .catch(err => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        buyPet(id)
+      }
+    })
+}
+
 const getPetInfo = function () {
+  axios({
+    method: 'get',
+    url: `${API_URL}/pet/total`,
+    headers: {
+      Authorization: `Bearer ${userStore.accessToken}`
+    }
+  })
+    .then(res => {
+      options.value = res.data
+    })
+    .catch(res => {
+      console.log(err)
+      if (err.response.status === 401) {
+        userStore.refresh()
+        getPetInfo()
+      }
+    })
+}
+
+const getMyPetInfo = function () {
   axios({
     method: 'get',
     url: `${API_URL}/pet/`,
@@ -124,13 +171,14 @@ const getPetInfo = function () {
     .catch(err => {
       if (err.response.status === 401) {
         userStore.refresh()
-        getPetInfo()
+        getMyPetInfo()
       }
     })
 }
 
 onMounted(() => {
   getPetInfo()
+  getMyPetInfo()
 })
 </script>
 
