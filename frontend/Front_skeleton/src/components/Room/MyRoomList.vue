@@ -16,7 +16,7 @@
                         <span v-for="(tag, index) in room.hashTags" :key="index">
                             #{{ tag }}<span v-if="index < room.hashTags.length - 1"> </span>
                         </span>
-                        <p>Q : {{ getQuestionById(room.qid) }}</p>
+                        <p v-if="room.qid">Q : {{ getQuestionById(room.qid) }}</p>
 
                     </div>
                     <br>
