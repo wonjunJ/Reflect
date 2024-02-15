@@ -57,10 +57,15 @@
         <!-- 방 만들기 버튼 -->
         <!-- <button type="button" class="btn btn-primary create-btn" @click="openCreateRoomModal">+ Create</button> -->
         <button class="btn btn-primary btn-create" @click="openCreateRoomModal">
-          <div class="inline-flex items-center space-x-2">
-            <div>+ Create</div>
-          </div>
-          </button>
+        <div class="inline-flex items-center space-x-2">
+          <div>+ Create</div>
+        </div>
+        </button>
+
+        <!-- 모달 내용 -->
+        <div>
+          <RoomCreate :isModalOpen="isModalOpen" @closeModal="closeModal" />
+        </div>
 
        
         </div>
