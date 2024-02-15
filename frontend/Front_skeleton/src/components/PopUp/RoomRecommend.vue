@@ -91,7 +91,7 @@ const roomId = ref(null)
 
 
 const openEnterModalOpen = (id) => {
-    roomId = id
+    roomId.value = id
     isEnterRoom.value =  true
 }
 

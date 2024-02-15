@@ -38,9 +38,9 @@ import { ref } from 'vue'
 export default {
   setup() {
     const userStore = useUserStore()
-    const userInfo = userStore.userInfo
+    const charId = computed(() => userStore.userInfo.charId)
     return {
-      userInfo
+      userStore, charId
     }
   },
   data() {
@@ -59,14 +59,20 @@ export default {
       attack: { current: 0, max: 200 },
       click: { current: 0, max: 110 },
       walk: { current: 0, max: 100 },
-      IdleImage: corgi,
-      WalkImage: corgiWalk,
-      HitImage: corgiClick,
-      AttackImage: corgiEnd,
+      IdleImage: ref(''),
+      WalkImage: ref(''),
+      HitImage: ref(''),
+      AttackImage: ref(''),
     };
   },
   mounted() {
     const petStore = usePositionStore();
+    const userStore = useUserStore()
+    const charId = userStore.userInfo.charId
+    this.IdleImage = charId === 2 ? corgi : (charId === 3 ? rabbit : slime)
+    this.WalkImage = charId === 2 ? corgiWalk : (charId === 3 ? rabbitWalk : slimeWalk)
+    this.HitImage = charId === 2 ? corgiClick : (charId === 3 ? rabbitClick : slimeClick)
+    this.AttackImage = charId === 2 ? corgiEnd : (charId === 3 ? rabbitEnd : slimeEnd)
     
     // position 객체의 변화를 감시
     watch(() => this.position, (newPosition) => {
@@ -100,6 +106,22 @@ export default {
     setInterval(this.updatePet, 10);
   },
   computed: {
+    // IdleImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgi : (charName === 'rabbit' ? rabbit : slime)
+    // },
+    // WalkImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiWalk : (charName === 'rabbit' ? rabbitWalk : slimeWalk)
+    // },
+    // HitImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiClick : (charName === 'rabbit' ? rabbitClick : slimeClick)
+    // },
+    // AttackImage() {
+    //   const charName = this.charName
+    //   return charName === 'corgi' ? corgiEnd : (charName === 'rabbit' ? rabbitEnd : slimeEnd)
+    // },
     getPetImage() {
       const { isCatchUp, isClick, isIdle, IdleImage, WalkImage, HitImage, AttackImage } = this
       if (isCatchUp) {

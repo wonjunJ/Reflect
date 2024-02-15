@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue'
 import { defineStore } from 'pinia'
 import { useRouter } from 'vue-router'
-import SockJS from 'sockjs-client'
+import SockJS from 'sockjs-client/dist/sockjs.min.js'
 import Stomp from 'webstomp-client'
 import axios from 'axios'
 
@@ -33,7 +33,7 @@ export const useUserStore = defineStore('user', () => {
       Authorization: `Bearer ${accessToken.value}`
     }
     // 웹소켓 서버 연결
-    stompClient.connect(headers, function (frame){
+    stompClient.connect({}, function (frame){
       console.log('Connected: ' + frame)
 
       stompClient.subscribe(`/alram/msg-to/${userId.value}`, function (greeting) {
@@ -52,8 +52,8 @@ export const useUserStore = defineStore('user', () => {
       }
     })
       .then(res => {
-        const { point, titles, alrams, charName } = res.data
-        userInfo.value = { point, titles, alrams, charName }
+        const { point, titles, alrams, charName, charId } = res.data
+        userInfo.value = { point, titles, alrams, charName, charId }
       })
       .catch(err => {
         if (err.response.status === 401) {
