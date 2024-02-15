@@ -15,4 +15,6 @@ public class PetCode {
     private Long id;
 
     private String petName;
+
+    private int price;
 }

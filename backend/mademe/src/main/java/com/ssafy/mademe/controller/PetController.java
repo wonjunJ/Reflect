@@ -1,6 +1,7 @@
 package com.ssafy.mademe.controller;
 
 import com.ssafy.mademe.dto.response.MyPetInfoResponse;
+import com.ssafy.mademe.entity.PetCode;
 import com.ssafy.mademe.entity.User;
 import com.ssafy.mademe.service.PetService;
 import lombok.RequiredArgsConstructor;
@@ -24,6 +25,12 @@ public class PetController {
     @GetMapping("/")
     public List<MyPetInfoResponse> getMyPetList(@AuthenticationPrincipal User user){
         return petService.getMyPetList(user);
+    }
+
+    //전체 펫 목록
+    @GetMapping("/total")
+    public List<PetCode> getTotalPetList(){
+        return petService.getTotalPetList();
     }
 
     //나의 펫 정보 수정(펫 변경까지 한번에 진행)

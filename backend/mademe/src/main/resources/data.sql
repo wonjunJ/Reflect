@@ -20,10 +20,10 @@ insert into title_code (title_name) values
                                         ('플랜 마에스트로'),
                                         ('펫시터');
 
-insert into pet_code (pet_name) values
-                                    ('슬라임'),
-                                    ('코기'),
-                                    ('토끼');
+insert into pet_code (pet_name, price) values
+                                    ('슬라임', 0),
+                                    ('코기', 100),
+                                    ('토끼', 50);
 
 INSERT INTO question_code (question_name) VALUES
                                       ('내 이름의 뜻은?'),

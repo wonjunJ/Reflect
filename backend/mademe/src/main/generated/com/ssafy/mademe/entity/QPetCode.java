@@ -23,6 +23,8 @@ public class QPetCode extends EntityPathBase<PetCode> {
 
     public final StringPath petName = createString("petName");
 
+    public final NumberPath<Integer> price = createNumber("price", Integer.class);
+
     public QPetCode(String variable) {
         super(PetCode.class, forVariable(variable));
     }

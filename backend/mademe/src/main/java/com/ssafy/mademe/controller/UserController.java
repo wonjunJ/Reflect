@@ -96,8 +96,9 @@ public class UserController {
         List<Message> msgList = alramService.getUnreadAlrams(user);
         UserInfoResponse uires = mapToUserInfo(user, mbtiStr, titleList);
         if(!petInfo.isEmpty()){
-            uires.setCharName(petInfo.get(0)); //펫의 원래 이름
-            uires.setMyCharName(petInfo.get(1)); //내가 설정한 펫의 이름
+            uires.setCharId(Long.parseLong(petInfo.get(0)));
+            uires.setCharName(petInfo.get(1)); //펫의 원래 이름
+            uires.setMyCharName(petInfo.get(2)); //내가 설정한 펫의 이름
         }
         uires.setAlrams(msgList);
         //System.out.println(LocalDateTime.now());

@@ -130,6 +130,7 @@ public class RoomRepositoryImpl implements RoomRepositoryCustom {
                 .where(
                         room.id.notIn(ids)
                 )
+                .limit(limit)
                 .fetch()
                 .stream()
                 .map(this::mapToRoomDetail)

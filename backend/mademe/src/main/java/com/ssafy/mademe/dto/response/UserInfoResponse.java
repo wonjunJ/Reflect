@@ -24,6 +24,7 @@ public class UserInfoResponse {
     private int point;
     private List<String> titles;
     private List<Message> alrams;
+    private Long charId;
     private String charName; //원래 캐릭터의 이름
     private String myCharName; //내가 설정한 캐릭터의 이름
     private String myIntro;

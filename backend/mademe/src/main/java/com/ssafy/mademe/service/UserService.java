@@ -6,10 +6,8 @@ import com.ssafy.mademe.dto.request.KakaoUserInfoRequest;
 import com.ssafy.mademe.dto.response.CheckCodeResponse;
 import com.ssafy.mademe.dto.response.MyPetInfoResponse;
 import com.ssafy.mademe.dto.response.UserInfoResponse;
-import com.ssafy.mademe.entity.MBTICode;
-import com.ssafy.mademe.entity.MyPet;
-import com.ssafy.mademe.entity.User;
-import com.ssafy.mademe.entity.UserTitle;
+import com.ssafy.mademe.entity.*;
+import com.ssafy.mademe.entity.embedded.EmdPet;
 import com.ssafy.mademe.exception.user.*;
 import com.ssafy.mademe.repository.*;
 import com.ssafy.mademe.utils.JWTUtil;
@@ -22,6 +20,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.bind.annotation.RequestBody;
 
 import java.time.Duration;
@@ -38,6 +37,7 @@ public class UserService implements UserDetailsService {
     private final MBTILogRepository mbtiLogRepository;
     private final UserTitleRepository userTitleRepository;
     private final MyPetRepository myPetRepository;
+    private final PetCodeRepository petCodeRepository;
     private final BCryptPasswordEncoder encoder;
     private final RedisTemplate<Object, Object> redisTemplate;
     private final JWTUtil jwtUtil;
@@ -57,17 +57,20 @@ public class UserService implements UserDetailsService {
         return tokensToMap(user.getId());
     }
 
+    @Transactional
     public void joinMember(User user) {
         try {
             String password = user.getPw();
             user.setPw(encoder.encode(password));
-            userRepository.save(user);
+            User joined = userRepository.save(user);
+            provideBasicPet(joined);
         }catch (Exception e){
             throw new FailedJoinException("회원가입에 실패하였습니다.");
             //throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "회원가입에 실패하였습니다.");
         }
     }
 
+    @Transactional
     public Map<String, String> oauthJoin(KakaoUserInfoRequest user){
         try {
             User joinUser = new User();
@@ -78,10 +81,22 @@ public class UserService implements UserDetailsService {
             joinUser.setEmail(user.getEmail()); //사용자에게 추가로 입력받는 것
             joinUser.setProfileImg(user.getProfileImg());
             User fuser = userRepository.save(joinUser);
+            provideBasicPet(fuser);
             return tokensToMap(fuser.getId());
         }catch (Exception e){
             throw new FailedJoinException("회원가입에 실패하였습니다.");
         }
+    }
+
+    //가입시 기본 펫 제공
+    public void provideBasicPet(User user){
+        Optional<PetCode> code = petCodeRepository.findById(1L);
+        EmdPet id = new EmdPet(user, code.get()); //PetCode테이블에 기본값 집어넣기
+        MyPet myPet = new MyPet();
+        myPet.setId(id);
+        myPet.setMypetName(code.get().getPetName()); //나의 펫 이름 초기값은 펫의 원래 이름
+        myPet.setSelected(true);
+        myPetRepository.save(myPet);
     }
 
     public void attendanceCheck(User user){

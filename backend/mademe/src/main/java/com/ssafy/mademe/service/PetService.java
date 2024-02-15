@@ -39,10 +39,15 @@ public class PetService {
                 .collect(Collectors.toList());
     }
 
+    public List<PetCode> getTotalPetList(){
+        return petCodeRepository.findAll();
+    }
+
     public List<String> getUserPetInfo(User user){
         MyPet petInfo = myPetRepository.findFirstById_UserAndSelectedTrue(user);
         List<String> infoLs = new ArrayList<>();
         if(petInfo != null){
+            infoLs.add(petInfo.getId().getPetCode().getId().toString()); //펫 아이디
             infoLs.add(petInfo.getId().getPetCode().getPetName()); //펫의 원래 이름
             infoLs.add(petInfo.getMypetName()); //내가 설정한 펫의 이름
         }
@@ -74,12 +79,12 @@ public class PetService {
             MyPet myPet = new MyPet();
             myPet.setId(id);
             myPet.setMypetName(code.get().getPetName()); //나의 펫 이름 초기값은 펫의 원래 이름
-            if(user.getPoint() < pet.getPrice()){
+            if(user.getPoint() < code.get().getPrice()){
                 throw new NotEnoughPointException("포인트가 부족합니다.");
             }
             myPetRepository.save(myPet);
             int curPoint = user.getPoint();
-            user.setPoint(curPoint-pet.getPrice());
+            user.setPoint(curPoint-code.get().getPrice());
             userRepository.save(user);
 
             //펫시터 칭호 획득 관련 로직
