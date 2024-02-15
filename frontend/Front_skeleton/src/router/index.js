@@ -80,7 +80,7 @@ const router = createRouter({
       // meta: { requresAuth: true},
     },
     {
-      path: '/roomdetail',
+      path: '/roomdetail:roomId',
       name: 'roomdetail',
       component: RoomDetailView,
       // meta: { requresAuth: true},

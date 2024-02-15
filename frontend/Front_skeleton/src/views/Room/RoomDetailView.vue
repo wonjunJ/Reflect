@@ -74,10 +74,16 @@ export default {
     // this.clientData();
     this.isCameraOn = this.$route.query.isCameraOn;
     this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
-    this.roomTitle = this.$route.params.roomTitle;
-    this.mySessionId = this.$route.params.roomTitle;
+    this.roomId = this.$route.params.roomId;
+    this.mySessionId = this.$route.params.roomId;
     this.myUserName = this.$route.query.myUserName;
     this.joinSession();
+
+    console
+    console.log("roomId : " + this.roomId);
+    console.log("mySessionId : " + this.mySessionId);
+    console.log("myUserName : " + this.myUserName);
+
 
 
   },
@@ -96,9 +102,9 @@ export default {
       subscribers: [],
       isCameraOn: null,
       isMicrophoneOn: null,
-      roomTitle: null,
+      roomId: null,
       // Join form
-      // mySessionId: "SessionA",
+      mySessionId: null,
       myUserName: null,
     };
   },

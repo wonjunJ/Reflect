@@ -89,11 +89,14 @@
 <script>
 import axios from "axios";
 import { OpenVidu } from "openvidu-browser";
-import UserVideo from "../../components/RoomVideo/UserVideo.vue"
+import UserVideo from "../../components/RoomVideo/UserVideo.vue";
+import { useRoomStore } from '../../stores/room';
+import { useUserStore } from '@/stores/user.js';
 
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080/';
+
 
 export default {
 
@@ -108,6 +111,7 @@ export default {
             previewVideo: null,
             openviduSession: null,
             previewContainer: null,
+            roomId: null,
             roomTitle: "SessionA",
             myUserName: "Participant" + Math.floor(Math.random() * 100),
             // OpenVidu objects
@@ -118,12 +122,19 @@ export default {
         this.setupOpenViduSession();
         this.previewContainer = this.$refs.previewContainer;
         this.setupCameraPreview();
+        this.roomId = this.$route.params.id;
+
+        useRoomStore.getRoomDetail(roomId);
+        console.log("room title : " + roomStore.title);
+        console.log("roomId : " + this.roomId);
+        // console.log(userInfo.nickName);
     },
 
     methods: {
 
         enterRoom() {
-            this.$router.push({ name: 'roomdetail', params: { roomTitle: this.roomTitle }, query: { myUserName: this.myUserName, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
+            console.log('룸 아이디는 ', this.roomId);
+            this.$router.push({ name: 'roomdetail', params: { roomId: this.roomId }, query: { myUserName: this.myUserName, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
         },
         setupOpenViduSession() {
             this.openviduSession = new OpenVidu();
@@ -199,6 +210,7 @@ export default {
                 this.isMicrophoneOn = false;
             }
         },
+
     },
 
     beforeDestroy() {

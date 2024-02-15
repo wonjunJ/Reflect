@@ -31,7 +31,7 @@
             <div class="name-section">
               <el-form :model="state.form" :rules="state.rules" ref="editProfile" label-position="left">
                 <el-form-item prop="nickname" label="이름" :label-width="state.labelWidth">
-                  <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
+                  <el-input v-model="state.form.name" autocomplete="off"></el-input>
                 </el-form-item>
 
               </el-form>

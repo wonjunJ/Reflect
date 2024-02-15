@@ -7,7 +7,7 @@
       <button @click="openProfileModal">Edit</button>
     </div>
     <div class="info-content">
-      <img v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
+      <img style="width: 100px" v-if="userInfo.profileImg" :src="userInfo.profileImg" alt="Profile image">
       <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
       <p>닉네임 : {{ userInfo.nickName }}</p>
       <p>이메일 : {{ userInfo.email }}</p>
