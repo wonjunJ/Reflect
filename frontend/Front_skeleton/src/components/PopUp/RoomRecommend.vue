@@ -21,7 +21,12 @@
                             <div class="carousel-item active">
                                 <div class="col" v-for="room in props.recRooms" :key="room.roomId">
                                     <div class="card h-100">
-                                        <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
+                                        <div class="room-img" v-if="room.thumnail">
+                                            <img :src="room.thumnail" alt="방 이미지" class="card-img-top" />
+                                        </div>
+                                        <div v-else>
+                                            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" class="card-img-top" />
+                                        </div>
                                         <div class="card-body">
                                             <h6>{{ room.type }}</h6>
                                             <h5 class="card-title">{{ room.title }}</h5>
