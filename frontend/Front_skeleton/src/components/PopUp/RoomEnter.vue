@@ -42,7 +42,7 @@ const participateRoom = (id) => {
 
 const participate = () => {
   participateRoom(props.id)
-  router.push({ name: 'waiting', params:{id:props.id}})
+  router.push({ path:`/waiting/${props.id}`, params:{id:props.id}})
 }
 
 const closeModal = () => {
