@@ -36,7 +36,7 @@
                 </div>
             </div>
         </div>
-        <RoomEnter :isEnterRoom="isEnterRoom" @closeModal="closeModal"/>
+        <RoomEnter :isEnterRoom="isEnterRoom" :id="selectedRoomId" @closeModal="closeModal"/>
     </div>
     <v-pagination
               v-model="page"

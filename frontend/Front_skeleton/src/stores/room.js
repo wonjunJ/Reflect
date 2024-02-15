@@ -69,7 +69,7 @@ export const useRoomStore = defineStore('room', () => {
         console.log(res.data)
         console.log('방 생성 완료')
         waitingId.value = res.data.roomId
-        router.push({name: 'waiting', params:{id:waitingId.value}})
+        router.push({name: 'waiting', params:{id:res.data.roomId}})
       })
     .catch((err) => {
       console.log(err)

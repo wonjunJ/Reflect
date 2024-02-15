@@ -37,7 +37,7 @@
             </div>
         </div>
     </div>
-    <RoomEnter :isEnterRoom="isEnterRoom" :waitingId="selectedRoomId" @closeModal="closeModal"/>
+    <RoomEnter :isEnterRoom="isEnterRoom" :id="selectedRoomId" @closeModal="closeModal"/>
     </div>
     <!-- 페이지네이션 -->
     <v-pagination
