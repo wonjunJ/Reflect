@@ -57,6 +57,9 @@ public class FollowingService {
     public void addFollowing(User user, User follow){
         try {
             User fId = userRepository.findFirstByNickName(follow.getNickName());
+            if(fId == null){
+                throw new UserNotFoundException("일치하는 유저를 찾을 수 없습니다.");
+            }
             Following following = new Following();
 //            following.getId().setFollowId(follow); //follow객체에 user의 long타입 id값을 가지고 있다면
 //            following.getId().setUserId(user);

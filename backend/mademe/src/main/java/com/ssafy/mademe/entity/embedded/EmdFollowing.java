@@ -21,7 +21,7 @@ public class EmdFollowing implements Serializable {
     private User userId;
 
     //일단은 단방향으로만
-    @OneToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "follow_id")
     private User followId;
 
