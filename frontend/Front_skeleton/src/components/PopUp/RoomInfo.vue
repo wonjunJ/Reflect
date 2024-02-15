@@ -24,11 +24,12 @@
 
             <div v-if="room.type === 'BACKMOON'">
                 <p>질문 : </p>
-                {{ room.question }}
+               <p> {{ getQuestionById(room.qid)}}</p>
+
             </div>
             <div v-if="room.type === 'FREE'">
                 <p>해시태그 : </p>
-                {{ room.hash_name.join(' #') }}
+                {{ room.hashName.join(' #') }}
             </div>
 
 
@@ -67,6 +68,8 @@
 import { ref, onMounted } from 'vue';
 import { useRoute } from 'vue-router';
 import { useRoomStore} from '@/stores/room'
+import {useQuestionsStore} from '@/stores/questions'
+
 
 const isSecret = ref(false)
 const isMask = ref(false)
@@ -76,6 +79,15 @@ const roomId = defineProps({
     isModal:Boolean,
     roomId:String
 })
+
+const questionStore = useQuestionsStore()
+
+// qid를 사용하여 질문을 찾는 함수
+  const getQuestionById = (qid) => {
+    const question = questionStore.questions.find(question => question.id === qid);
+    return question ? question.question : '질문을 찾을 수 없음';
+  };
+
 const emit = defineEmits(['closeModal'])
   const closeModal = function () {
     emit('closeModal')

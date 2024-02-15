@@ -5,7 +5,6 @@
         <!-- 방 추천 팝업 -->
 
         <h2>이러한 방들은 어떠신가요?</h2>
-            {{ props.recRooms }}
         
         <div>
             <!-- 추천방 목록 -->
@@ -21,11 +20,21 @@
                             <div class="carousel-item active">
                                 <div class="col" v-for="room in props.recRooms" :key="room.roomId">
                                     <div class="card h-100">
-                                        <img :src="room.thumbnail" class="card-img-top" alt="방 썸네일">
+                                        <div class="room-img" v-if="room.thumnail">
+                                            <img :src="room.thumnail" alt="방 이미지" class="card-img-top" />
+                                        </div>
+                                        <div v-else>
+                                            <img src="@/assets/defaultRoom.jpg" alt="기본 이미지" class="card-img-top" />
+                                        </div>
                                         <div class="card-body">
                                             <h6>{{ room.type }}</h6>
                                             <h5 class="card-title">{{ room.title }}</h5>
-                                            <div class="d-inline-flex gap-1">{{ room.hashtag }}</div>
+                                            <div class="d-inline-flex gap-1" v-if="room.hashTags">
+                                                <span v-for="(tag, index) in room.hashTags" :key="index">
+                                                    #{{ tag }}<span v-if="index < room.hashTags.length - 1"> </span>
+                                                </span></div>
+                                            <div v-if="room.qid">Q : {{ getQuestionById(room.qid) }}</div>
+
                                             <br>
                                             <div class="room-member">
                                                 <div class="member-icon">
@@ -75,6 +84,7 @@
 import { ref} from 'vue'
 import RoomEnter from '@/components/PopUp/RoomEnter.vue';
 import { useRoomStore } from '@/stores/room'
+import {useQuestionsStore} from '@/stores/questions'
 
 const roomStore = useRoomStore()
 const isEnterRoom = ref(false)
@@ -84,6 +94,17 @@ const props = defineProps({
     isRecommendModalOpen: Boolean,
 
 });
+
+
+
+
+const questionStore = useQuestionsStore()
+
+// qid를 사용하여 질문을 찾는 함수
+  const getQuestionById = (qid) => {
+    const question = questionStore.questions.find(question => question.id === qid);
+    return question ? question.question : '질문을 찾을 수 없음';
+  };
 // const props = defineProps({
 //     recRooms: Object,
 //     isHundredModalOpen: Boolean,
