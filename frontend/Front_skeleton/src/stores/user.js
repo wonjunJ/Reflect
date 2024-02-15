@@ -108,6 +108,7 @@ export const useUserStore = defineStore('user', () => {
     accessToken.value = null
     refreshToken.value = null
     userId.value = null
+    userInfo.value = {}
     router.push({name: 'index'})
   }
 

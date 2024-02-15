@@ -32,8 +32,8 @@
                 placeholder="성별"
                 clearable
               >
-                <el-option label="남성" value="male" />
-                <el-option label="여성" value="female" />
+                <el-option label="남성" value="MALE" />
+                <el-option label="여성" value="FEMALE" />
                 <el-option label="기타" value="" />
               </el-select>
             </el-form-item>
