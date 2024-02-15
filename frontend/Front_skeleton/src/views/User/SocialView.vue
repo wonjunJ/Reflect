@@ -4,16 +4,18 @@
       <el-form-item prop="nickname" label="닉네임" :label-width="state.formLabelWidth">
         <el-input v-model="state.form.nickname" :rules="state.rules.nickname" autocomplete="off"></el-input>
         <el-button @click="nicknameCheck" :disabled="state.isNicknameCheck">닉네임 중복 확인</el-button>
-        <div v-if="state.nicknameValidationMessage" :class="state.isNicknameCheck ? 'green': 'red'">{{ state.nicknameValidationMessage }}</div>
+        <div v-if="state.nicknameValidationMessage" :class="state.isNicknameCheck ? 'green' : 'red'">{{
+          state.nicknameValidationMessage }}</div>
       </el-form-item>
       <el-form-item prop="email" label="이메일" :label-width="state.formLabelWidth">
         <el-input v-model="state.form.email" :rules="state.rules.email" autocomplete="off"></el-input>
         <el-button @click="sendEmail" :disabled="!isEmailValid">이메일 인증 요청</el-button>
-          <el-form-item v-if="state.isEmailsend" prop="emailCode">
-            <el-input v-model="state.emailCode" autocomplete="off"></el-input>
-            <el-button @click="validateEmail" :disabled="state.isEmailCheck">이메일 인증</el-button>
-          </el-form-item>
-        <div v-if="state.emailValidationMessage" :class="state.isEmailCheck ? 'green': 'red'">{{ state.emailValidationMessage }}</div>
+        <el-form-item v-if="state.isEmailsend" prop="emailCode">
+          <el-input v-model="state.emailCode" autocomplete="off"></el-input>
+          <el-button @click="validateEmail" :disabled="state.isEmailCheck">이메일 인증</el-button>
+        </el-form-item>
+        <div v-if="state.emailValidationMessage" :class="state.isEmailCheck ? 'green' : 'red'">{{
+          state.emailValidationMessage }}</div>
       </el-form-item>
       <el-form-item prop="name" label="이름" :label-width="state.formLabelWidth">
         <el-input v-model="state.form.name" :rules="state.rules.name" autocomplete="off" disabled></el-input>
@@ -73,7 +75,7 @@ const state = reactive({
   formLabelWidth: '120px',    // 라벨 너비
   isNicknameCheck: false,         // 닉네임 중복검사 여부
   nicknameValidationMessage: '',  // 닉네임 중복검사 메세지
-  isEmailsend : false,            // 이메일 인증 요청을 한 경우
+  isEmailsend: false,            // 이메일 인증 요청을 한 경우
   emailCode: '',
   emailValidationMessage: '',     // 이메일 인증 요청 메세지
   isEmailCheck: false,
@@ -139,26 +141,27 @@ let emailValidationTimer = null
 const sendEmail = function () {
   state.emailValidationMessage = "이메일을 전송 중입니다. 잠시만 기다려 주세요"
   state.isEmailsend = true
-  
+
 
   axios({
     method: 'post',
     url: `${API_URL}/user/send`,
-    data : {
+    data: {
       email: state.form.email
     }
   })
     .then((res) => {
       let duration = 120
       emailValidationTimer = setInterval(() => {
-      if (duration > 0 && !state.isEmailCheck) {
-        state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
-        duration--
-      } else {
-        clearInterval(emailValidationTimer)
-        state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
-        state.isEmailsend = false
-      }}, 1000)
+        if (duration > 0 && !state.isEmailCheck) {
+          state.emailValidationMessage = `${Math.floor(duration / 60)}:${(duration % 60).toString().padStart(2, '0')}`
+          duration--
+        } else {
+          clearInterval(emailValidationTimer)
+          state.emailValidationMessage = "시간이 초과되었습니다. 다시 시도해 주세요"
+          state.isEmailsend = false
+        }
+      }, 1000)
     })
     .catch((err) => {
       if (err.response.status === 406) {
@@ -172,11 +175,11 @@ const sendEmail = function () {
 const validateEmail = function () {
   clearInterval(emailValidationTimer)
   axios({
-    method : 'post',
+    method: 'post',
     url: `${API_URL}/user/code`,
-    data : {
+    data: {
       email: state.form.email,
-      code : state.emailCode
+      code: state.emailCode
     }
   })
     .then((res) => {
@@ -208,7 +211,8 @@ const socialSignup = function () {
       userStore.accessToken = res.data.AccessToken
       userStore.refreshToken = res.data.RefreshToken
       userStore.userId = res.data.userId
-      router.push({name: 'mypage'})
+      userStore.getUserInfo()
+      router.push({ name: 'mypage' })
     })
     .catch(err => {
       window.alert("회원가입에 실패했습니다.")
@@ -222,7 +226,7 @@ onMounted(() => {
     userStore.refreshToken = queryParams.RefreshToken
     userStore.userId = queryParams.userId
     userStore.getUserInfo()
-    router.push({name: 'mypage'})
+    router.push({ name: 'mypage' })
   }
 })
 </script>
@@ -234,5 +238,4 @@ onMounted(() => {
 
 .green {
   color: green;
-}
-</style>
+}</style>

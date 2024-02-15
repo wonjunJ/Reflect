@@ -5,20 +5,21 @@
                 <div class="roomInfoContent">
                     <div class="roomSubTitle">
                         <div class="topic">
-                            <p>Free Topic</p>
+                            <p v-if="roomType == 'FREE'">Free Topic</p>
+                            <p v-else>100문 100답</p>
                         </div>
                         <div class="people">
-                            <p> 3/4</p>
+                            <p>3/4</p>
                         </div>
                     </div>
                     <div class="roomTitle">
                         <p>{{ roomTitle }}</p>
                     </div>
                     <div class="roomHashtag">
-                        <p><a href="#">#웹툰</a><a href="#">#자유</a><a href="#">#아포칼립스</a></p>
+                        <p v-for="hashtag in hashtags" :key="hashtag"><a href="#">{{ hashtag }}</a></p>
                     </div>
                     <div class="roomDetail">
-                        <p>즐겁게 웹툰 이야기 할 분들 찾습니다ㅎㅎ 본인이 좋아하는 작품들 추천 해주셔도 좋고 같이 주접 떨어도 좋아요 히히</p>
+                        <p>{{ intro }}</p>
                     </div>
                     <div class="roomIcon">
                         <!-- 비밀방 아이콘 -->
@@ -66,9 +67,10 @@
                     <div class="myInfo">
                         <div class="myInfoTitle">
                             <div class="myInfoImg">
-                                <img src="@\assets\cmh (1).jpg" alt="profileimg">
+                                <img v-if="profileImg" :src="profileImg" alt="Profile image">
+                                <img v-else src="@/assets/defaultRoom.jpg" alt="Default image">
                             </div>
-                            <div class="myInfoNickname">{{ myUserName }}</div>
+                            <div class="myInfoNickname">{{ userNickname }}</div>
                         </div>
                         <!--사용자 비디오  Session 연결해야 나타남-->
                         <div ref="previewContainer" class="preview-container">
@@ -93,6 +95,7 @@ import UserVideo from "../../components/RoomVideo/UserVideo.vue";
 import { useRoomStore } from '../../stores/room';
 import { useUserStore } from '@/stores/user.js';
 
+
 axios.defaults.headers.post["Content-Type"] = "application/json";
 
 const APPLICATION_SERVER_URL = process.env.NODE_ENV === 'production' ? '' : 'http://localhost:8080/';
@@ -112,7 +115,12 @@ export default {
             openviduSession: null,
             previewContainer: null,
             roomId: null,
-            roomTitle: "SessionA",
+            roomTitle: null,
+            userNickname: null,
+            profileImg: null,
+            intro: null,
+            roomType: null,
+            hashtags: null,
             myUserName: "Participant" + Math.floor(Math.random() * 100),
             // OpenVidu objects
         };
@@ -123,18 +131,68 @@ export default {
         this.previewContainer = this.$refs.previewContainer;
         this.setupCameraPreview();
         this.roomId = this.$route.params.id;
+        console.log(this.userNickname)
+        this.getRoomInfo()
+        this.getUserInfo()
 
-        useRoomStore.getRoomDetail(roomId);
-        console.log("room title : " + roomStore.title);
+
+        // console.log("room title : " + room.title);
         console.log("roomId : " + this.roomId);
         // console.log(userInfo.nickName);
     },
 
     methods: {
 
+        getRoomInfo() {
+
+            axios({
+                method: 'get',
+                url: `${useRoomStore().API_URL}/room/detail/${this.roomId}`,
+                headers: {
+                    Authorization: `Bearer ${useUserStore().accessToken}`
+                }
+            }).then(res => {
+                this.roomTitle = res.data.title
+                this.intro = res.data.intro
+                this.hashtags = res.data.hashTags
+                console.log(res.data)
+                console.log(this.roomTitle)
+            })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response.status === 401) {
+                        useRoomStore().refresh()
+                    }
+                })
+        },
+
+
+        getUserInfo() {
+
+            axios({
+                method: 'get',
+                url: `${useUserStore().API_URL}/user/`,
+                headers: {
+                    Authorization: `Bearer ${useUserStore().accessToken}`
+                }
+            })
+                .then(res => {
+                    this.userNickname = res.data.nickName
+                    this.profileImg = res.data.profileImg
+                    this.roomType = res.data.type
+                    console.log(res.data)
+                    console.log(this.userNickname)
+                })
+                .catch(err => {
+                    console.log(err)
+                    if (err.response.status === 401) {
+                        useUserStore().refresh()
+                    }
+                })
+        },
         enterRoom() {
             console.log('룸 아이디는 ', this.roomId);
-            this.$router.push({ name: 'roomdetail', params: { roomId: this.roomId }, query: { myUserName: this.myUserName, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
+            this.$router.push({ name: 'roomdetail', params: { roomId: this.roomId }, query: { userNickname: this.userNickname, isCameraOn: this.isCameraOn, isMicrophoneOn: this.isMicrophoneOn } });
         },
         setupOpenViduSession() {
             this.openviduSession = new OpenVidu();

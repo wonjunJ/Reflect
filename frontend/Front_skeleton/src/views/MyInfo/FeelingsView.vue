@@ -169,13 +169,13 @@ const pagingInfo = ref({})      // 일기 목록 페이지네이션 정보
 // 페이지가 바뀐 경우 새로운 일기 목록 가져오기
 const changePage = function (num) {
   pageNum.value = num
-  selectedEmotion(selectedEmotion.value)
+  selectEmotion(selectedEmotion.value)
 }
 
 // 선택된 감정이 바뀐 경우 페이지 1로 초기화
 watch(selectedEmotion, (newVal, oldVal) => {
   if (newVal !== oldVal) {
-    pageNum.value === 1
+    pageNum.value = 1
   }
 })
 

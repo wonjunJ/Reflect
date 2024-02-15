@@ -5,7 +5,8 @@
         <p class="title">LOGIN</p>
       </div>
       <div class="section">
-        <el-form :model="state.form" :rules="state.rules" ref="loginForm" :label-position="state.form.align">
+        <el-form :model="state.form" :rules="state.rules" ref="loginForm" :label-position="state.form.align"
+          @submit.prevent="login">
           <el-form-item prop="id" label="아이디" :label-width="state.formLabelWidth">
             <el-input v-model="state.form.id" :rules="state.rules.id" autocomplete="off"></el-input>
           </el-form-item>

@@ -21,7 +21,7 @@
             <div class="peoples">
 
               <div class="person" v-for="sub in subscribers" :key="sub.stream.connection.connectionId"> {{
-                myUserName }}
+                userNickname }}
               </div>
             </div>
           </div>
@@ -69,23 +69,13 @@ export default {
 
 
   created() {
-
-
     // this.clientData();
     this.isCameraOn = this.$route.query.isCameraOn;
     this.isMicrophoneOn = this.$route.query.isMicrophoneOn;
     this.roomId = this.$route.params.roomId;
     this.mySessionId = this.$route.params.roomId;
-    this.myUserName = this.$route.query.myUserName;
+    this.userNickname = this.$route.query.userNickname;
     this.joinSession();
-
-    console
-    console.log("roomId : " + this.roomId);
-    console.log("mySessionId : " + this.mySessionId);
-    console.log("myUserName : " + this.myUserName);
-
-
-
   },
 
   components: {
@@ -105,7 +95,7 @@ export default {
       roomId: null,
       // Join form
       mySessionId: null,
-      myUserName: null,
+      userNickname: null,
     };
   },
 
@@ -118,7 +108,7 @@ export default {
     getConnectionData() {
       const { connection } = this.streamManager.stream;
       console.log(connection.session.sessionId);
-      this.myUserName = JSON.parse(connection.data);
+      this.userNickname = JSON.parse(connection.data);
       return JSON.parse(connection.data);
     },
 
@@ -189,6 +179,10 @@ export default {
 
       // Remove beforeunload listener
       window.removeEventListener("beforeunload", this.leaveSession);
+    },
+
+    leaveRoom() {
+
     },
 
     toggleCamera() {

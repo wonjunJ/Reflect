@@ -3,7 +3,7 @@
     <div class="modal-content" @click.stop>
       <div class="d-flex justify-content-between">
         <div>
-          {{ sendUserId }}에게 쪽지 보내기
+          {{ userName }}에게 쪽지 보내기
         </div>
         <button class="btn btn-danger btn-sm" @click="closeModal">X</button>
       </div>
@@ -24,7 +24,7 @@ import Stomp from 'stompjs'
 const userStore = useUserStore()
 const props = defineProps({
   isModal: Boolean,
-  sendUserId: Number,
+  userName: String,
 })
 
 const msg = ref("")
@@ -53,7 +53,7 @@ function send() {
 }
 
 onMounted(() => {
-  
+
 })
 </script>
 
@@ -69,7 +69,8 @@ onMounted(() => {
   justify-content: center;
   align-items: center;
 }
+
 .modal-content {
-  width : 300px;
+  width: 300px;
 }
 </style>
