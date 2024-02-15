@@ -56,10 +56,11 @@ public class FollowingService {
 
     public void addFollowing(User user, User follow){
         try {
+            User fId = userRepository.findFirstByNickName(follow.getNickName());
             Following following = new Following();
 //            following.getId().setFollowId(follow); //follow객체에 user의 long타입 id값을 가지고 있다면
 //            following.getId().setUserId(user);
-            EmdFollowing emd = new EmdFollowing(user, follow);
+            EmdFollowing emd = new EmdFollowing(user, fId);
             following.setId(emd);
             //user.addFollowing(following);
             followingRepository.save(following);
@@ -70,12 +71,12 @@ public class FollowingService {
                             .type(3)
                             .senderId(user.getId())
                             .senderNick(user.getNickName())
-                            .toId(follow.getId())
+                            .toId(fId.getId())
                             .msg("상대방이 나를 친구 추가 하였습니다.")
                             .build(),
                     user
             );
-            messageTemplate.convertAndSend("/alram/msg-to/" + follow.getId(), msg);
+            messageTemplate.convertAndSend("/alram/msg-to/" + fId.getId(), msg);
         }catch (Exception e){
             throw new FailedJoinException("친구 추가 실패");
         }

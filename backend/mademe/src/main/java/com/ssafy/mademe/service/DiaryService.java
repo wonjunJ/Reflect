@@ -76,6 +76,9 @@ public class DiaryService {
         diary.setKeyword(keywordListToString(request.getDailyData().getKeywords()));
         String emoName = request.getDailyData().getDaily_emotion(); //그 날의 총괄 감정
         System.out.println("이게???" + emoName);
+        if("Normal".equals(emoName) || "Neutral".equals(emoName)){
+            emoName = "None";
+        }
         EmotionCode code = emotionCodeRepository.findFirstByEmotionName(emoName);
         System.out.println(code.getId());
         diary.setTotalEmotion(code);
@@ -143,9 +146,16 @@ public class DiaryService {
         //EmotionLog emotionLog = new EmotionLog();
         List<DiaryGPTRequest.EmotionData> emotionDatas = diaryGPTRequest.getEmotionData();
         for(DiaryGPTRequest.EmotionData data : emotionDatas){
-            EmotionCode code = emotionCodeRepository.findFirstByEmotionName(data.getEmotion());
+            String emoName = data.getEmotion();
+            if("Normal".equals(emoName) || "Neutral".equals(emoName)){
+                emoName = "None";
+            }
+            EmotionCode code = emotionCodeRepository.findFirstByEmotionName(emoName);
             if(code == null) continue;
             for(String sentence : data.getSentences()){
+                if("None".equals(sentence)){
+                    continue;
+                }
                 EmotionLog emotionLog = new EmotionLog();
                 emotionLog.setEmotionCode(code);
                 emotionLog.setSentence(sentence);
@@ -160,6 +170,9 @@ public class DiaryService {
         List<DiaryGPTRequest.MBTIData> mbtiDatas = diaryGPTRequest.getMbtiData();
         for(DiaryGPTRequest.MBTIData data : mbtiDatas){
             for(String sentence : data.getSentences()){
+                if("None".equals(sentence)){
+                    continue;
+                }
                 MBTILog mbtiLog = new MBTILog();
                 String code = data.getMbti().equals("INtuition") ?
                         Character.toString(data.getMbti().charAt(1)) :
