@@ -128,7 +128,7 @@ public class RoomController {
     @DeleteMapping("/")
     public Map<String, String> quitRoom(@AuthenticationPrincipal User user, @RequestBody Room roomId){ //방 아이디 값만 받는다.
         roomService.quitRoom(user, roomId);
-        roomRepository.decreaseNumById(roomId.getId());
+        //roomService.decreaseNumById(roomId.getId());
         Map<String, String> json = new HashMap<>();
         json.put("state", "success");
         return json;
@@ -137,7 +137,7 @@ public class RoomController {
     //채팅만 종료(방에 참여는 유지)
     @DeleteMapping("/finish")
     public Map<String, String> finishChatting(@AuthenticationPrincipal User user, @RequestBody Room roomId){
-        roomRepository.decreaseNumById(roomId.getId());
+        roomService.decreaseNumById(roomId.getId());
         Map<String, String> json = new HashMap<>();
         json.put("state", "success");
         return json;

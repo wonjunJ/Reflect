@@ -28,8 +28,8 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         registry.addEndpoint("/reflect-socket").setAllowedOrigins(
                 "ws://172.30.1.15:8080", "ws://127.0.0.1:5501", "ws://127.0.0.1:8080",
                         "http://127.0.0.1:8080", "http://127.0.0.1:5500",
-                         "http://localhost:5173", "http://127.0.0.1:5501",
-                        "ws://localhost:8080", "http://localhost:8080")
+                         "http://localhost:5173/", "http://127.0.0.1:5501", "http://127.0.0.1:5173",
+                        "http://localhost:80", "http://127.0.0.1:80", "ws://localhost:8080", "http://localhost:8080")
                 .withSockJS();
     }
 

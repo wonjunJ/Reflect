@@ -20,10 +20,10 @@ public class StompHandler implements ChannelInterceptor {
     public Message<?> preSend(Message<?> message, MessageChannel channel){
         StompHeaderAccessor accessor = StompHeaderAccessor.wrap(message);
         if(accessor.getCommand() == StompCommand.CONNECT){
-            JwtCode checkToken = jwtUtil.validateToken(accessor.getFirstNativeHeader("Authorization"));
-            if(checkToken != JwtCode.ACCESS){
-                throw new InvalidTokenException("유효한 토큰이 아닙니다.");
-            }
+//            JwtCode checkToken = jwtUtil.validateToken(accessor.getFirstNativeHeader("Authorization"));
+//            if(checkToken != JwtCode.ACCESS){
+//                throw new InvalidTokenException("유효한 토큰이 아닙니다.");
+//            }
         }
 
         return message;

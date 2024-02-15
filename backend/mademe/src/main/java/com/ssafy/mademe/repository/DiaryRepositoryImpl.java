@@ -119,7 +119,7 @@ public class DiaryRepositoryImpl implements DiaryRepositoryCustom {
                 .selectFrom(diary)
                 .where(diary.createDate.before(targetCreateDate)
                         .and(diary.user.eq(user)))
-                .orderBy(diary.createDate.asc())
+                .orderBy(diary.createDate.desc())
                 .limit(3)
                 .fetch();
         Collections.reverse(previousDiaries);

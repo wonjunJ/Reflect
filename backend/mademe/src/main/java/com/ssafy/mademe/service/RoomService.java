@@ -107,6 +107,11 @@ public class RoomService {
         roomRepository.increaseNumById(roomId);
     }
 
+    @Transactional
+    public void decreaseNumById(Long roomId){
+        roomRepository.decreaseNumById(roomId);
+    }
+
     public void changeOwner(User origin, Long roomId, Long owner){
         Room room = roomRepository.findFirstByIdAndOwnerId(roomId, origin);
         if(room != null){
@@ -178,6 +183,7 @@ public class RoomService {
             roomRepository.save(tmp.get());
         }
         myRoomRepository.save(myRoom);
+        decreaseNumById(room.getId());
     }
 
     //방의 참가자들의 정보를 얻는다.(가입되어 있는 사람들)

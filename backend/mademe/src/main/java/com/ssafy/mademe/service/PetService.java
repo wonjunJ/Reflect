@@ -107,6 +107,7 @@ public class PetService {
                                 .build()
                 );
             }
+            return;
         }
         throw new PetNotFoundException("일치하는 펫을 찾을 수 없습니다.");
     }
