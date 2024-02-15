@@ -24,6 +24,7 @@
       <button class="btn btn-primary" @click="changeCharacter">저장</button>
     </div>
   </div>
+  </div>
 </template>
 
 
