@@ -11,7 +11,7 @@ import lombok.Setter;
 public class PetPersonality {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "per_id")
+    @Column(name = "per_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String perType;

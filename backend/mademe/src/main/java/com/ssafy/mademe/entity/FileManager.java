@@ -10,11 +10,11 @@ import lombok.Setter;
 public class FileManager {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "file_manager_id")
+    @Column(name = "file_manager_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     //단방향으로만
-    @OneToOne
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "file_info_id")
     private FileInfo fileInfo;
 

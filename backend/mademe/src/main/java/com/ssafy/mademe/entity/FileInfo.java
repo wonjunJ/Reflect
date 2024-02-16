@@ -10,7 +10,7 @@ import lombok.Setter;
 public class FileInfo {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "file_info_id")
+    @Column(name = "file_info_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String saveFolder;

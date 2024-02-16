@@ -16,7 +16,7 @@ import org.hibernate.annotations.ColumnDefault;
 public class OMBTICnt {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "eval_id")
+    @Column(name = "eval_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @Embedded

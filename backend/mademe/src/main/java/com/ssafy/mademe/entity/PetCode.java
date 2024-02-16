@@ -11,8 +11,10 @@ import lombok.Setter;
 public class PetCode {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "pet_id")
+    @Column(name = "pet_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     private String petName;
+
+    private int price;
 }

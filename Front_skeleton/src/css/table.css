@@ -1,0 +1,42 @@
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0;
+    padding: 0;
+    border: 1px solid #ddd;
+  }
+  
+  th,
+  td {
+    text-align: left;
+    padding: 8px;
+    border: 1px solid #ddd;
+  }
+  
+  th {
+    background-color: #D5F0C1;
+    border-right: 1px solid #ddd;
+  }
+  
+  tr:nth-child(even) {
+    background-color: #f9f9f9;
+  }
+  
+  tr:nth-child(odd) {
+    background-color: #ffffff;
+  }
+
+  thead tr {
+    background-color: #e2e2e2;
+    /* Light gray background for header */
+    border-bottom: 3px solid #ddd;
+    /* Solid border for header bottom */
+  }
+  
+  
+  /* This is to remove the border from the last header cell as shown in the image */
+  th:last-child {
+    border-right: none;
+  }
+  
+  

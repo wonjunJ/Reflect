@@ -16,7 +16,7 @@ import java.time.LocalDateTime;
 public class QuestionRecord {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "qrec_id")
+    @Column(name = "qrec_id", columnDefinition = "INT UNSIGNED")
     private Long id;
 
     @Embedded

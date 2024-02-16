@@ -1,0 +1,57 @@
+.aside-section {
+    background-color: #AAD9BB ;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    padding: 10px;
+}
+
+.content-section {
+    margin: 20px;
+}
+
+.sub-title-section {
+    font-size: 25px;
+    font-weight: bold;
+    display: flex;
+    justify-content: space-between;
+    font-family: "YJ_Obang";
+} 
+
+.title-section {
+    font-size: 40px;
+    font-weight: bold;
+    display: flex;
+    justify-content: center;
+    font-family: "YJ_Obang";
+} 
+.body-section{
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.main-section{
+    flex: 4;
+    background-color: white;
+    margin: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.button-section{
+    margin: 20px;
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    justify-content: center;
+}
+
+.form-section{
+    border: none;
+}
+
+.sub-title{
+    padding: 20px;
+}

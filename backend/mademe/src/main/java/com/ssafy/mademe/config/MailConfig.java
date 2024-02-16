@@ -1,5 +1,6 @@
 package com.ssafy.mademe.config;
 
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.mail.javamail.JavaMailSender;
@@ -9,13 +10,18 @@ import java.util.Properties;
 
 @Configuration
 public class MailConfig {
+    @Value("${naver.email.id}")
+    private String NAVER_ID;
+    @Value("${naver.email.pwd}")
+    private String NAVER_PWD;
+
     @Bean
     public JavaMailSender javaMailService() {
         JavaMailSenderImpl javaMailSender = new JavaMailSenderImpl();
 
         javaMailSender.setHost("smtp.naver.com");
-        javaMailSender.setUsername("네이버 ID");
-        javaMailSender.setPassword("네이버 이메일 비밀번호");
+        javaMailSender.setUsername(NAVER_ID);
+        javaMailSender.setPassword(NAVER_PWD);
 
         javaMailSender.setPort(465);
 
